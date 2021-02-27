@@ -102,11 +102,11 @@ public class JavaDocDownloader {
     }
 
     public static void downloadFromUri(Context ctx, Uri uri, Consumer<File> onSuccess) {
-        String targetFileName=getLastofSplitted(uri.getLastPathSegment(),"/");
+        String targetFileName=getLastOfSplitted(uri.getLastPathSegment(),"/");
         downloadAndUnzipAsync(()->ctx.getContentResolver().openInputStream(uri),getJavaDocDir(ctx,targetFileName),onSuccess,"");
     }
 
-    private static String getLastofSplitted(String toSplit,String delimitor){
+    private static String getLastOfSplitted(String toSplit,String delimitor){
         String[] split=toSplit.split(delimitor);
         return split[split.length-1];
     }
@@ -151,7 +151,7 @@ public class JavaDocDownloader {
     }
 
     private File getJavaDocBaseDir(Context ctx) {
-        File dir = new File(ctx.getCacheDir(), "docs");
+        File dir = new File(ctx.getDataDir(), "docs");
         if (!dir.exists()) {
             dir.mkdir();
         }
