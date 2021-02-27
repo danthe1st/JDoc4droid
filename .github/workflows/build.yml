@@ -13,7 +13,7 @@ jobs:
     - name: build
       run: ./gradlew build
     - name: upload apk
-      uses: actions/upload-artifact
+      uses: actions/upload-artifact@v2
       with:
         name: prebuilt APK
         path: app/build/outputs/apk/release/app-release-unsigned.apk
