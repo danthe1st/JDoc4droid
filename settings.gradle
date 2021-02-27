@@ -1,0 +1,2 @@
+rootProject.name = "JDoc4droid"
+include ':app'
