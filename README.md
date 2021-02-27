@@ -15,4 +15,8 @@ A Javadoc Viewer for Android
 * If you are using Windows, run `gradlew build` in the project directory
 * If you are using a UNIX-like operating system, run `./gradlew build` in the project directory
 * After the command finishes, you should find a file named `app-debug.apk` in the directory `app/build/outputs/apk/debug`
+  and a file named `app-release-unsigned.apk` in the directory `app/build/outputs/apk/release`
 * You can install the apk file on an android device (emulator or real device) and use it
+
+## Download APK
+You can download an APK of any commit from [GitHub Actions](https://github.com/danthe1st/JDoc4droid/actions).
