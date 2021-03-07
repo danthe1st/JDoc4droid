@@ -1,8 +1,11 @@
 package io.github.danthe1st.jdoc4droid.activities.show.showclass;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.FileProvider;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -72,14 +76,14 @@ public class ShowClassFragment extends AbstractFragment {
         // Inflate the layout for this fragment
         ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.fragment_show_class, container, false);
 
-        outerAdapter=new ShowSectionAdapter(inflater);
-        middleAdapter=new ShowSectionAdapter(inflater);
-        innerAdapter=new ShowSectionAdapter(inflater);
+        outerAdapter = new ShowSectionAdapter(inflater);
+        middleAdapter = new ShowSectionAdapter(inflater);
+        innerAdapter = new ShowSectionAdapter(inflater);
 
         TextView textView = view.findViewById(R.id.contentView);
         textView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
 
-        TextView headerView=view.findViewById(R.id.headerView);
+        TextView headerView = view.findViewById(R.id.headerView);
         headerView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
 
         Spinner outerSelectionSpinner = view.findViewById(R.id.mainSectionSpinner);
@@ -92,7 +96,7 @@ public class ShowClassFragment extends AbstractFragment {
         outerSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
-                onOuterSelected(middleSelectionSpinner,innerSelectionSpinner, textView, position);
+                onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, textView, position);
             }
 
             @Override
@@ -104,7 +108,7 @@ public class ShowClassFragment extends AbstractFragment {
         middleSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
-                onMiddleSelected(innerSelectionSpinner,textView, position);
+                onMiddleSelected(innerSelectionSpinner, textView, position);
             }
 
             @Override
@@ -136,12 +140,12 @@ public class ShowClassFragment extends AbstractFragment {
                         int pos = outerAdapter.getPositionFromName(information.getSelectedOuterSection());
                         if (pos != -1) {
                             outerSelectionSpinner.setSelection(pos);
-                            onOuterSelected(middleSelectionSpinner,innerSelectionSpinner, textView, pos);
+                            onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, textView, pos);
                             if (information.getSelectedMiddleSection() != null) {
                                 pos = middleAdapter.getPositionFromName(information.getSelectedMiddleSection());
                                 if (pos != -1) {
                                     middleSelectionSpinner.setSelection(pos);
-                                    onMiddleSelected(innerSelectionSpinner,textView, pos);
+                                    onMiddleSelected(innerSelectionSpinner, textView, pos);
                                     if (information.getSelectedInnerSection() != null) {
                                         pos = innerAdapter.getPositionFromName(information.getSelectedInnerSection());
                                         if (pos != -1) {
@@ -174,29 +178,29 @@ public class ShowClassFragment extends AbstractFragment {
     private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, TextView textView, int position) {
         TextHolder outerSelected = outerAdapter.getSections().get(position);
         information.setSelectedOuterSection(outerSelected);
-        Map<TextHolder,Map<TextHolder, TextHolder>> selected = information.getSections().get(outerSelected);
-        if (selected.size() == 1&&selected.containsKey(TextHolder.EMPTY)) {
+        Map<TextHolder, Map<TextHolder, TextHolder>> selected = information.getSections().get(outerSelected);
+        if (selected.size() == 1 && selected.containsKey(TextHolder.EMPTY)) {
             middleSelectionSpinner.setVisibility(View.GONE);
             middleSelectionSpinner.setWillNotDraw(true);
             innerSelectionSpinner.setVisibility(View.GONE);
             innerSelectionSpinner.setWillNotDraw(true);
-            textView.setText(selected.values().stream().flatMap(x->x.values().stream()).findAny().get().getText());
+            textView.setText(selected.values().stream().flatMap(x -> x.values().stream()).findAny().get().getText());
         } else {
             middleSelectionSpinner.setVisibility(View.VISIBLE);
             middleSelectionSpinner.setWillNotDraw(false);
             middleAdapter.setSections(new ArrayList<>(selected.keySet()));
             middleAdapter.notifyDataSetChanged();
-            onMiddleSelected(innerSelectionSpinner,textView, 0);
+            onMiddleSelected(innerSelectionSpinner, textView, 0);
         }
     }
 
-    private void onMiddleSelected(Spinner innerSelectionSpinner,TextView textView,int position){
+    private void onMiddleSelected(Spinner innerSelectionSpinner, TextView textView, int position) {
         TextHolder middleSelected = middleAdapter.getSections().get(position);
         information.setSelectedMiddleSection(middleSelected);
         Map<TextHolder, TextHolder> selected = information.getSections().get(information.getSelectedOuterSection()).get(middleSelected);
-        if(selected==null){
+        if (selected == null) {
 
-        }else if (selected.size() == 1&&selected.containsKey(TextHolder.EMPTY)) {
+        } else if (selected.size() == 1 && selected.containsKey(TextHolder.EMPTY)) {
             innerSelectionSpinner.setVisibility(View.GONE);
             innerSelectionSpinner.setWillNotDraw(true);
             textView.setText(selected.values().stream().findAny().map(TextHolder::getText).orElse(null));
@@ -208,15 +212,16 @@ public class ShowClassFragment extends AbstractFragment {
             onInnerSelected(textView, 0);
         }
     }
+
     private void onInnerSelected(TextView textView, int position) {
 
         TextHolder innerSelected = innerAdapter.getSections().get(position);
         information.setSelectedInnerSection(innerSelected);
         Map<TextHolder, Map<TextHolder, TextHolder>> outerSection = information.getSections().get(information.getSelectedOuterSection());
-        if(outerSection!=null){
-            Map<TextHolder, TextHolder> middleSection=outerSection.get(information.getSelectedMiddleSection());
+        if (outerSection != null) {
+            Map<TextHolder, TextHolder> middleSection = outerSection.get(information.getSelectedMiddleSection());
             TextHolder selected = middleSection.get(innerSelected);
-            if(selected!=null){
+            if (selected != null) {
                 textView.setText(selected.getText());
             }
         }
@@ -231,6 +236,7 @@ public class ShowClassFragment extends AbstractFragment {
             file = new File(classFile.getParent(), split[0]);
         }
         Log.i(getClass().getName(), "load link: " + file + " (" + link + ")");
+        Uri uri;
         if (file.isFile()) {
             if (file.getName().endsWith("-summary.html")) {
                 Log.i(getClass().getName(), "Tried to access a summary link, not implemented");
@@ -239,10 +245,19 @@ public class ShowClassFragment extends AbstractFragment {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
                 openFragment(ShowClassFragment.newInstance(file, split.length > 1 ? split[1] : null));
             }
+            return false;
+
         } else {
             Log.i(getClass().getName(), "non-file link clicked");
+            uri=Uri.parse(link);
         }
         //let it be handled by sth else
+        Intent intent = new Intent(Intent.ACTION_VIEW,uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (intent.resolveActivity(getBelongingActivity().getPackageManager()) != null) {
+            startActivity(intent);
+            return true;
+        }
         return false;
     }
 }
