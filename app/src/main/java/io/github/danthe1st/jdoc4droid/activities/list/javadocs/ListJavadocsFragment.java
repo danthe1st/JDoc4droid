@@ -153,9 +153,6 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
         });
         layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v->popUp.dismiss());
         popUp.showAtLocation(getView(), Gravity.CENTER,0,0);
-
-
-
     }
 
     @Override
