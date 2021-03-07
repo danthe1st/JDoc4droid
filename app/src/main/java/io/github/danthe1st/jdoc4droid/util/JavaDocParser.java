@@ -6,6 +6,7 @@ import android.util.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedInputStream;
@@ -142,12 +143,12 @@ public class JavaDocParser {
                     }
                     sections.put(sectionName, inner);
                 } else {
-                    T converted = converter.apply(new HtmlStringHolder(outerChild.html(), Html.FROM_HTML_MODE_LEGACY));
+                    T converted = converter.apply(convertToHtmlStringHolder(outerChild));
                     sections.put(sectionName, converted);
                 }
             } else {
                 sectionName = findName(outerChild, innerNames, new String[]{"li.blockList>h4+pre", ".member-signature", SELECTOR_NAME_HEADER});
-                T converted = converter.apply(new HtmlStringHolder(outerChild.html(), Html.FROM_HTML_MODE_LEGACY));
+                T converted = converter.apply(convertToHtmlStringHolder(outerChild));
                 sections.put(sectionName, converted);
             }
             if (namesCallback != null) {
@@ -158,6 +159,16 @@ public class JavaDocParser {
             }
         });
         return sections;
+    }
+
+    private HtmlStringHolder convertToHtmlStringHolder(Element element){
+        for (Element elem : element.select("dt")) {
+            elem.tagName("b");
+        }
+        for (Element elem : element.select("dd")) {
+            elem.tagName("p");
+        }
+        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH);
     }
 
     private <T> boolean isMapWithProperSubElements(Object toTest) {
@@ -180,12 +191,12 @@ public class JavaDocParser {
         if (cacheFile.exists()) {
             try {
                 return loadInformationFromCache(cacheFile);
-            } catch (IOException | ClassNotFoundException|OutOfMemoryError e) {
+            } catch (IOException | ClassNotFoundException | OutOfMemoryError e) {
                 Log.w(JavaDocParser.class.getName(), "Cannot load classes from cache", e);
             }
         }
         ClassInformation info = parseClassInformation(classFile, selectedId);
-        saveInformationToCache(info,cacheFile);
+        saveInformationToCache(info, cacheFile);
         return info;
     }
 
@@ -208,14 +219,13 @@ public class JavaDocParser {
         Holder<TextHolder> selectedInnerSection = new Holder<>();
         Element selectedElement = selectedId == null ? null : elem.getElementById(selectedId);
         Elements selectedElemParents = selectedElement == null ? null : selectedElement.parents();
+        TextHolder header=new HtmlStringHolder(elem.getElementsByClass("header").get(0).html(), Html.FROM_HTML_MODE_COMPACT);
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> outerSections =
                 findAllSections(elem, null, data -> Collections.singletonMap(TextHolder.EMPTY, Collections.singletonMap(TextHolder.EMPTY, data)), selectedElemParents, selectedOuterSection, SELECTOR_TOP, (middleElem, middleNames) ->
                         findAllSections(middleElem, middleNames, data -> Collections.singletonMap(TextHolder.EMPTY, data), selectedElemParents, selectedMiddleSection, SELECTOR_MIDDLE, (innerElem, innerNames) ->
                                 findAllSections(innerElem, innerNames, data -> data, selectedElemParents, selectedInnerSection, SELECTOR_BOTTOM, null))
                 );
-        ClassInformation information = new ClassInformation(new HtmlStringHolder(elem.getElementsByClass("header").get(0).html(), Html.FROM_HTML_MODE_COMPACT), outerSections, selectedOuterSection.elem, selectedMiddleSection.elem, selectedInnerSection.elem);
-        saveInformationToCache(information, classFile);
-        return information;
+        return new ClassInformation(header, outerSections, selectedOuterSection.elem, selectedMiddleSection.elem, selectedInnerSection.elem);
     }
 
 

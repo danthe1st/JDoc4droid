@@ -143,7 +143,7 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
         repoSelector.setText(repo);
         layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v->{
-            JavaDocDownloader.downloadFromMavenRepo(getContext(),
+            JavaDocDownloader.downloadFromMavenRepo(requireContext(),
                     repoSelector.getText().toString(),
                     layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
                     layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),

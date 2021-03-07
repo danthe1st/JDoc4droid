@@ -161,6 +161,4 @@ public class JavaDocDownloader {
     public static List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) {
         return Arrays.stream(getAllSavedJavaDocDirs(context)).map(dir -> new JavaDocInformation(dir.getName(), dir.getName(), dir)).collect(Collectors.toList());
     }
-
-
 }
