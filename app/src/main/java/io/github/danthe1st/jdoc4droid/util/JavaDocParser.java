@@ -271,6 +271,7 @@ public class JavaDocParser {
         if (name.isEmpty() || currentNames.contains(nameHolder)) {
             //fallback if nothing else works
             name = UUID.randomUUID().toString();
+            nameHolder = new StringHolder(name);
             Log.e(JavaDocParser.class.getName(), "Need to generate UUID");
         } else {
             currentNames.add(nameHolder);

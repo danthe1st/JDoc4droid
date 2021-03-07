@@ -2,6 +2,7 @@ package io.github.danthe1st.jdoc4droid.activities.show.showclass;
 
 import android.text.Spanned;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ import lombok.Setter;
 
 @RequiredArgsConstructor
 public class ShowSectionAdapter extends BaseAdapter {
+
+    private final LayoutInflater inflater;
 
     @Getter
     @Setter
@@ -41,11 +45,9 @@ public class ShowSectionAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        TextView textView = new TextView(parent.getContext());
-        textView.setTextSize(20);
-        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        textView.setText(sections.get(position).getText());
-        return textView;
+        View view = inflater.inflate(R.layout.context_menu_item, parent, false);
+        view.<TextView>findViewById(R.id.contextMenuField).setText(sections.get(position).getText());
+        return view;
     }
 
     public int getPositionFromName(TextHolder name) {

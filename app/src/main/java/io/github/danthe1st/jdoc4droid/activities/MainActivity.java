@@ -14,16 +14,13 @@ import androidx.annotation.Nullable;
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
 
-public class MainActivity extends FragmentHolderActivity {//https://github.com/chhorz/javadoc-parser
+public class MainActivity extends FragmentHolderActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         AbstractFragment.openFragment(getSupportFragmentManager(), ListJavadocsFragment.newInstance(), this);
-        //JavaDocDownloader.downloadJavaApiDocs(this, this, 15, dir -> {
-        //    AbstractFragment.openFragment(getSupportFragmentManager(), ListClassesFragment.newInstance(dir),this);
-        //});
     }
 
     @Nullable

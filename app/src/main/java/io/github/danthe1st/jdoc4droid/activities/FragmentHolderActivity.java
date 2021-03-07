@@ -93,8 +93,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_menu, menu);
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
 
@@ -124,9 +122,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
         }else{
             searchView.setVisibility(View.GONE);
         }
-        searchView.setOnQueryTextFocusChangeListener((view,hasFocus)->{
-            Log.i(getClass().getName(),hasFocus+"/"+searchView.getQuery().toString());
-        });
         return super.onCreateOptionsMenu(menu);
     }
 

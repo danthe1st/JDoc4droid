@@ -35,9 +35,9 @@ public class ShowClassFragment extends AbstractFragment {
 
     private ClassInformation information = new ClassInformation();
 
-    private ShowSectionAdapter outerAdapter = new ShowSectionAdapter();
-    private ShowSectionAdapter middleAdapter = new ShowSectionAdapter();
-    private ShowSectionAdapter innerAdapter = new ShowSectionAdapter();
+    private ShowSectionAdapter outerAdapter;
+    private ShowSectionAdapter middleAdapter;
+    private ShowSectionAdapter innerAdapter;
 
 
     public ShowClassFragment() {
@@ -71,6 +71,10 @@ public class ShowClassFragment extends AbstractFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.fragment_show_class, container, false);
+
+        outerAdapter=new ShowSectionAdapter(inflater);
+        middleAdapter=new ShowSectionAdapter(inflater);
+        innerAdapter=new ShowSectionAdapter(inflater);
 
         TextView textView = view.findViewById(R.id.contentView);
         textView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
@@ -201,7 +205,7 @@ public class ShowClassFragment extends AbstractFragment {
             innerSelectionSpinner.setWillNotDraw(false);
             innerAdapter.setSections(new ArrayList<>(selected.keySet()));
             innerAdapter.notifyDataSetChanged();
-            //onInnerSelected(textView, 0);
+            onInnerSelected(textView, 0);
         }
     }
     private void onInnerSelected(TextView textView, int position) {
