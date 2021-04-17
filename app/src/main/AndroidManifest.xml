@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.JDoc4droid">
-        <activity android:name=".activities.MainActivity" android:screenOrientation="locked" android:resizeableActivity="false">
+        <activity
+            android:name=".activities.MainActivity"
+            android:resizeableActivity="false"
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

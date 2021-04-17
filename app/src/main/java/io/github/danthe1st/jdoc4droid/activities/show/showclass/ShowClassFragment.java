@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.FileProvider;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,8 +16,8 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -42,6 +41,8 @@ public class ShowClassFragment extends AbstractFragment {
     private ShowSectionAdapter outerAdapter;
     private ShowSectionAdapter middleAdapter;
     private ShowSectionAdapter innerAdapter;
+
+    private TextView textView;
 
 
     public ShowClassFragment() {
@@ -80,7 +81,7 @@ public class ShowClassFragment extends AbstractFragment {
         middleAdapter = new ShowSectionAdapter(inflater);
         innerAdapter = new ShowSectionAdapter(inflater);
 
-        TextView textView = view.findViewById(R.id.contentView);
+        textView = view.findViewById(R.id.contentView);
         textView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
 
         TextView headerView = view.findViewById(R.id.headerView);
@@ -96,7 +97,7 @@ public class ShowClassFragment extends AbstractFragment {
         outerSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
-                onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, textView, position);
+                onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, position);
             }
 
             @Override
@@ -108,7 +109,7 @@ public class ShowClassFragment extends AbstractFragment {
         middleSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
-                onMiddleSelected(innerSelectionSpinner, textView, position);
+                onMiddleSelected(innerSelectionSpinner, position);
             }
 
             @Override
@@ -120,7 +121,7 @@ public class ShowClassFragment extends AbstractFragment {
         innerSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
-                onInnerSelected(textView, position);
+                onInnerSelected(position);
             }
 
             @Override
@@ -140,17 +141,17 @@ public class ShowClassFragment extends AbstractFragment {
                         int pos = outerAdapter.getPositionFromName(information.getSelectedOuterSection());
                         if (pos != -1) {
                             outerSelectionSpinner.setSelection(pos);
-                            onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, textView, pos);
+                            onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, pos);
                             if (information.getSelectedMiddleSection() != null) {
                                 pos = middleAdapter.getPositionFromName(information.getSelectedMiddleSection());
                                 if (pos != -1) {
                                     middleSelectionSpinner.setSelection(pos);
-                                    onMiddleSelected(innerSelectionSpinner, textView, pos);
+                                    onMiddleSelected(innerSelectionSpinner, pos);
                                     if (information.getSelectedInnerSection() != null) {
                                         pos = innerAdapter.getPositionFromName(information.getSelectedInnerSection());
                                         if (pos != -1) {
                                             innerSelectionSpinner.setSelection(pos);
-                                            onInnerSelected(textView, pos);
+                                            onInnerSelected(pos);
                                         }
                                     }
                                 }
@@ -175,7 +176,7 @@ public class ShowClassFragment extends AbstractFragment {
         super.onPause();
     }
 
-    private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, TextView textView, int position) {
+    private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, int position) {
         TextHolder outerSelected = outerAdapter.getSections().get(position);
         information.setSelectedOuterSection(outerSelected);
         Map<TextHolder, Map<TextHolder, TextHolder>> selected = information.getSections().get(outerSelected);
@@ -190,11 +191,11 @@ public class ShowClassFragment extends AbstractFragment {
             middleSelectionSpinner.setWillNotDraw(false);
             middleAdapter.setSections(new ArrayList<>(selected.keySet()));
             middleAdapter.notifyDataSetChanged();
-            onMiddleSelected(innerSelectionSpinner, textView, 0);
+            onMiddleSelected(innerSelectionSpinner, 0);
         }
     }
 
-    private void onMiddleSelected(Spinner innerSelectionSpinner, TextView textView, int position) {
+    private void onMiddleSelected(Spinner innerSelectionSpinner, int position) {
         TextHolder middleSelected = middleAdapter.getSections().get(position);
         information.setSelectedMiddleSection(middleSelected);
         Map<TextHolder, TextHolder> selected = information.getSections().get(information.getSelectedOuterSection()).get(middleSelected);
@@ -207,13 +208,33 @@ public class ShowClassFragment extends AbstractFragment {
         } else {
             innerSelectionSpinner.setVisibility(View.VISIBLE);
             innerSelectionSpinner.setWillNotDraw(false);
-            innerAdapter.setSections(new ArrayList<>(selected.keySet()));
-            innerAdapter.notifyDataSetChanged();
-            onInnerSelected(textView, 0);
+            loadInnerSections(selected,null);
         }
     }
 
-    private void onInnerSelected(TextView textView, int position) {
+    private void loadInnerSections(Map<TextHolder, TextHolder> selected, String search){
+        List<TextHolder> sections=new ArrayList<>(selected.keySet());
+        if(search!=null){
+            sections.removeIf(section->!containsText(section,search));
+            if(sections.isEmpty()){
+                sections=new ArrayList<>(selected.keySet());
+            }
+        }
+        innerAdapter.setSections(sections);
+        innerAdapter.notifyDataSetChanged();
+        onInnerSelected(0);
+    }
+
+    private boolean containsText(TextHolder textHolder,String textToContain){
+        textToContain=textToContain.toLowerCase();
+        if(textHolder.getMainName()==null){
+            return textHolder.getText().toString().toLowerCase().contains(textToContain);
+        }else{
+            return textHolder.getMainName().toLowerCase().contains(textToContain);
+        }
+    }
+
+    private void onInnerSelected(int position) {
 
         TextHolder innerSelected = innerAdapter.getSections().get(position);
         information.setSelectedInnerSection(innerSelected);
@@ -259,5 +280,25 @@ public class ShowClassFragment extends AbstractFragment {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean supportsSearch() {
+        return true;
+    }
+
+    @Override
+    public void onSearch(String search) {
+        if(information.getSelectedInnerSection()==null){
+            //TODO
+        }else{
+            loadInnerSections(information.getSections().get(information.getSelectedOuterSection()).get(information.getSelectedMiddleSection()),search);
+        }
+    }
+
+
+    @Override
+    public void onSearchType(String search) {
+        onSearch(search);
     }
 }

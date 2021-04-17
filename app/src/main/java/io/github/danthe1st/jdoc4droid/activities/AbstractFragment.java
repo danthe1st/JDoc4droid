@@ -49,6 +49,7 @@ public abstract class AbstractFragment extends Fragment {
             }else{
                 activity.getSearchView().setVisibility(View.GONE);
             }
+            activity.getSearchView().setQuery("",false);
         }
     }
     public void runInUIThread(Runnable toRun){

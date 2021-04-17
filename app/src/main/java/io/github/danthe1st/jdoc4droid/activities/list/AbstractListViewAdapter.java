@@ -44,8 +44,8 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
         return items.size();
     }
 
-    public void setItems(List<T> classes) {
-        this.items =classes;
+    public void setItems(List<T> items) {
+        this.items =items;
         notifyDataSetChanged();
     }
 

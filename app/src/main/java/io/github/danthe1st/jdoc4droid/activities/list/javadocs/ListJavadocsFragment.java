@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.DownloaderFragment;
@@ -34,6 +36,8 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewAdapter> {
+
+    private List<JavaDocInformation> javaDocInfos;
 
     public static ListJavadocsFragment newInstance() {
         ListJavadocsFragment fragment = new ListJavadocsFragment();
@@ -157,7 +161,8 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
 
     @Override
     protected ListJavaDocsViewAdapter createAdapter(Context ctx) {
-        return new ListJavaDocsViewAdapter(JavaDocDownloader.getAllSavedJavaDocInfos(ctx), this::onShow);
+        javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(ctx);
+        return new ListJavaDocsViewAdapter(javaDocInfos, this::onShow);
     }
 
     @Override
@@ -172,5 +177,24 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
 
     private void onShow(JavaDocInformation javaDocInformation) {
         openFragment(ListClassesFragment.newInstance(javaDocInformation.getDirectory()));
+    }
+
+    @Override
+    public void onSearch(String search) {
+        if(javaDocInfos!=null){
+            List<JavaDocInformation> items=new ArrayList<>(javaDocInfos);
+            items.removeIf(item->!item.getName().toLowerCase().contains(search.toLowerCase()));
+            adapter.setItems(items);
+        }
+    }
+
+    @Override
+    public void onSearchType(String search) {
+        onSearch(search);
+    }
+
+    @Override
+    public boolean supportsSearch() {
+        return true;
     }
 }

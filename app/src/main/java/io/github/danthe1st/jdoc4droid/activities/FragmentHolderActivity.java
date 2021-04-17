@@ -100,7 +100,7 @@ public class FragmentHolderActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 AbstractFragment currentFragment=currentFragments.peek();
-                if (currentFragment != null) {
+                if (currentFragment != null&&currentFragment.getView()!=null) {
                     currentFragment.onSearch(query);
                 }
                 return true;
@@ -109,7 +109,7 @@ public class FragmentHolderActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 AbstractFragment currentFragment=currentFragments.peek();
-                if (currentFragment != null) {
+                if (currentFragment != null&&currentFragment.getView()!=null) {
                     currentFragment.onSearchType(newText);
                 }
                 return true;
