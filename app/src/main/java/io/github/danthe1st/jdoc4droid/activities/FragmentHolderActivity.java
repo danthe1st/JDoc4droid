@@ -98,14 +98,14 @@ public class FragmentHolderActivity extends AppCompatActivity {
                 for (String fragTag : currentFragmentIds) {
                     Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(fragTag);
                     if(currentFragment instanceof AbstractFragment){
-                        currentFragments.push((AbstractFragment) currentFragment);
+                        currentFragments.addLast((AbstractFragment) currentFragment);
                     }
                 }
                 Log.i(FragmentHolderActivity.class.getCanonicalName(), "onCreate: loaded "+currentFragments.size()+" fragments: "+currentFragments);
                 AbstractFragment last = currentFragments.peekFirst();
                 Log.i(FragmentHolderActivity.class.getCanonicalName(), "onCreate: use fragment: "+last);
                 if(last!=null){
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragHolder, last).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragHolder, last).attach(last).commit();
                 }
             }
         }
@@ -117,7 +117,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
         String[] tags=currentFragments.stream()
                 .map(Fragment::getTag)
                 .filter(Objects::nonNull)
-                .sorted(Collections.reverseOrder())
                 .toArray(String[]::new);
         outState.putStringArray("currentFragmentTags",tags);
     }
