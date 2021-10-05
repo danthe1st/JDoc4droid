@@ -14,14 +14,14 @@ jobs:
       run: |
         echo "$keystore" | base64 -d - > keystore.jks
       env:
-        keystore: '${{ secret.keystore }}'
+        keystore: '${{ secrets.keystore }}'
     - name: build
       run: ./gradlew build
       env:
         KEYSTORE: 'keystore.jks'
-        KEYSTORE_PWD: '${{ secret.keystorePwd }}'
-        SIGNING_KEY: '${{ secret.signingKey }}'
-        SIGNING_KEY_PWD: '${{ secret.signingKeyPwd }}'
+        KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
+        SIGNING_KEY: '${{ secrets.signingKey }}'
+        SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
     - name: upload apk
       uses: actions/upload-artifact@v2
       with:
