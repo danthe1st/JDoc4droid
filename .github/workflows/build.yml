@@ -10,8 +10,18 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Setup keystore
+      run: |
+        echo "$keystore" | base64 -d - > keystore.jks
+      env:
+        keystore: '${{ secret.keystore }}'
     - name: build
       run: ./gradlew build
+      env:
+        KEYSTORE: 'keystore.jks'
+        KEYSTORE_PWD: '${{ secret.keystorePwd }}'
+        SIGNING_KEY: '${{ secret.signingKey }}'
+        SIGNING_KEY_PWD: '${{ secret.signingKeyPwd }}'
     - name: upload apk
       uses: actions/upload-artifact@v2
       with:

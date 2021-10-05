@@ -15,10 +15,27 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    if (System.getenv("KEYSTORE") != null) {
+        logger.info("signing enabled")
+        signingConfigs {
+            release {
+                storeFile file(System.getenv("KEYSTORE"))
+                storePassword System.getenv("KEYSTORE_PWD")
+                keyAlias System.getenv("SIGNING_KEY")
+                keyPassword System.getenv("SIGNING_KEY_PWD")
+                v1SigningEnabled true
+                v2SigningEnabled true
+            }
+        }
+    } else {
+        logger.info("signing disabled")
+    }
 
     buildTypes {
         release {
-            minifyEnabled false
+            if (System.getenv("KEYSTORE") != null) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -32,16 +49,17 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'org.jsoup:jsoup:1.14.1'
     implementation 'androidx.browser:browser:1.3.0'
+    //noinspection AnnotationProcessorOnCompilePath
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
