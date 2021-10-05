@@ -11,14 +11,11 @@ jobs:
       with:
         java-version: 11
     - name: Setup keystore
-      run: |
-        echo "$keystore" | base64 -d - > keystore.jks
-      env:
-        keystore: '${{ secrets.keystore }}'
+      run: echo '${{ secrets.keystore }}' | base64 -d - > ./keystore.jks
     - name: build
       run: ./gradlew build
       env:
-        KEYSTORE: 'keystore.jks'
+        KEYSTORE: '../keystore.jks'
         KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
         SIGNING_KEY: '${{ secrets.signingKey }}'
         SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
