@@ -90,36 +90,63 @@ public class JavaDocParser {
     }
 
     private List<SimpleClassDescription> parseClasses(File javaDocDir) throws IOException {
+        //TODO show error on exception
         File index = new File(javaDocDir, "allclasses-index.html");
         if (index.exists()) {
-            Element summaryTable = parseFile(index).getElementsByTag("table").get(0).child(1);//table body
-            //TODO do this partially and add it to the list
-            return summaryTable.children()
-                    .parallelStream()
-                    .skip(1)
-                    .map(elem -> new SimpleClassDescription(
-                            elem.child(0).text(),
-                            elem.child(1).text(),
-                            elem.child(0).child(0).attr("title").split(" ")[0],
-                            elem.child(0).child(0).attr("title").split(" ")[2],
-                            elem.child(0).child(0).attr("href"))
-                    )
-                    .collect(Collectors.toList());
+            Element summaryTable = getSummaryTable(parseFile(index));
+            if ("table".equals(summaryTable.tagName())) {
+                summaryTable = summaryTable.child(1);//table body
+                //TODO do this partially and add it to the list
+                return summaryTable.children()
+                        .stream()
+                        .skip(1)
+                        .map(elem -> loadSimpleClassDescription(elem.child(0), elem.child(1).text()))
+                        .collect(Collectors.toList());
+            } else {
+                SimpleClassDescription temp = null;
+                List<SimpleClassDescription> descList = new ArrayList<>();
+                for (Element child : summaryTable.children()) {
+                    if (child.hasClass("col-first")&&child.childrenSize()>0) {
+                        temp = loadSimpleClassDescription(child, "");
+                        descList.add(temp);
+                    } else if (child.hasClass("col-last")) {
+                        if (temp != null) {
+                            temp.setDescription(child.text());
+                        }
+                    }
+                }
+                return descList;
+            }
         } else if ((index = new File(javaDocDir, "allclasses-noframe.html")).exists()) {
             return parseFile(index)
                     .select(".indexContainer ul li")
                     .stream()
-                    .map(li -> new SimpleClassDescription(
-                            li.text(),
-                            "",
-                            li.child(0).attr("title").split(" ")[0],
-                            li.child(0).attr("title").split(" ")[2],
-                            li.child(0).attr("href")
-                    ))
+                    .map(li -> loadSimpleClassDescription(li,""))
                     .collect(Collectors.toList());
         } else {
             throw new IOException("neither allclasses-index.html nor allclasses-noframe.html found");
         }
+    }
+
+    private static SimpleClassDescription loadSimpleClassDescription(Element link, String description) {
+        link = link.child(0);
+        return new SimpleClassDescription(
+                link.text(),
+                description,
+                link.attr("title").split(" ")[0],
+                link.attr("title").split(" ")[2],
+                link.attr("href"));
+    }
+
+    private Element getSummaryTable(Document doc) throws IOException {
+        Elements table = doc.getElementsByClass("summary-table");
+        if (table.isEmpty()) {
+            table = doc.getElementsByTag("table");
+        }
+        if (table.isEmpty()) {
+            throw new IOException("summary table not found");
+        }
+        return table.first();
     }
 
     private <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> namesCallback, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
@@ -161,7 +188,7 @@ public class JavaDocParser {
         return sections;
     }
 
-    private HtmlStringHolder convertToHtmlStringHolder(Element element){
+    private HtmlStringHolder convertToHtmlStringHolder(Element element) {
         for (Element elem : element.select("dt")) {
             elem.tagName("b");
         }
@@ -219,7 +246,7 @@ public class JavaDocParser {
         Holder<TextHolder> selectedInnerSection = new Holder<>();
         Element selectedElement = selectedId == null ? null : elem.getElementById(selectedId);
         Elements selectedElemParents = selectedElement == null ? null : selectedElement.parents();
-        TextHolder header=new HtmlStringHolder(elem.getElementsByClass("header").get(0).html(), Html.FROM_HTML_MODE_COMPACT);
+        TextHolder header = new HtmlStringHolder(elem.getElementsByClass("header").get(0).html(), Html.FROM_HTML_MODE_COMPACT);
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> outerSections =
                 findAllSections(elem, null, data -> Collections.singletonMap(TextHolder.EMPTY, Collections.singletonMap(TextHolder.EMPTY, data)), selectedElemParents, selectedOuterSection, SELECTOR_TOP, (middleElem, middleNames) ->
                         findAllSections(middleElem, middleNames, data -> Collections.singletonMap(TextHolder.EMPTY, data), selectedElemParents, selectedMiddleSection, SELECTOR_MIDDLE, (innerElem, innerNames) ->

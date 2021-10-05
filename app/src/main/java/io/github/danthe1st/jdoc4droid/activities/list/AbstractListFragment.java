@@ -43,6 +43,6 @@ public abstract class AbstractListFragment<A extends AbstractListViewAdapter> ex
     protected abstract int getLayoutId();
 
     protected RecyclerView getRecyclerView(View root) {
-        return (RecyclerView) root;
+        return root.findViewById(R.id.list);
     }
 }

@@ -20,7 +20,9 @@ public class MainActivity extends FragmentHolderActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AbstractFragment.openFragment(getSupportFragmentManager(), ListJavadocsFragment.newInstance(), this);
+        if(getCurrentFragments().isEmpty()){
+            AbstractFragment.openFragment(getSupportFragmentManager(), ListJavadocsFragment.newInstance(), this);
+        }
     }
 
     @Nullable

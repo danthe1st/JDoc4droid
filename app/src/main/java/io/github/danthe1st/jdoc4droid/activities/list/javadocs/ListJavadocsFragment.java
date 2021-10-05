@@ -170,11 +170,6 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
         return R.layout.fragment_list_javadocs_list;
     }
 
-    @Override
-    protected RecyclerView getRecyclerView(View root) {
-        return root.findViewById(R.id.list);
-    }
-
     private void onShow(JavaDocInformation javaDocInformation) {
         openFragment(ListClassesFragment.newInstance(javaDocInformation.getDirectory()));
     }

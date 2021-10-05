@@ -14,16 +14,20 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 import io.github.danthe1st.jdoc4droid.BuildConfig;
 import io.github.danthe1st.jdoc4droid.R;
@@ -88,6 +92,34 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!=null){
+            String[] currentFragmentIds = savedInstanceState.getStringArray("currentFragmentTags");
+            if(currentFragmentIds!=null){
+                for (String fragTag : currentFragmentIds) {
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(fragTag);
+                    if(currentFragment instanceof AbstractFragment){
+                        currentFragments.push((AbstractFragment) currentFragment);
+                    }
+                }
+                Log.i(FragmentHolderActivity.class.getCanonicalName(), "onCreate: loaded "+currentFragments.size()+" fragments: "+currentFragments);
+                AbstractFragment last = currentFragments.peekFirst();
+                Log.i(FragmentHolderActivity.class.getCanonicalName(), "onCreate: use fragment: "+last);
+                if(last!=null){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragHolder, last).commit();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String[] tags=currentFragments.stream()
+                .map(Fragment::getTag)
+                .filter(Objects::nonNull)
+                .sorted(Collections.reverseOrder())
+                .toArray(String[]::new);
+        outState.putStringArray("currentFragmentTags",tags);
     }
 
     @Override
@@ -140,4 +172,5 @@ public class FragmentHolderActivity extends AppCompatActivity {
     public boolean onSearchRequested() {
         return super.onSearchRequested();
     }
+
 }

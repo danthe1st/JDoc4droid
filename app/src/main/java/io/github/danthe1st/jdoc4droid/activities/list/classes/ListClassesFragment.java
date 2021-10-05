@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,8 +66,11 @@ public class ListClassesFragment extends AbstractListFragment<ListClassesViewAda
         getThreadPool().execute(()-> {
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
-                runInUIThread(()->adapter.setItems(descriptions));
-            } catch (IOException e) {
+                runInUIThread(()->{
+                    adapter.setItems(descriptions);
+                    view.findViewById(R.id.progressBar2).setVisibility(View.GONE);
+                });
+            } catch (Exception e) {
                 runInUIThread(()->{
                     Toast.makeText(getContext(),"Cannot load classes",Toast.LENGTH_LONG).show();
                     goBack();
@@ -104,4 +109,5 @@ public class ListClassesFragment extends AbstractListFragment<ListClassesViewAda
     public boolean supportsSearch() {
         return true;
     }
+
 }
