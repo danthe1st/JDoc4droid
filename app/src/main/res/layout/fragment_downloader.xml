@@ -17,12 +17,11 @@
 
     </WebView>
 
-    <TextView
+    <ProgressBar
         android:id="@+id/loadingText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="298dp"
+        android:layout_height="298dp"
         android:gravity="center"
-        android:text="@string/loadingtext"
         android:textAlignment="center"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"

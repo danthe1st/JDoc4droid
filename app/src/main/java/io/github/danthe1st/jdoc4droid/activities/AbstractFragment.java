@@ -69,7 +69,6 @@ public abstract class AbstractFragment extends Fragment {
             }
             activity.getSearchView().setQuery("", false);
         }
-        super.setRetainInstance(true);
     }
 
     public void runInUIThread(Runnable toRun) {

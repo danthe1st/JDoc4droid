@@ -52,6 +52,11 @@ public class JavaDocParser {
     private static final String SELECTOR_BOTTOM = SELECTOR_BOTTOM_RAW.replace("\0", ":not(" + SELECTOR_MIDDLE + " " + SELECTOR_BOTTOM_RAW.replace("\0", " *") + ")");
     private static final String SELECTOR_NAME_HEADER = "h1,h2,h3,h4,h5";
 
+    public static String loadName(File tempDir) throws IOException {
+        Document doc = Jsoup.parse(new File(tempDir,"index.html"), StandardCharsets.UTF_8.name());
+        return doc.title();
+    }
+
     private static class Holder<T> {
         T elem;
     }

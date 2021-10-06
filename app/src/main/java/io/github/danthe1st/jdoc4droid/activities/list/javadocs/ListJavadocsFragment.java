@@ -2,11 +2,15 @@ package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -120,11 +124,9 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
 
     private void loadZipJavadoc(){
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-        intent.setType("application/zip");
-
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip","application/java-archive"});
         startActivityForResult(intent, 1337);
     }
 

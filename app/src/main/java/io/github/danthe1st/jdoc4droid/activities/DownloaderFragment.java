@@ -11,6 +11,7 @@ import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -23,7 +24,6 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 public class DownloaderFragment extends AbstractFragment {
 
     private WebView webView;
-    private TextView loadingView;
 
     public DownloaderFragment() {
         // Required empty public constructor
@@ -49,7 +49,7 @@ public class DownloaderFragment extends AbstractFragment {
         View view= inflater.inflate(R.layout.fragment_downloader, container, false);
 
         webView=view.findViewById(R.id.downloaderView);
-        loadingView=view.findViewById(R.id.loadingText);
+        ProgressBar loadingView=view.findViewById(R.id.loadingText);
 
         CookieManager.getInstance().setAcceptCookie(true);
 
