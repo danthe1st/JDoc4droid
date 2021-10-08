@@ -3,9 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/app_bar_share"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/share"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/app_bar_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/search"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

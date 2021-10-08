@@ -94,6 +94,5 @@ public class DownloaderFragment extends AbstractFragment {
         } else {
             super.goBack();
         }
-        //TODO
     }
 }

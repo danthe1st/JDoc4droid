@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListFragment;
 import io.github.danthe1st.jdoc4droid.activities.show.showclass.ShowClassFragment;
+import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
 
@@ -30,7 +32,9 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
 public class ListClassesFragment extends AbstractListFragment<ListClassesViewAdapter> {
 
     private static final String ARG_JAVADOC_DIR = "javaDocDir";
+
     private File javaDocDir;
+
 
     private List<SimpleClassDescription> descriptions= Collections.emptyList();
 
@@ -41,10 +45,14 @@ public class ListClassesFragment extends AbstractListFragment<ListClassesViewAda
     public ListClassesFragment() {
     }
 
-    public static ListClassesFragment newInstance(File javaDocDir) {
+    public static ListClassesFragment newInstance(JavaDocInformation javaDocInfo) {
         ListClassesFragment fragment = new ListClassesFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_JAVADOC_DIR, javaDocDir.getAbsolutePath());
+        args.putString(ARG_JAVADOC_DIR, javaDocInfo.getDirectory().getAbsolutePath());
+        String shareUrl=javaDocInfo.getSource();
+        if(shareUrl!=null&&!shareUrl.isEmpty()){
+            args.putString(ARG_SHARE_URL, shareUrl);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -92,7 +100,7 @@ public class ListClassesFragment extends AbstractListFragment<ListClassesViewAda
     }
 
     private void showClass(SimpleClassDescription simpleClassDescription) {
-        openFragment(ShowClassFragment.newInstance(new File(javaDocDir,simpleClassDescription.getPath())));
+        openFragment(ShowClassFragment.newInstance(javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink()));
     }
 
     @Override

@@ -173,7 +173,7 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
     }
 
     private void onShow(JavaDocInformation javaDocInformation) {
-        openFragment(ListClassesFragment.newInstance(javaDocInformation.getDirectory()));
+        openFragment(ListClassesFragment.newInstance(javaDocInformation));
     }
 
     @Override

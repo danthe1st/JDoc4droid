@@ -1,20 +1,38 @@
 package io.github.danthe1st.jdoc4droid.activities;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import io.github.danthe1st.jdoc4droid.R;
 
 public abstract class AbstractFragment extends Fragment {
+
+    protected static final String ARG_SHARE_URL = "shareUrl";
+    private String shareUrl;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            shareUrl = getArguments().getString(ARG_SHARE_URL);
+        }
+        onFragmentLoad(getBelongingActivity());
+    }
 
     public FragmentHolderActivity getBelongingActivity() {
         return (FragmentHolderActivity) super.getActivity();
@@ -57,16 +75,12 @@ public abstract class AbstractFragment extends Fragment {
         transaction.commit();
         activity.getCurrentFragments().push(fragment);
         Log.i(AbstractFragment.class.getCanonicalName(), "open frag: "+fragment.getClass().getSimpleName()+" with tag "+fragment.getTag()+" and ref hashCode "+System.identityHashCode(fragment));
-        fragment.onFragmentLoad(activity);
+
     }
 
     public void onFragmentLoad(FragmentHolderActivity activity) {
         if (activity.getSearchView() != null) {
-            if (supportsSearch()) {
-                activity.getSearchView().setVisibility(View.VISIBLE);
-            } else {
-                activity.getSearchView().setVisibility(View.GONE);
-            }
+            activity.reloadTopMenuButtons(this);
             activity.getSearchView().setQuery("", false);
         }
     }
@@ -86,5 +100,9 @@ public abstract class AbstractFragment extends Fragment {
 
     public boolean supportsSearch() {
         return false;
+    }
+
+    public String getShareLink(){
+        return shareUrl;
     }
 }

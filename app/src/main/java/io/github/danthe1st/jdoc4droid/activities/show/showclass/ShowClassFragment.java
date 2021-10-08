@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ public class ShowClassFragment extends AbstractFragment {
 
     private static final String ARG_CLASS_FILE_PATH = "classFile";
     private static final String ARG_SELECTED_ID = "selected";
+    private static final String ARG_BASE_SHARE_URL = "baseShareUrl";
+    private static final String ARG_BASE_JAVADOC_DIR = "baseJavadocDir";
 
     private File classFile;
     private String selectedId;
@@ -44,22 +47,40 @@ public class ShowClassFragment extends AbstractFragment {
 
     private TextView textView;
 
+    private String baseShareUrl;
+    private String baseJavadocDir;
+
 
     public ShowClassFragment() {
         // Required empty public constructor
     }
 
-    public static ShowClassFragment newInstance(File classFile, String selectedId) {
+    private static ShowClassFragment newInstance(File baseDir,File classFile, String baseShareUrl, String selectedId) {
         ShowClassFragment fragment = new ShowClassFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
         args.putString(ARG_SELECTED_ID, selectedId);
+        args.putString(ARG_BASE_SHARE_URL,baseShareUrl);
+        args.putString(ARG_BASE_JAVADOC_DIR,baseDir.getAbsolutePath());
+        args.putString(ARG_SHARE_URL,loadShareUrl(baseShareUrl,baseDir,classFile));
+
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static ShowClassFragment newInstance(File classFile) {
-        return newInstance(classFile, null);
+    public static ShowClassFragment newInstance(File baseDir,File classFile, String baseShareUrl) {
+        return newInstance(baseDir, classFile, baseShareUrl, null);
+    }
+
+    private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
+        String shareUrl=baseUrl;
+        if(shareUrl!=null){
+            URI baseUri = baseDir.toURI();
+            URI actualUri = actualFile.toURI();
+            URI relativePath = baseUri.relativize(actualUri);
+            shareUrl += relativePath.getPath();
+        }
+        return shareUrl;
     }
 
     @Override
@@ -67,6 +88,8 @@ public class ShowClassFragment extends AbstractFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             classFile = new File(getArguments().getString(ARG_CLASS_FILE_PATH));
+            baseShareUrl=getArguments().getString(ARG_BASE_SHARE_URL);
+            baseJavadocDir=getArguments().getString(ARG_BASE_JAVADOC_DIR);
             selectedId = getArguments().getString(ARG_SELECTED_ID);
         }
     }
@@ -235,7 +258,6 @@ public class ShowClassFragment extends AbstractFragment {
     }
 
     private void onInnerSelected(int position) {
-
         TextHolder innerSelected = innerAdapter.getSections().get(position);
         information.setSelectedInnerSection(innerSelected);
         Map<TextHolder, Map<TextHolder, TextHolder>> outerSection = information.getSections().get(information.getSelectedOuterSection());
@@ -264,7 +286,7 @@ public class ShowClassFragment extends AbstractFragment {
                 //TODO fix this
             } else {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
-                openFragment(ShowClassFragment.newInstance(file, split.length > 1 ? split[1] : null));
+                openFragment(ShowClassFragment.newInstance(new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null));
             }
             return false;
 

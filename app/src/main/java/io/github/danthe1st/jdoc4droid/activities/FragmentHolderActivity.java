@@ -1,25 +1,22 @@
 package io.github.danthe1st.jdoc4droid.activities;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuView;
 import androidx.fragment.app.Fragment;
 
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 
 import io.github.danthe1st.jdoc4droid.BuildConfig;
 import io.github.danthe1st.jdoc4droid.R;
@@ -45,6 +41,8 @@ public class FragmentHolderActivity extends AppCompatActivity {
 
     @Getter
     private SearchView searchView;
+
+    private MenuItem shareButton;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -123,9 +121,11 @@ public class FragmentHolderActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.search_menu, menu);
+        getMenuInflater().inflate(R.menu.top_menu, menu);
 
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
+
+        shareButton = menu.findItem(R.id.app_bar_share);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -148,12 +148,48 @@ public class FragmentHolderActivity extends AppCompatActivity {
         });
 
         AbstractFragment currentFragment = currentFragments.peek();
-        if(currentFragment!=null&&currentFragment.supportsSearch()){
-            searchView.setVisibility(View.VISIBLE);
-        }else{
+        if (currentFragment == null) {
             searchView.setVisibility(View.GONE);
+            shareButton.setVisible(false);
+        } else {
+            reloadTopMenuButtons(currentFragment);
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.app_bar_share:
+                onShareButton();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onShareButton(){
+        AbstractFragment currentFragment=currentFragments.peek();
+        String shareLink=currentFragment.getShareLink();
+        if(shareLink!=null){
+            Intent sendIntent=new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT,shareLink);
+            Intent shareIntent = Intent.createChooser(sendIntent, null);
+            startActivity(shareIntent);
+        }
+    }
+
+    public void reloadTopMenuButtons(AbstractFragment currentFragment){
+        if (currentFragment.supportsSearch()) {
+            searchView.setVisibility(View.VISIBLE);
+        } else {
+            searchView.setVisibility(View.GONE);
+        }
+        if(currentFragment.getShareLink()==null){
+            shareButton.setVisible(false);
+        }else{
+            shareButton.setVisible(true);
+        }
     }
 
     @Override
@@ -164,7 +200,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
     }
 
     @Override
