@@ -9,11 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +45,7 @@ public class ListClassesFragment extends AbstractListFragment<ListClassesViewAda
         ListClassesFragment fragment = new ListClassesFragment();
         Bundle args = new Bundle();
         args.putString(ARG_JAVADOC_DIR, javaDocInfo.getDirectory().getAbsolutePath());
-        String shareUrl=javaDocInfo.getSource();
+        String shareUrl=javaDocInfo.getOnlineDocUrl();
         if(shareUrl!=null&&!shareUrl.isEmpty()){
             args.putString(ARG_SHARE_URL, shareUrl);
         }

@@ -1,7 +1,5 @@
 package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
-import android.content.Intent;
-import android.media.MediaScannerConnection;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +27,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
     public void onBindViewHolder(final ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         holder.nameView.setText(items.get(position).getName());
-        holder.sourceView.setText(items.get(position).getSource());
+        holder.sourceView.setText(items.get(position).getOnlineDocUrl());
 
     }
 

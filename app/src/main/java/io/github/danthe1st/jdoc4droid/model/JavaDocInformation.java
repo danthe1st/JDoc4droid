@@ -12,7 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class JavaDocInformation {
     private String name;
-    private String source;//TODO viewable source
+    private String onlineDocUrl;
     private File directory;
     private JavaDocType type;
+    private String baseDownloadUrl;
+
+    public JavaDocInformation(String name,String onlineDocUrl,File directory,JavaDocType type){
+        this(name,onlineDocUrl,directory,type,"");
+    }
 }

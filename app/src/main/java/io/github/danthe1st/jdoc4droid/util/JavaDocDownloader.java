@@ -3,40 +3,44 @@ package io.github.danthe1st.jdoc4droid.util;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
+import android.util.Xml;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
 import lombok.experimental.UtilityClass;
@@ -93,7 +97,7 @@ public class JavaDocDownloader {
         return false;
     }
 
-    private static String getJavaJavadocUrl(String name){
+    private String getJavaJavadocUrl(String name){
         int majorVersion=getJavaJavadocMajorVersion(name);
         String type=name.contains("javafx")?"javafx":"docs";
         String prefix=majorVersion>=11?"/en/java":"";
@@ -101,7 +105,7 @@ public class JavaDocDownloader {
         //https://docs.oracle.com/en/java/javase/11/docs/api/
     }
 
-    private static int getJavaJavadocMajorVersion(String fullVersionName){
+    private int getJavaJavadocMajorVersion(String fullVersionName){
         Matcher matcher = JDK_JAVADOC_MAJOR_VERSION_PATTERN.matcher(fullVersionName);
         if(matcher.matches()){
             return Integer.parseInt(matcher.group(1));
@@ -111,16 +115,96 @@ public class JavaDocDownloader {
     }
 
     public static void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess) {
-        String effectiveUrl = repoUrl + "/" + groupId.replace('.', '/') + "/" + artefactId + "/" + version + "/" + artefactId + "-" + version + "-javadoc.jar";
+        String artifactBaseUrl=repoUrl + "/" + groupId.replace('.', '/') + "/" + artefactId + "/";
+        String effectiveUrl = artifactBaseUrl + version + "/" + artefactId + "-" + version + "-javadoc.jar";
         String src;
         if("https://repo1.maven.org/maven2".equalsIgnoreCase(repoUrl)){
             src="https://javadoc.io/doc/"+groupId+"/"+artefactId+"/"+version+"/";
         }else {
             src="";
         }
-        JavaDocInformation javaDocInfo = new JavaDocInformation(artefactId + " " + version, src, getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)), JavaDocType.MAVEN);
-        //TODO javadoc.io if central
+        JavaDocInformation javaDocInfo = new JavaDocInformation(
+                artefactId + " " + version, src,
+                getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
+                JavaDocType.MAVEN,artifactBaseUrl);
         downloadAndUnzipAsync(effectiveUrl, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+    }
+
+    public void updateMavenJavadoc(JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess) {
+        downloader.execute(()->{
+            try {
+                JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl());
+                String url=getLatestMavenVersion(newJavaDocInfo);
+                downloadAndUnzipAsync(url, newJavaDocInfo, ()->{
+                    onSuccess.accept(newJavaDocInfo);
+                    try {
+                        ListJavadocsFragment.deleteRecursive(javaDocInfo.getDirectory());
+                    } catch (IOException e) {
+                        Log.e(JavaDocDownloader.class.getName(), "cannot delete old version after updating javadoc", e);
+                    }
+                }, "");
+
+            } catch (IOException e) {
+                Log.e(JavaDocDownloader.class.getName(), "cannot update javadoc", e);
+            }
+        });
+    }
+    private String getLatestMavenVersion(JavaDocInformation javaDocInfo) throws IOException {
+        try(BufferedInputStream is=new BufferedInputStream(new URL(javaDocInfo.getBaseDownloadUrl()+"maven-metadata.xml").openStream())){
+            String gId=null;
+            String aId=null;
+            String version=null;
+            XmlPullParser parser = Xml.newPullParser();
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(is, null);
+            Set<String> allVersions=new HashSet<>();
+            int tagType;
+            do{
+                tagType = parser.next();
+                if(tagType==XmlPullParser.START_TAG) {
+                    if ("release".equals(parser.getName())) {
+                        if(parser.next()==XmlPullParser.TEXT){
+                            version = parser.getText();
+                            allVersions.add(version);
+                        }
+
+                    }else if ("groupId".equals(parser.getName())) {
+                        if(parser.next()==XmlPullParser.TEXT){
+                            gId = parser.getText();
+                        }
+                    }else if ("artifactId".equals(parser.getName())) {
+                        if(parser.next()==XmlPullParser.TEXT){
+                            aId = parser.getText();
+                        }
+                    }else if("version".equals(parser.getName())){
+                        if(parser.next()==XmlPullParser.TEXT){
+                            allVersions.add(parser.getText());
+                        }
+                    }
+                }
+            }while(tagType!=XmlPullParser.END_DOCUMENT);
+            if(gId==null||aId==null||version==null){
+                throw new IOException("invalid maven-metadata.xml");
+            }
+            String newOnlineUrl=javaDocInfo.getOnlineDocUrl();
+            String newDirectory=javaDocInfo.getDirectory().getPath();
+            String newName=javaDocInfo.getName();
+            for (String v : allVersions) {
+                newOnlineUrl=newOnlineUrl.replace(v,version);
+                newName=newName.replace(v,version);
+                newDirectory=newDirectory.replace(fileNameFromString(v),fileNameFromString(version));
+            }
+            javaDocInfo.setOnlineDocUrl(newOnlineUrl);
+            File newDirectoryAsFile=new File(newDirectory);
+            if(newDirectoryAsFile.equals(javaDocInfo.getDirectory())){
+                newDirectoryAsFile=new File(newDirectoryAsFile+"_");
+            }
+            javaDocInfo.setDirectory(newDirectoryAsFile);
+            javaDocInfo.setName(newName);
+            return javaDocInfo.getBaseDownloadUrl() + version + "/" + aId + "-" + version + "-javadoc.jar";
+        } catch (XmlPullParserException e) {
+            throw new IOException(e);
+        }
     }
 
     public static void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess) {
@@ -219,8 +303,12 @@ public class JavaDocDownloader {
             bw.newLine();
             bw.write(javaDocInfo.getType().name());
             bw.newLine();
-            bw.write(javaDocInfo.getSource());
+            bw.write(javaDocInfo.getOnlineDocUrl());
             bw.newLine();
+            if(!javaDocInfo.getBaseDownloadUrl().isEmpty()){
+                bw.write(javaDocInfo.getBaseDownloadUrl());
+                bw.newLine();
+            }
         }
     }
 
@@ -238,11 +326,14 @@ public class JavaDocDownloader {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(metadataFile), StandardCharsets.UTF_8))) {
                 String name = br.readLine();
                 JavaDocType type = JavaDocType.valueOf(br.readLine());
-                String source = br.readLine();
-                return new JavaDocInformation(name, source, javaDocDir, type);
+                String onlineUrl = br.readLine();
+                String downloadSrc=br.readLine();
+                return new JavaDocInformation(name, onlineUrl, javaDocDir, type,downloadSrc==null?"":downloadSrc);
             }
         } else {
             return new JavaDocInformation(javaDocDir.getName(), "", javaDocDir, JavaDocType.ZIP);
         }
     }
+
+
 }

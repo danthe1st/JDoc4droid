@@ -35,6 +35,7 @@ import io.github.danthe1st.jdoc4droid.activities.DownloaderFragment;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListFragment;
 import io.github.danthe1st.jdoc4droid.activities.list.classes.ListClassesFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
+import io.github.danthe1st.jdoc4droid.model.JavaDocType;
 import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 import lombok.NoArgsConstructor;
 
@@ -61,28 +62,42 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         view.findViewById(R.id.downloadBtn).setOnClickListener(this::downloadBtnClicked);
-        adapter.setOnSelect(javaDocInformation -> view.findViewById(R.id.deleteBtn).setVisibility(javaDocInformation==null?View.INVISIBLE:View.VISIBLE));
+
+        adapter.setOnSelect(javaDocInformation -> {
+            view.findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
+            view.findViewById(R.id.updateBtn).setVisibility(javaDocInformation == null || javaDocInformation.getBaseDownloadUrl().isEmpty() ? View.INVISIBLE : View.VISIBLE);
+        });
         view.findViewById(R.id.deleteBtn).setOnClickListener(this::deleteSelectedJavadoc);
+        view.findViewById(R.id.updateBtn).setOnClickListener(this::updateSelectedJavadoc);
         return view;
+    }
+
+    private void updateSelectedJavadoc(View view) {
+        JavaDocInformation selected = adapter.getSelectedElement();
+        if (selected != null) {
+            if (selected.getType() == JavaDocType.MAVEN) {
+                JavaDocDownloader.updateMavenJavadoc(selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
+            }
+        }
     }
 
     private void deleteSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
-        if(selected!=null){
+        if (selected != null) {
             try {
                 deleteRecursive(selected.getDirectory());
                 int indexToRemove = adapter.getItems().indexOf(selected);
                 adapter.getItems().remove(indexToRemove);
                 adapter.notifyItemRemoved(indexToRemove);
             } catch (IOException e) {
-                Toast.makeText(getContext(),"Cannot delete javadoc",Toast.LENGTH_SHORT).show();
-                Log.e(getClass().getName(),"Cannot delete javadoc",e);
+                Toast.makeText(getContext(), "Cannot delete javadoc", Toast.LENGTH_SHORT).show();
+                Log.e(getClass().getName(), "Cannot delete javadoc", e);
             }
         }
     }
 
-    private void deleteRecursive(File directory) throws IOException {
-        if(directory.isDirectory()){
+    public static void deleteRecursive(File directory) throws IOException {
+        if (directory.isDirectory()) {
             for (File file : directory.listFiles()) {
                 deleteRecursive(file);
             }
@@ -100,65 +115,60 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
     private boolean downloadMenuItemClicked(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.downloadFromCentral:
-                Log.i(getClass().getName(),"Central");
                 showDownloadPopup("https://repo1.maven.org/maven2");
                 break;
             case R.id.downloadFromMaven:
-                Log.i(getClass().getName(),"Custom Maven repo");
                 showDownloadPopup("");
                 break;
             case R.id.downloadFromOracle:
-                Log.i(getClass().getName(),"Oracle");
                 openFragment(DownloaderFragment.newInstance());
                 break;
             case R.id.downloadFromZip:
-                Log.i(getClass().getName(),"zip");
                 loadZipJavadoc();
                 break;
             default:
                 return false;
-
         }
         return true;
     }
 
-    private void loadZipJavadoc(){
+    private void loadZipJavadoc() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip","application/java-archive"});
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/java-archive"});
         startActivityForResult(intent, 1337);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case 1337:
-                if(data!=null){
-                    JavaDocDownloader.downloadFromUri(getContext(),data.getData(), dir->openFragment(ListClassesFragment.newInstance(dir)));//TODO test
+                if (data != null) {
+                    JavaDocDownloader.downloadFromUri(getContext(), data.getData(), docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
                 }
                 break;
         }
     }
 
-    private void showDownloadPopup(String repo){
-        PopupWindow popUp=new PopupWindow(getView(), ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
-        View layout=getLayoutInflater().inflate(R.layout.popup_artifact_selector,null,false);
+    private void showDownloadPopup(String repo) {
+        PopupWindow popUp = new PopupWindow(getView(), ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        View layout = getLayoutInflater().inflate(R.layout.popup_artifact_selector, null, false);
         popUp.setContentView(layout);
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
         repoSelector.setText(repo);
-        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v->{
+        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v -> {
             JavaDocDownloader.downloadFromMavenRepo(requireContext(),
                     repoSelector.getText().toString(),
                     layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
                     layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
                     layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(),
-                    dir->openFragment(ListClassesFragment.newInstance(dir))
+                    dir -> openFragment(ListClassesFragment.newInstance(dir))
             );
         });
-        layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v->popUp.dismiss());
-        popUp.showAtLocation(getView(), Gravity.CENTER,0,0);
+        layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v -> popUp.dismiss());
+        popUp.showAtLocation(getView(), Gravity.CENTER, 0, 0);
     }
 
     @Override
@@ -178,9 +188,9 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
 
     @Override
     public void onSearch(String search) {
-        if(javaDocInfos!=null){
-            List<JavaDocInformation> items=new ArrayList<>(javaDocInfos);
-            items.removeIf(item->!item.getName().toLowerCase().contains(search.toLowerCase()));
+        if (javaDocInfos != null) {
+            List<JavaDocInformation> items = new ArrayList<>(javaDocInfos);
+            items.removeIf(item -> !item.getName().toLowerCase().contains(search.toLowerCase()));
             adapter.setItems(items);
         }
     }

@@ -1,21 +1,20 @@
 <resources>
     <string name="app_name">JDoc4droid</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="loadingtext">loading…</string>
     <string name="search">Search</string>
     <string name="placeholderText">Placeholder</string>
     <string name="downloadFromOracle">Download Java API docs</string>
     <string name="downloadFromCentral">Download from Maven Central</string>
     <string name="downloadFromMavenRepo">Download from custom Maven repository</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="artifactField">Artifact ID</string>
     <string name="groupField">Group ID</string>
     <string name="repoField">Repository</string>
     <string name="versionField">version</string>
     <string name="downloadBtnText">Download</string>
     <string name="dismissBtnText">Dismiss</string>
-    <string name="downloadBtnContentDesc">download button</string>
     <string name="downloadFromZip">Use zip file</string>
     <string name="share">Share</string>
+    <string name="deleteJavadoc">Delete Javadoc</string>
+    <string name="updateJavadoc">Update Javadoc</string>
+    <string name="downloadBtnContentDesc">download Javadoc</string>
 </resources>
