@@ -200,10 +200,16 @@ public class JavaDocParser {
         for (Element elem : element.select("dd")) {
             elem.tagName("p");
         }
-        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH);
+
+        Element idLookup=element;
+        String id;
+        while((id=idLookup.id()).isEmpty()&&idLookup.childrenSize()>0&&idLookup.ownText().replaceAll("\\s+","").isEmpty()){
+            idLookup=idLookup.child(0);
+        }
+        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,null,id);
     }
 
-    private <T> boolean isMapWithProperSubElements(Object toTest) {
+    private boolean isMapWithProperSubElements(Object toTest) {
         if (!(toTest instanceof Map)) {
             return false;
         }

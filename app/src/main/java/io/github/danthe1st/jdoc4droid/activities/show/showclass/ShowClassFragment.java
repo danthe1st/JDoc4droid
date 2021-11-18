@@ -18,13 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.AbstractFragment;
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
+import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.util.JavaDocLinkMovementMethod;
 import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
@@ -322,5 +326,33 @@ public class ShowClassFragment extends AbstractFragment {
     @Override
     public void onSearchType(String search) {
         onSearch(search);
+    }
+
+    @Override
+    public String getShareLink() {
+        TextHolder selected=getSelected();
+        String id="";
+        if(selected instanceof HtmlStringHolder){
+            id = "#"+((HtmlStringHolder) selected).getId();
+        }
+        return super.getShareLink()+id;
+    }
+    private TextHolder getSelected(){
+        Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> sections = information.getSections();
+        if(sections==null){
+            return null;
+        }
+        Map<TextHolder, Map<TextHolder, TextHolder>> outer = sections.get(information.getSelectedOuterSection());
+        Map<TextHolder, TextHolder> middle;
+        if(outer.size()>1){
+            middle = outer.get(information.getSelectedMiddleSection());
+        }else{
+            middle=outer.values().stream().findAny().orElseThrow(IllegalStateException::new);
+        }
+        if(middle.size()>1){
+            return middle.get(information.getSelectedInnerSection());
+        }else {
+            return middle.values().stream().findAny().orElseThrow(IllegalStateException::new);
+        }
     }
 }

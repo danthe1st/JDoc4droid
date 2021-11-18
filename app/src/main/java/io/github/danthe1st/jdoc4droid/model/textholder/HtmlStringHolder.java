@@ -25,13 +25,22 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     private int flags;
     @Getter
     private String mainName;
-
+    @Getter
+    private String id="";
     private CharSequence spanned;
+
 
     public HtmlStringHolder(String html, int flags,String mainName) {
         this.html=html;
         this.flags=flags;
         this.mainName=mainName;
+    }
+
+    public HtmlStringHolder(String html, int flags,String mainName, String id) {
+        this.html=html;
+        this.flags=flags;
+        this.mainName=mainName;
+        this.id=id;
     }
 
     @Override
