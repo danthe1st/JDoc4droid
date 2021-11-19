@@ -2,6 +2,7 @@ package io.github.danthe1st.jdoc4droid.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
@@ -127,6 +129,10 @@ public class FragmentHolderActivity extends AppCompatActivity {
 
         shareButton = menu.findItem(R.id.app_bar_share);
 
+        EditText searchEditText = searchView.findViewById( searchView.getContext()
+                .getResources()
+                .getIdentifier("android:id/search_src_text", null, null));
+        searchEditText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI|InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
