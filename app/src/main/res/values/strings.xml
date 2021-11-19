@@ -17,4 +17,6 @@
     <string name="deleteJavadoc">Delete Javadoc</string>
     <string name="updateJavadoc">Update Javadoc</string>
     <string name="downloadBtnContentDesc">download Javadoc</string>
+    <string name="javadocDownloadError">Cannot download Javadoc</string>
+    <string name="javadocUpdateError">Cannot update Javadoc</string>
 </resources>

@@ -76,7 +76,7 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
         JavaDocInformation selected = adapter.getSelectedElement();
         if (selected != null) {
             if (selected.getType() == JavaDocType.MAVEN) {
-                JavaDocDownloader.updateMavenJavadoc(selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
+                JavaDocDownloader.updateMavenJavadoc(getContext(), selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
             }
         }
     }

@@ -2,9 +2,12 @@ package io.github.danthe1st.jdoc4droid.util;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
+
+import androidx.annotation.StringRes;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -42,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
@@ -54,9 +58,9 @@ public class JavaDocDownloader {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>());
 
-    private static final Map<String, String> ORACLE_SUBDIR_SUFFIXES_MAPPING;
-    private static final String METADATA_FILE_NAME = ".metadata";
-    private static final Pattern JDK_JAVADOC_MAJOR_VERSION_PATTERN = Pattern.compile("[^0-9]*([0-9]+)([^0-9].*)?");
+    private final Map<String, String> ORACLE_SUBDIR_SUFFIXES_MAPPING;
+    private final String METADATA_FILE_NAME = ".metadata";
+    private final Pattern JDK_JAVADOC_MAJOR_VERSION_PATTERN = Pattern.compile("[^0-9]*([0-9]+)([^0-9].*)?");
 
     static {
         Map<String, String> suffixSubdirMapping = new HashMap<>();
@@ -92,7 +96,7 @@ public class JavaDocDownloader {
                         return false;
                     } else {
                         JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK);
-                        downloadAndUnzipAsync(url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), subDirToUnzip);
+                        downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), subDirToUnzip);
                         return true;
                     }
                 }
@@ -134,7 +138,7 @@ public class JavaDocDownloader {
                 artefactId + " " + version, src,
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
                 JavaDocType.MAVEN,artifactBaseUrl);
-        Consumer<String> downloadAction=url->downloadAndUnzipAsync(url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        Consumer<String> downloadAction=url->downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
         if("LATEST".equals(version)||"RELEASE".equals(version)){
             downloader.execute(()->{
                 try {
@@ -148,12 +152,12 @@ public class JavaDocDownloader {
         downloadAction.accept(effectiveUrl);
     }
 
-    public void updateMavenJavadoc(JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess) {
+    public void updateMavenJavadoc(Context ctx, JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess) {
         downloader.execute(()->{
             try {
                 JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl());
                 String url=getLatestMavenVersion(newJavaDocInfo);
-                downloadAndUnzipAsync(url, newJavaDocInfo, ()->{
+                downloadAndUnzipAsync(ctx, url, newJavaDocInfo, ()->{
                     onSuccess.accept(newJavaDocInfo);
                     try {
                         ListJavadocsFragment.deleteRecursive(javaDocInfo.getDirectory());
@@ -163,7 +167,7 @@ public class JavaDocDownloader {
                 }, "");
 
             } catch (IOException e) {
-                Log.e(JavaDocDownloader.class.getName(), "cannot update javadoc", e);
+                showError(ctx, R.string.javadocUpdateError,e);
             }
         });
     }
@@ -227,13 +231,13 @@ public class JavaDocDownloader {
         }
     }
 
-    public static void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess) {
+    public void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess) {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment(), "/");
         JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP);
-        downloadAndUnzipAsync(() -> ctx.getContentResolver().openInputStream(uri), javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        downloadAndUnzipAsync(ctx, () -> ctx.getContentResolver().openInputStream(uri), javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
     }
 
-    private static String getLastOfSplitted(String toSplit, String delimitor) {
+    private String getLastOfSplitted(String toSplit, String delimitor) {
         String[] split = toSplit.split(delimitor);
         return split[split.length - 1];
     }
@@ -246,18 +250,18 @@ public class JavaDocDownloader {
         return toConvert.replaceAll("[^A-Za-z0-9]", "_");
     }
 
-    private static void downloadAndUnzipAsync(String url, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
-        downloadAndUnzipAsync(() -> {
+    private void downloadAndUnzipAsync(Context ctx, String url, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
+        downloadAndUnzipAsync(ctx, () -> {
             URL javaUrl = new URL(url);
             return javaUrl.openStream();
         }, javaDocInfo, onSuccess, subDirToUnzip);
     }
 
-    private static void downloadAndUnzipAsync(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
-        downloader.execute(() -> downloadAndUnzip(inputStreamSupplier, javaDocInfo, onSuccess, subDirToUnzip));
+    private void downloadAndUnzipAsync(Context ctx, Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
+        downloader.execute(() -> downloadAndUnzip(ctx, inputStreamSupplier, javaDocInfo, onSuccess, subDirToUnzip));
     }
 
-    private void downloadAndUnzip(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
+    private void downloadAndUnzip(Context ctx, Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
         try {
             File tempDir = getTempDir();
             unzip(inputStreamSupplier, tempDir, subDirToUnzip);
@@ -268,8 +272,13 @@ public class JavaDocDownloader {
             Files.move(tempDir.toPath(), javaDocInfo.getDirectory().toPath());
             onSuccess.run();
         } catch (Exception e) {
-            Log.e(JavaDocDownloader.class.getName(), "cannot download javadoc", e);
+            showError(ctx, R.string.javadocDownloadError,e);
         }
+    }
+
+    private void showError(Context ctx, @StringRes int errorMessage, Exception e){
+        Log.e(JavaDocDownloader.class.getName(), "cannot download javadoc", e);
+        new Handler(ctx.getMainLooper()).post(()-> Toast.makeText(ctx, errorMessage,Toast.LENGTH_LONG).show());
     }
 
     private void unzip(Callable<InputStream> inputStreamLoader, File dest, String subDirToUnzip) throws Exception {
@@ -313,7 +322,7 @@ public class JavaDocDownloader {
         return dir;
     }
 
-    public static List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) {
+    public List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) {
         return Arrays.stream(getAllSavedJavaDocDirs(context)).map(JavaDocDownloader::readMetadataFileUnchecked).collect(Collectors.toList());
     }
 
