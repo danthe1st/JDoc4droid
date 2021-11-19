@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.util.Xml;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -117,7 +118,10 @@ public class JavaDocDownloader {
         }
     }
 
-    public static void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess) {
+    public void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess) {
+        if(version.isEmpty()){
+            version="RELEASE";
+        }
         String artifactBaseUrl=repoUrl + "/" + groupId.replace('.', '/') + "/" + artefactId + "/";
         String effectiveUrl = artifactBaseUrl + version + "/" + artefactId + "-" + version + "-javadoc.jar";
         String src;
@@ -130,7 +134,18 @@ public class JavaDocDownloader {
                 artefactId + " " + version, src,
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
                 JavaDocType.MAVEN,artifactBaseUrl);
-        downloadAndUnzipAsync(effectiveUrl, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        Consumer<String> downloadAction=url->downloadAndUnzipAsync(url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        if("LATEST".equals(version)||"RELEASE".equals(version)){
+            downloader.execute(()->{
+                try {
+                    String url = getLatestMavenVersion(javaDocInfo);
+                    downloadAction.accept(url);
+                } catch (IOException e) {
+                    downloadAction.accept(effectiveUrl);
+                }
+            });
+        }
+        downloadAction.accept(effectiveUrl);
     }
 
     public void updateMavenJavadoc(JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess) {
@@ -192,6 +207,8 @@ public class JavaDocDownloader {
             String newOnlineUrl=javaDocInfo.getOnlineDocUrl();
             String newDirectory=javaDocInfo.getDirectory().getPath();
             String newName=javaDocInfo.getName();
+            allVersions.add("LATEST");
+            allVersions.add("RELEASE");
             for (String v : allVersions) {
                 newOnlineUrl=newOnlineUrl.replace(v,version);
                 newName=newName.replace(v,version);
