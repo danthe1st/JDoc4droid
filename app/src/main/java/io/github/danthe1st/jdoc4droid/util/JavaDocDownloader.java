@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -32,7 +31,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +49,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class JavaDocDownloader {
 
-    private final ExecutorService downloader = Executors.newSingleThreadExecutor();
+    private final ExecutorService downloader = new ThreadPoolExecutor(1, 3,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     private static final Map<String, String> ORACLE_SUBDIR_SUFFIXES_MAPPING;
     private static final String METADATA_FILE_NAME = ".metadata";
