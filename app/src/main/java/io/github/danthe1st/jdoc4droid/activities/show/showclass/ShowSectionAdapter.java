@@ -1,17 +1,14 @@
 package io.github.danthe1st.jdoc4droid.activities.show.showclass;
 
-import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
@@ -45,9 +42,23 @@ public class ShowSectionAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        int selectedItemPosition=((Spinner) parent).getSelectedItemPosition();
+        return createView(selectedItemPosition==-1?position:selectedItemPosition, parent);
+    }
+
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return createView(position, parent);
+    }
+
+    private View createView(int position, ViewGroup parent){
         View view = inflater.inflate(R.layout.context_menu_item, parent, false);
-        view.<TextView>findViewById(R.id.contextMenuField).setText(sections.get(position).getText());
+        bindView(view,position);
         return view;
+    }
+
+    private void bindView(View view, int position){
+        view.<TextView>findViewById(R.id.contextMenuField).setText(sections.get(position).getText());
     }
 
     public int getPositionFromName(TextHolder name) {
