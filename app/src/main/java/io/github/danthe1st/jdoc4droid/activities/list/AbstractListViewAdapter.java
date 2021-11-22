@@ -69,7 +69,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
                     selectedViewHolder.view.setBackgroundColor(0);//transparent
                 }
                 selectedViewHolder = (H) this;
-                view.setBackgroundColor(0x25000000);//mostly transparent but a bit black-->results in gray
+                view.setBackgroundColor(view.getResources().getColor(R.color.gray_light));//mostly transparent but a bit black-->results in gray
                 if(onSelect!=null){
                     onSelect.accept(item);
                 }
