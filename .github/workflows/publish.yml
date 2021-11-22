@@ -28,7 +28,7 @@ jobs:
         mkdir changelogs
         echo "${{ github.event.head_commit.message }}" > changelogs/whatsnew-en-US
     - name: upload bundle to Google Play
-      uses: r0adkll/upload-google-play@v1
+      uses: r0adkll/upload-google-play@v1.0.16
       with:
         serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         packageName: io.github.danthe1st.jdoc4droid
