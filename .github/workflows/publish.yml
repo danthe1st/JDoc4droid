@@ -26,7 +26,7 @@ jobs:
     - name: changelogs
       run: |
         mkdir changelogs
-        echo ${{ github.event.head_commit.message }} > changelogs/whatsnew-en-US
+        echo "${{ github.event.head_commit.message }}" > changelogs/whatsnew-en-US
     - name: upload bundle to Google Play
       uses: r0adkll/upload-google-play@v1
       with:
@@ -36,3 +36,4 @@ jobs:
         track: internal
         mappingFile: app/build/outputs/mapping/release/mapping.txt
         whatsNewDirectory: changelogs
+        releaseName: ${{ github.sha }}
