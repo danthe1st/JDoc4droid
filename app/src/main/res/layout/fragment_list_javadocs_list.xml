@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/secondary"
     tools:context=".activities.list.javadocs.ListJavadocsFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -50,6 +51,8 @@
         android:name="io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

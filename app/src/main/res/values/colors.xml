@@ -13,5 +13,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="popupBackground">#CCCCCC</color>
     <color name="mainContrastColor">@color/gray_dark</color>
+    <color name="secondary">@color/gray_light</color>
+    <color name="background">#FFFFFF</color>
 
 </resources>

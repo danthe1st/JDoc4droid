@@ -3,6 +3,8 @@ package io.github.danthe1st.jdoc4droid.activities.list;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -66,15 +68,22 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
                 }
             } else {
                 if (selectedViewHolder != null) {
-                    selectedViewHolder.view.setBackgroundColor(0);//transparent
+                    setCardColor(selectedViewHolder.view,R.color.background);
                 }
                 selectedViewHolder = (H) this;
-                view.setBackgroundColor(view.getResources().getColor(R.color.gray_light));//mostly transparent but a bit black-->results in gray
+                setCardColor(view,R.color.secondary);
                 if(onSelect!=null){
                     onSelect.accept(item);
                 }
             }
             lastClickTime=System.nanoTime();//monochromic, cannot be manipulated using system time
+        }
+        private void setCardColor(View view,@ColorRes int color){
+            View card=view.findViewById(R.id.card);
+            if(card==null){
+                card=view;
+            }
+            card.setBackgroundColor(view.getResources().getColor(color,null));
         }
     }
 }

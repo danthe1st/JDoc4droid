@@ -2,6 +2,7 @@ package io.github.danthe1st.jdoc4droid.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -67,7 +68,7 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && Debug.isDebuggerConnected()) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
@@ -75,7 +76,7 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && Debug.isDebuggerConnected()) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }

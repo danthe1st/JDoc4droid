@@ -5,18 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:name="io.github.danthe1st.jdoc4droid.activities.ListClassesFragment"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:context=".activities.list.classes.ListClassesFragment"
-        tools:listitem="@layout/fragment_list_classes" />
+        android:background="@color/secondary"
+        android:orientation="horizontal">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:name="io.github.danthe1st.jdoc4droid.activities.ListClassesFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="5dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".activities.list.classes.ListClassesFragment"
+            tools:listitem="@layout/fragment_list_classes" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar2"
