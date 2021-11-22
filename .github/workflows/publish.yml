@@ -37,3 +37,4 @@ jobs:
         mappingFile: app/build/outputs/mapping/release/mapping.txt
         whatsNewDirectory: changelogs
         releaseName: ${{ github.sha }}
+        status: draft
