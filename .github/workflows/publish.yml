@@ -38,3 +38,4 @@ jobs:
         whatsNewDirectory: changelogs
         releaseName: ${{ github.sha }}
         status: draft
+        userFraction: 0.99
