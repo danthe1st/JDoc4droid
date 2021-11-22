@@ -17,8 +17,8 @@
         android:layout_marginEnd="10dp"
         android:autoSizeMaxTextSize="16sp"
         android:breakStrategy="simple"
-        android:textSize="16sp"
         android:textIsSelectable="true"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -14,7 +14,6 @@
         android:theme="@style/Theme.JDoc4droid">
         <activity
             android:name=".activities.MainActivity"
-            android:screenOrientation="locked"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
