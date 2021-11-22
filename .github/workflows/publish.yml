@@ -12,8 +12,17 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Setup keystore
+      run: echo "$keystore" | base64 -d - > ./keystore.jks
+      env:
+        keystore: '${{ secrets.keystore }}'
     - name: build
       run: ./gradlew bundle
+      env:
+        KEYSTORE: '../keystore.jks'
+        KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
+        SIGNING_KEY: '${{ secrets.signingKey }}'
+        SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
     - name: changelogs
       run: |
         mkdir changelogs
