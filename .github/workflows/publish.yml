@@ -1,0 +1,29 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: build
+      run: ./gradlew bundle
+    - name: changelogs
+      run: |
+        mkdir changelogs
+        echo ${{ github.event.head_commit.message }} > changelogs/whatsnew-en-US
+    - name: upload bundle to Google Play
+      uses: r0adkll/upload-google-play@v1
+      with:
+        serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+        packageName: io.github.danthe1st.jdoc4droid
+        releaseFile: app/build/outputs/bundle/release/app-release.aab
+        track: internal
+        mappingFile: app/build/outputs/mapping/release/mapping.txt
+        whatsNewDirectory: changelogs
