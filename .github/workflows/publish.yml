@@ -17,7 +17,7 @@ jobs:
       env:
         keystore: '${{ secrets.keystore }}'
     - name: build
-      run: ./gradlew bundle
+      run: ./gradlew bundle -DversionCode=${{ github.run_number }}
       env:
         KEYSTORE: '../keystore.jks'
         KEYSTORE_PWD: '${{ secrets.keystorePwd }}'

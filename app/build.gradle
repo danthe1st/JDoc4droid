@@ -10,7 +10,7 @@ android {
         applicationId "io.github.danthe1st.jdoc4droid"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 1
+        versionCode Integer.parseInt(System.getProperty("versionCode","1"))
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
