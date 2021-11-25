@@ -1,9 +1,7 @@
 package io.github.danthe1st.jdoc4droid.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +10,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import java.io.File;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.classes.ListClassesFragment;
@@ -39,11 +34,6 @@ public class DownloaderFragment extends AbstractFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_downloader, container, false);
@@ -63,13 +53,11 @@ public class DownloaderFragment extends AbstractFragment {
             }
         });
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
-            if(JavaDocDownloader.downloadJavaApiDocs(getContext(),url,dir -> {
-                runInUIThread(()->{
-                    FragmentHolderActivity act=getBelongingActivity();
-                    super.goBack();
-                    openFragment(act.getSupportFragmentManager(), ListClassesFragment.newInstance(dir),act);
-                });
-            })){
+            if(JavaDocDownloader.downloadJavaApiDocs(getContext(),url,dir -> runInUIThread(()->{
+                FragmentHolderActivity act=getBelongingActivity();
+                super.goBack();
+                openFragment(act.getSupportFragmentManager(), ListClassesFragment.newInstance(dir),act);
+            }))){
                 loadingView.setVisibility(View.VISIBLE);
                 webView.setVisibility(View.INVISIBLE);
             }
@@ -77,7 +65,6 @@ public class DownloaderFragment extends AbstractFragment {
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        //view.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         webView.loadUrl("https://www.oracle.com/java/technologies/javase-downloads.html");

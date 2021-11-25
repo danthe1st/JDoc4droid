@@ -29,7 +29,6 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     private String id="";
     private CharSequence spanned;
 
-
     public HtmlStringHolder(String html, int flags,String mainName) {
         this.html=html;
         this.flags=flags;

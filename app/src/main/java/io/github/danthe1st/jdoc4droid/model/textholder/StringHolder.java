@@ -1,7 +1,5 @@
 package io.github.danthe1st.jdoc4droid.model.textholder;
 
-import androidx.annotation.Nullable;
-
 import java.util.Objects;
 
 import lombok.AllArgsConstructor;

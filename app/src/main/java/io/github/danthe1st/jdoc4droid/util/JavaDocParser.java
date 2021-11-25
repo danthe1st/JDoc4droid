@@ -6,14 +6,12 @@ import android.util.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,14 +20,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -39,7 +34,6 @@ import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
-import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -114,10 +108,8 @@ public class JavaDocParser {
                     if (child.hasClass("col-first")&&child.childrenSize()>0) {
                         temp = loadSimpleClassDescription(child, "");
                         descList.add(temp);
-                    } else if (child.hasClass("col-last")) {
-                        if (temp != null) {
-                            temp.setDescription(child.text());
-                        }
+                    } else if (child.hasClass("col-last")&&temp != null) {
+                        temp.setDescription(child.text());
                     }
                 }
                 return descList;

@@ -1,9 +1,7 @@
 package io.github.danthe1st.jdoc4droid.activities.list;
 
 import android.view.View;
-import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,7 +9,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.danthe1st.jdoc4droid.R;
-import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -55,7 +52,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
         public final View view;
         public T item;
 
-        public AbstractViewHolder(View binding) {
+        protected AbstractViewHolder(View binding) {
             super(binding);
             this.view=binding;
             view.setOnClickListener(this::onClick);

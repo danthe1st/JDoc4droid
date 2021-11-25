@@ -17,7 +17,6 @@ import android.widget.SearchView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.fragment.app.Fragment;
 
 import java.util.Deque;
@@ -35,12 +34,12 @@ import lombok.Getter;
 public class FragmentHolderActivity extends AppCompatActivity {
 
     @Getter
-    private Deque<AbstractFragment> currentFragments = new LinkedList<>();
+    private final Deque<AbstractFragment> currentFragments = new LinkedList<>();
 
-    private Map<Integer, Runnable> keyListeners = new HashMap<>();
+    private final Map<Integer, Runnable> keyListeners = new HashMap<>();
 
     @Getter
-    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    private final ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
     @Getter
     private SearchView searchView;
@@ -166,10 +165,8 @@ public class FragmentHolderActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.app_bar_share:
-                onShareButton();
-                break;
+        if (item.getItemId() == R.id.app_bar_share) {
+            onShareButton();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -192,26 +189,7 @@ public class FragmentHolderActivity extends AppCompatActivity {
         } else {
             searchView.setVisibility(View.GONE);
         }
-        if(currentFragment.getShareLink()==null){
-            shareButton.setVisible(false);
-        }else{
-            shareButton.setVisible(true);
-        }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-    }
-
-    @Override
-    public boolean onSearchRequested() {
-        return super.onSearchRequested();
+        shareButton.setVisible(currentFragment.getShareLink() != null);
     }
 
 }

@@ -2,20 +2,14 @@ package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.loader.content.CursorLoader;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -26,7 +20,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +33,7 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewAdapter> {
+public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformation,ListJavaDocsViewAdapter> {
 
     private List<JavaDocInformation> javaDocInfos;
 
@@ -74,10 +67,8 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
 
     private void updateSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
-        if (selected != null) {
-            if (selected.getType() == JavaDocType.MAVEN) {
-                JavaDocDownloader.updateMavenJavadoc(getContext(), selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
-            }
+        if (selected != null&&selected.getType() == JavaDocType.MAVEN) {
+            JavaDocDownloader.updateMavenJavadoc(getContext(), selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
         }
     }
 
@@ -143,12 +134,8 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 1337:
-                if (data != null) {
-                    JavaDocDownloader.downloadFromUri(getContext(), data.getData(), docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
-                }
-                break;
+        if (requestCode == 1337&&data != null) {
+            JavaDocDownloader.downloadFromUri(getContext(), data.getData(), docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)));
         }
     }
 
@@ -158,15 +145,13 @@ public class ListJavadocsFragment extends AbstractListFragment<ListJavaDocsViewA
         popUp.setContentView(layout);
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
         repoSelector.setText(repo);
-        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v -> {
-            JavaDocDownloader.downloadFromMavenRepo(requireContext(),
-                    repoSelector.getText().toString(),
-                    layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
-                    layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
-                    layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(),
-                    dir -> openFragment(ListClassesFragment.newInstance(dir))
-            );
-        });
+        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v -> JavaDocDownloader.downloadFromMavenRepo(requireContext(),
+                repoSelector.getText().toString(),
+                layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
+                layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
+                layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(),
+                dir -> openFragment(ListClassesFragment.newInstance(dir))
+        ));
         layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v -> popUp.dismiss());
         popUp.showAtLocation(getView(), Gravity.CENTER, 0, 0);
     }

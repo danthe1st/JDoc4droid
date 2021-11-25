@@ -21,9 +21,7 @@ public class ListClassesViewAdapter extends AbstractListViewAdapter<SimpleClassD
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ViewHolder viewHolder = new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_classes, parent, false));
-
-        return viewHolder;
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_classes, parent, false));
     }
 
     @Override

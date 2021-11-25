@@ -1,11 +1,8 @@
 package io.github.danthe1st.jdoc4droid.util;
 
 import android.text.Layout;
-import android.text.method.BaseMovementMethod;
 import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
@@ -13,10 +10,11 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class JavaDocLinkMovementMethod extends LinkMovementMethod {
-    private OnLinkClickedListener mOnLinkClickedListener;
+    private final OnLinkClickedListener mOnLinkClickedListener;
 
     //https://stackoverflow.com/a/50342669/10871900
     //https://gitlab.com/Commit451/LabCoat/commit/0da57c371815902f4ba24fcd7bceaa1e7a8d7bb7#1869e1cd937878326e16d1ab7139f68380c48172
+    @Override
     public boolean onTouchEvent(TextView widget, android.text.Spannable buffer, android.view.MotionEvent event) {
         int action = event.getAction();
 

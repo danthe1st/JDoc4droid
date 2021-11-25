@@ -18,12 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.AbstractFragment;
@@ -198,11 +195,6 @@ public class ShowClassFragment extends AbstractFragment {
         return view;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, int position) {
         TextHolder outerSelected = outerAdapter.getSections().get(position);
         information.setSelectedOuterSection(outerSelected);
@@ -227,7 +219,7 @@ public class ShowClassFragment extends AbstractFragment {
         information.setSelectedMiddleSection(middleSelected);
         Map<TextHolder, TextHolder> selected = information.getSections().get(information.getSelectedOuterSection()).get(middleSelected);
         if (selected == null) {
-
+            //do nothing
         } else if (selected.size() == 1 && selected.containsKey(TextHolder.EMPTY)) {
             innerSelectionSpinner.setVisibility(View.GONE);
             innerSelectionSpinner.setWillNotDraw(true);

@@ -25,21 +25,13 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
 /**
  * A fragment representing a list of Items.
  */
-public class ListClassesFragment extends AbstractListFragment<ListClassesViewAdapter> {
+public class ListClassesFragment extends AbstractListFragment<SimpleClassDescription,ListClassesViewAdapter> {
 
     private static final String ARG_JAVADOC_DIR = "javaDocDir";
 
     private File javaDocDir;
 
-
     private List<SimpleClassDescription> descriptions= Collections.emptyList();
-
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public ListClassesFragment() {
-    }
 
     public static ListClassesFragment newInstance(JavaDocInformation javaDocInfo) {
         ListClassesFragment fragment = new ListClassesFragment();
