@@ -63,23 +63,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
         return keyListeners.get(key);
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (BuildConfig.DEBUG && Debug.isDebuggerConnected()) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (BuildConfig.DEBUG && Debug.isDebuggerConnected()) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-    }
-
     @Override
     public void onBackPressed() {
         if (currentFragments.isEmpty()) {
