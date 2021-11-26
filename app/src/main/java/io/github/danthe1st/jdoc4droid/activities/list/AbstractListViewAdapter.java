@@ -35,7 +35,10 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
 
     @Override
     public void onBindViewHolder(H holder, int position) {
-        holder.item= items.get(position);
+        holder.item = items.get(position);
+        if(selectedViewHolder==holder){
+            unselect();
+        }
     }
 
     @Override
@@ -44,10 +47,20 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
     }
 
     public void setItems(List<T> items) {
-        this.items =items;
+        this.items = items;
         notifyDataSetChanged();
     }
-
+    private void unselect(){
+        setCardColor(selectedViewHolder.view,R.color.background);
+        selectedViewHolder=null;
+    }
+    private void setCardColor(View view,@ColorRes int color){
+        View card=view.findViewById(R.id.card);
+        if(card==null){
+            card=view;
+        }
+        card.setBackgroundColor(view.getResources().getColor(color,null));
+    }
     public abstract class AbstractViewHolder extends RecyclerView.ViewHolder {
         public final View view;
         public T item;
@@ -65,7 +78,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
                 }
             } else {
                 if (selectedViewHolder != null) {
-                    setCardColor(selectedViewHolder.view,R.color.background);
+                    unselect();
                 }
                 selectedViewHolder = (H) this;
                 setCardColor(view,R.color.secondary);
@@ -74,13 +87,6 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
                 }
             }
             lastClickTime=System.nanoTime();//monochromic, cannot be manipulated using system time
-        }
-        private void setCardColor(View view,@ColorRes int color){
-            View card=view.findViewById(R.id.card);
-            if(card==null){
-                card=view;
-            }
-            card.setBackgroundColor(view.getResources().getColor(color,null));
         }
     }
 }
