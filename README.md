@@ -2,6 +2,9 @@
 
 A Javadoc Viewer for Android
 
+## Installation
+JDoc4droid is available on Google Play [here](https://play.google.com/store/apps/details?id=io.github.danthe1st.jdoc4droid).
+
 ## Setup with AndroidStudio
 * Install AndroidStudio
 * Install the Lombok Plugin in AndroidStudio
