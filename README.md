@@ -3,7 +3,7 @@
 A Javadoc Viewer for Android
 
 ## Installation
-JDoc4droid is available on Google Play [here](https://play.google.com/store/apps/details?id=io.github.danthe1st.jdoc4droid).
+JDoc4droid is available on Google Play [here](https://play.google.com/store/apps/details?id=io.github.danthe1st.jdoc4droid) but you can also download an APK of any commit from [GitHub Actions](https://github.com/danthe1st/JDoc4droid/actions).
 
 ## Setup with AndroidStudio
 * Install AndroidStudio
@@ -20,6 +20,3 @@ JDoc4droid is available on Google Play [here](https://play.google.com/store/apps
 * After the command finishes, you should find a file named `app-debug.apk` in the directory `app/build/outputs/apk/debug`
   and a file named `app-release-unsigned.apk` in the directory `app/build/outputs/apk/release`
 * You can install the apk file on an android device (emulator or real device) and use it
-
-## Download APK
-You can download an APK of any commit from [GitHub Actions](https://github.com/danthe1st/JDoc4droid/actions).
