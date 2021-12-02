@@ -335,6 +335,9 @@ public class ShowClassFragment extends AbstractFragment {
         }
         Map<TextHolder, Map<TextHolder, TextHolder>> outer = sections.get(information.getSelectedOuterSection());
         Map<TextHolder, TextHolder> middle;
+        if(outer==null){
+            return null;
+        }
         if(outer.size()>1){
             middle = outer.get(information.getSelectedMiddleSection());
         }else{
