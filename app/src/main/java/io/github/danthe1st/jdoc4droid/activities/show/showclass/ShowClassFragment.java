@@ -127,7 +127,7 @@ public class ShowClassFragment extends AbstractFragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //ignore
-                Log.e(getClass().getName(), "nothing selected (o)");
+                Log.i(getClass().getName(), "nothing selected (o)");
             }
         });
         middleSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -139,7 +139,7 @@ public class ShowClassFragment extends AbstractFragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //ignore
-                Log.e(getClass().getName(), "nothing selected (m)");
+                Log.i(getClass().getName(), "nothing selected (m)");
             }
         });
         innerSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -151,7 +151,7 @@ public class ShowClassFragment extends AbstractFragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //ignore
-                Log.e(getClass().getName(), "nothing selected (i)");
+                Log.i(getClass().getName(), "nothing selected (i)");
             }
         });
 
@@ -181,10 +181,9 @@ public class ShowClassFragment extends AbstractFragment {
                                 }
                             }
                         }
-
                     }
+                    view.findViewById(R.id.progressBar).setVisibility(View.GONE);
                     headerView.setText(information.getHeader().getText());
-
                     outerAdapter.notifyDataSetChanged();
                 });
             } catch (IOException e) {

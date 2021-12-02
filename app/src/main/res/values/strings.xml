@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">JDoc4droid</string>
-    <string name="loadingtext">loading…</string>
     <string name="search">Search</string>
     <string name="placeholderText">Placeholder</string>
     <string name="downloadFromOracle">Download Java API docs</string>
