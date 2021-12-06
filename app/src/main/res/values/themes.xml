@@ -2,7 +2,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
     </style>
     <!-- Base application theme. -->
-    <style name="Theme.JDoc4droid" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.JDoc4droid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/gray_light</item>
         <item name="colorPrimaryVariant">@color/gray_darker</item>
@@ -14,11 +14,7 @@
         <!-- Status bar color. - - >
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
-
-    <style name="myTheme.ActionBar.Text" parent="@android:style/TextAppearance">
-        <item name="android:textColor">?attr/colorPrimaryVariant</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item><!-- <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item> -->
     </style>
 
 </resources>

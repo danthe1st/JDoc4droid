@@ -17,6 +17,7 @@ import android.widget.SearchView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import java.util.Deque;
@@ -45,6 +46,8 @@ public class FragmentHolderActivity extends AppCompatActivity {
     private SearchView searchView;
 
     private MenuItem shareButton;
+
+    private Toolbar mActionBarToolbar;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -92,6 +95,22 @@ public class FragmentHolderActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        getActionBarToolbar();
+    }
+
+    protected Toolbar getActionBarToolbar() {
+        if (mActionBarToolbar == null) {
+            mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+            if (mActionBarToolbar != null) {
+                setSupportActionBar(mActionBarToolbar);
+            }
+        }
+        return mActionBarToolbar;
     }
 
     @Override

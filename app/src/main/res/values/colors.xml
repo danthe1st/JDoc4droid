@@ -11,6 +11,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="contrastColor">@color/black</color>
+    <color name="mainColor">@color/white</color>
     <color name="popupBackground">#CCCCCC</color>
     <color name="mainContrastColor">@color/gray_dark</color>
     <color name="secondary">@color/gray_light</color>

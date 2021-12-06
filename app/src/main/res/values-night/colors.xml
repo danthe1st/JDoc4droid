@@ -2,6 +2,7 @@
 <resources>
     <color name="popupBackground">@color/gray_darker</color>
     <color name="mainContrastColor">@color/gray_light</color>
+    <color name="contrastColor">@color/white</color>0
     <color name="secondary">@color/gray_dark</color>
     <color name="background">#000000</color>
 </resources>

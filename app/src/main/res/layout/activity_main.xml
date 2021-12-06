@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar_actionbar" />
+
     <FrameLayout
         android:id="@+id/fragHolder"
         android:layout_width="match_parent"
@@ -13,7 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/include">
 
     </FrameLayout>
 
