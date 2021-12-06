@@ -56,7 +56,6 @@ public class JavaDocParser {
         }
     }
 
-
     public ClassInformation loadClassInformation(File classFile, String selectedId) throws IOException {
         File cacheFile = new File(classFile.getParentFile(), classFile.getName() + ".cache");
         if (cacheFile.exists()) {
