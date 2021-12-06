@@ -1,9 +1,11 @@
 package io.github.danthe1st.jdoc4droid.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Debug;
 import android.text.InputType;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -98,14 +100,14 @@ public class FragmentHolderActivity extends AppCompatActivity {
     }
 
     @Override
-    public void setContentView(View view) {
-        super.setContentView(view);
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
         getActionBarToolbar();
     }
 
     protected Toolbar getActionBarToolbar() {
         if (mActionBarToolbar == null) {
-            mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+            mActionBarToolbar = (Toolbar) findViewById(R.id.include);
             if (mActionBarToolbar != null) {
                 setSupportActionBar(mActionBarToolbar);
             }
@@ -126,7 +128,10 @@ public class FragmentHolderActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_menu, menu);
-
+        loadOptionsMenu(menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    private void loadOptionsMenu(Menu menu){
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
 
         shareButton = menu.findItem(R.id.app_bar_share);
@@ -162,7 +167,6 @@ public class FragmentHolderActivity extends AppCompatActivity {
         } else {
             reloadTopMenuButtons(currentFragment);
         }
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

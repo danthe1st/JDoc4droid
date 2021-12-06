@@ -14,7 +14,6 @@
         <!-- Status bar color. - - >
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item><!-- <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item> -->
     </style>
 
 </resources>
