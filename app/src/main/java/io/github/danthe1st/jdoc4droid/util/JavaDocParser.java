@@ -295,7 +295,7 @@ public class JavaDocParser {
             }
         }
         name = elem.attr("id");
-        if (name != null && !name.isEmpty()) {
+        if (!name.isEmpty()) {
             Elements referencers = root.getElementsByAttributeValue("href", "#" + URLEncoder.encode(name, StandardCharsets.UTF_8.name()));
             return new StringHolder(referencers.stream().map(Element::text).findFirst().orElse(name));
         }

@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @RequiredArgsConstructor
-public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapter<T,H>.AbstractViewHolder> extends RecyclerView.Adapter<H>{
+public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder<T,H>> extends RecyclerView.Adapter<H>{
 
     @NonNull
     @Getter
@@ -29,6 +29,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
     protected Consumer<T> onShow;
 
     @Setter(AccessLevel.PROTECTED)
+    @Getter(AccessLevel.PACKAGE)
     private Consumer<T> onSelect;
 
     protected long lastClickTime=0;
@@ -50,43 +51,15 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewAdapte
         this.items = items;
         notifyDataSetChanged();
     }
-    private void unselect(){
+    void unselect(){
         setCardColor(selectedViewHolder.view,R.color.background);
         selectedViewHolder=null;
     }
-    private void setCardColor(View view,@ColorRes int color){
+    void setCardColor(View view,@ColorRes int color){
         View card=view.findViewById(R.id.card);
         if(card==null){
             card=view;
         }
         card.setBackgroundColor(view.getResources().getColor(color,null));
-    }
-    public abstract class AbstractViewHolder extends RecyclerView.ViewHolder {
-        public final View view;
-        public T item;
-
-        protected AbstractViewHolder(View binding) {
-            super(binding);
-            this.view=binding;
-            view.setOnClickListener(this::onClick);
-        }
-
-        protected void onClick(View view) {
-            if (selectedViewHolder == this) {
-                if(lastClickTime>System.nanoTime()-500_000_000){//2 clicks per second-->double-click
-                    onShow.accept(item);
-                }
-            } else {
-                if (selectedViewHolder != null) {
-                    unselect();
-                }
-                selectedViewHolder = (H) this;
-                setCardColor(view,R.color.secondary);
-                if(onSelect!=null){
-                    onSelect.accept(item);
-                }
-            }
-            lastClickTime=System.nanoTime();//monochromic, cannot be manipulated using system time
-        }
     }
 }
