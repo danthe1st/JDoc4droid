@@ -28,7 +28,7 @@ import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.util.JavaDocLinkMovementMethod;
-import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
+import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 
 public class ShowClassFragment extends AbstractFragment {
 

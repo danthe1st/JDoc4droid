@@ -20,7 +20,7 @@ import io.github.danthe1st.jdoc4droid.activities.list.AbstractListFragment;
 import io.github.danthe1st.jdoc4droid.activities.show.showclass.ShowClassFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
-import io.github.danthe1st.jdoc4droid.util.JavaDocParser;
+import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 
 /**
  * A fragment representing a list of Items.

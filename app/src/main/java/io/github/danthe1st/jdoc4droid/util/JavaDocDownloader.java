@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -49,6 +51,7 @@ import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
+import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -266,7 +269,7 @@ public class JavaDocDownloader {
             File tempDir = getTempDir();
             unzip(inputStreamSupplier, tempDir, subDirToUnzip);
             if(javaDocInfo.getName().isEmpty()){
-                javaDocInfo.setName(JavaDocParser.loadName(tempDir));
+                javaDocInfo.setName(loadName(tempDir));
             }
             createMetadataFile(javaDocInfo, tempDir);
             Files.move(tempDir.toPath(), javaDocInfo.getDirectory().toPath());
@@ -274,6 +277,11 @@ public class JavaDocDownloader {
         } catch (Exception e) {
             showError(ctx, R.string.javadocDownloadError,e);
         }
+    }
+
+    public String loadName(File tempDir) throws IOException {
+        Document doc = Jsoup.parse(new File(tempDir,"index.html"), StandardCharsets.UTF_8.name());
+        return doc.title();
     }
 
     private void showError(Context ctx, @StringRes int errorMessage, Exception e){
