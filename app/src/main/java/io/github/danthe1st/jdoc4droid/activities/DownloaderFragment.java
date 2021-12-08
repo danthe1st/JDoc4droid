@@ -46,7 +46,8 @@ public class DownloaderFragment extends AbstractFragment {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if(request.getUrl().getHost().endsWith("oracle.com")){
+                String host = request.getUrl().getHost();
+                if(host!=null&&host.endsWith("oracle.com")){
                     return super.shouldOverrideUrlLoading(view,request);
                 }
                 return false;
