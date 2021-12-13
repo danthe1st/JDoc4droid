@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,11 +61,14 @@ class IndexParser {
                 .collect(Collectors.toList());
     }
     private List<SimpleClassDescription> parseClassesFromHTMLTable(){
-        summaryTable = summaryTable.child(1);//table body
         //TODO do this partially and add it to the list
-        return summaryTable.children()
-                .stream()
-                .skip(1)
+        return summaryTable.children().parallelStream()
+                .filter(elem->"tbody".equals(elem.tagName()))
+                .findFirst()
+                .orElseThrow(()->new IllegalStateException("table does not have tbody"))
+                .children()
+                .parallelStream()
+                .filter(elem->elem.children().stream().anyMatch(c->"td".equals(c.tagName())))//TODO test with all java version, prev: skip(1)
                 .map(elem -> loadSimpleClassDescription(elem.child(0), elem.child(1).text()))
                 .collect(Collectors.toList());
     }
@@ -81,9 +85,8 @@ class IndexParser {
         }
         return descList;
     }
-
     private static SimpleClassDescription loadSimpleClassDescription(Element link, String description) {
-        link = link.child(0);
+        link = link.children().stream().filter(c->"a".equals(c.tagName())).findFirst().orElseThrow(()->new IllegalStateException("Cannot load class description as no class description was found"));
         return new SimpleClassDescription(
                 link.text(),
                 description,
@@ -91,6 +94,4 @@ class IndexParser {
                 link.attr("title").split(" ")[2],
                 link.attr("href"));
     }
-
-
 }

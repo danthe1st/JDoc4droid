@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ class NameLoader {
             return findFirstNameFromId(name,root);
         }
         name = elem.attr("class");
-        TextHolder nameHolder = new StringHolder(name);
+        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name,Normalizer.Form.NFKC));
         if (name.isEmpty() || currentNames.contains(nameHolder)) {
             //fallback if nothing else works
             generateName();
@@ -60,7 +61,7 @@ class NameLoader {
 
     private TextHolder tryFindNameFromHeader(Element header,Element elem,Set<TextHolder> currentNames){
         String name = header.text();
-        TextHolder nameHolder = new StringHolder(name);
+        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name,Normalizer.Form.NFKC));
         if (!name.isEmpty() && !currentNames.contains(nameHolder)) {
             TextHolder ret = nameHolder;
             currentNames.add(nameHolder);
@@ -85,7 +86,7 @@ class NameLoader {
             throw new IllegalStateException("encoding UTF-8 not supported",e);
         }
         Elements referencers = root.getElementsByAttributeValue("href", "#" + encoded);
-        return new StringHolder(referencers.stream().map(Element::text).findFirst().orElse(id));
+        return new StringHolder(Normalizer.normalize(referencers.stream().map(Element::text).findFirst().orElse(id),Normalizer.Form.NFKC));
     }
     private TextHolder generateName(){
         String name = UUID.randomUUID().toString();

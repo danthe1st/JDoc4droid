@@ -44,18 +44,6 @@ public class JavaDocParser {
         return classes;
     }
 
-    private void saveClassesToCache(List<SimpleClassDescription> classes, File cacheFile) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cacheFile)))) {
-            oos.writeObject(classes);
-        }
-    }
-
-    private List<SimpleClassDescription> loadClassesFromCache(File cacheFile) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
-            return (List<SimpleClassDescription>) ois.readObject();
-        }
-    }
-
     public ClassInformation loadClassInformation(File classFile, String selectedId) throws IOException {
         File cacheFile = new File(classFile.getParentFile(), classFile.getName() + ".cache");
         if (cacheFile.exists()) {
@@ -70,17 +58,27 @@ public class JavaDocParser {
         return info;
     }
 
-    private ClassInformation loadInformationFromCache(File cacheFile) throws IOException, ClassNotFoundException {
+    void saveClassesToCache(List<SimpleClassDescription> classes, File cacheFile) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cacheFile)))) {
+            oos.writeObject(classes);
+        }
+    }
+
+    List<SimpleClassDescription> loadClassesFromCache(File cacheFile) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
+            return (List<SimpleClassDescription>) ois.readObject();
+        }
+    }
+
+    ClassInformation loadInformationFromCache(File cacheFile) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
             return (ClassInformation) ois.readObject();
         }
     }
 
-    private void saveInformationToCache(ClassInformation info, File cacheFile) throws IOException {
+    void saveInformationToCache(ClassInformation info, File cacheFile) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cacheFile)))) {
             oos.writeObject(info);
         }
     }
-
-
 }

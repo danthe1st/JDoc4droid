@@ -1,28 +1,24 @@
 package io.github.danthe1st.jdoc4droid.util.parsing;
 
 import android.text.Html;
-import android.util.Log;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
-import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import lombok.experimental.UtilityClass;
 
@@ -45,7 +41,11 @@ public class ClassParser {
         Holder<TextHolder> selectedInnerSection = new Holder<>();
         Element selectedElement = selectedId == null ? null : elem.getElementById(selectedId);
         Elements selectedElemParents = selectedElement == null ? null : selectedElement.parents();
-        TextHolder header = new HtmlStringHolder(elem.getElementsByClass("header").get(0).html(), Html.FROM_HTML_MODE_COMPACT);
+        Elements headers = elem.getElementsByClass("header");
+        if(headers.isEmpty()){
+            throw new IOException("No headers found - '"+classFile.getPath()+"' does not seem like a valid class javadoc");
+        }
+        TextHolder header = new HtmlStringHolder(headers.get(0).html(), Html.FROM_HTML_MODE_COMPACT);
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> outerSections =
                 findAllSections(elem, null, data -> Collections.singletonMap(TextHolder.EMPTY, Collections.singletonMap(TextHolder.EMPTY, data)), selectedElemParents, selectedOuterSection, SELECTOR_TOP, (middleElem, middleNames) ->
                         findAllSections(middleElem, middleNames, data -> Collections.singletonMap(TextHolder.EMPTY, data), selectedElemParents, selectedMiddleSection, SELECTOR_MIDDLE, (innerElem, innerNames) ->
@@ -53,46 +53,51 @@ public class ClassParser {
                 );
         return new ClassInformation(header, outerSections, selectedOuterSection.elem, selectedMiddleSection.elem, selectedInnerSection.elem);
     }
-    private <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> namesCallback, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
+    private <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
+        return elem.select(selector)
+                .stream()
+                .filter(e -> e != elem)
+                .map(outerChild ->
+                        findSectionFromElement(usedNames, converter, selectedElemParents, selectedSection, adder, outerChild))
+                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue, (a,b)->a,LinkedHashMap::new));
+    }
 
-        Map<TextHolder, T> sections = new LinkedHashMap<>();
-        Elements elements = elem.select(selector);
+    private <T> Map.Entry<TextHolder, T> findSectionFromElement(Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, BiFunction<Element, Set<TextHolder>, T> adder, Element outerChild) {
+        Set<TextHolder> innerNames = new HashSet<>();
+        TextHolder sectionName;
 
-        elements.stream().filter(e -> e != elem).forEach(outerChild -> {
-            Set<TextHolder> innerNames = new HashSet<>();
-            TextHolder sectionName;
+        Map.Entry<TextHolder, T> section;
 
-            if (adder != null) {
-                sectionName = NameLoader.findName(outerChild, innerNames);
-                Set<TextHolder> onlyInnerNames = new HashSet<>();
-                T inner = adder.apply(outerChild, onlyInnerNames);
-                innerNames.addAll(onlyInnerNames);
-                if (isMapWithProperSubElements(inner)) {
-                    if (innerNames.contains(sectionName)) {
-                        innerNames = onlyInnerNames;
-                        sectionName = NameLoader.findName(outerChild, innerNames);
-                    }
-                    sections.put(sectionName, inner);
-                } else {
-                    for (Element e : outerChild.select(".summary-table>.table-header,.caption")) {
-                        e.remove();
-                    }
-                    T converted = converter.apply(convertToHtmlStringHolder(outerChild));
-                    sections.put(sectionName, converted);
+        if (adder != null) {
+            sectionName = NameLoader.findName(outerChild, innerNames);
+            Set<TextHolder> onlyInnerNames = new HashSet<>();
+            T inner = adder.apply(outerChild, onlyInnerNames);
+            innerNames.addAll(onlyInnerNames);
+            if (isMapWithProperSubElements(inner)) {
+                if (innerNames.contains(sectionName)) {
+                    innerNames = onlyInnerNames;
+                    sectionName = NameLoader.findName(outerChild, innerNames);
                 }
+                section=new AbstractMap.SimpleEntry<>(sectionName, inner);
             } else {
-                sectionName = NameLoader.findName(outerChild, innerNames, new String[]{"li.blockList>h4+pre", ".member-signature", NameLoader.SELECTOR_NAME_HEADER});
+                for (Element e : outerChild.select(".summary-table>.table-header,.caption")) {
+                    e.remove();
+                }
                 T converted = converter.apply(convertToHtmlStringHolder(outerChild));
-                sections.put(sectionName, converted);
+                section=new AbstractMap.SimpleEntry<>(sectionName, converted);
             }
-            if (namesCallback != null) {
-                namesCallback.addAll(innerNames);
-            }
-            if (selectedElemParents != null && selectedElemParents.contains(outerChild)) {
-                selectedSection.elem = sectionName;
-            }
-        });
-        return sections;
+        } else {
+            sectionName = NameLoader.findName(outerChild, innerNames, new String[]{"li.blockList>h4+pre", ".member-signature", NameLoader.SELECTOR_NAME_HEADER});
+            T converted = converter.apply(convertToHtmlStringHolder(outerChild));
+            section=new AbstractMap.SimpleEntry<>(sectionName, converted);
+        }
+        if (usedNames != null) {
+            usedNames.addAll(innerNames);
+        }
+        if (selectedElemParents != null && selectedElemParents.contains(outerChild)) {
+            selectedSection.elem = sectionName;
+        }
+        return section;
     }
 
     private HtmlStringHolder convertToHtmlStringHolder(Element element) {

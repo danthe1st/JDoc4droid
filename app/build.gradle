@@ -10,8 +10,8 @@ android {
         applicationId "io.github.danthe1st.jdoc4droid"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode Integer.parseInt(System.getProperty("versionCode","1"))
-        versionName System.getProperty("versionName","1.0")
+        versionCode Integer.parseInt(System.getProperty("versionCode", "1"))
+        versionName System.getProperty("versionName", "1.0")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,10 +44,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         viewBinding true
     }
 }
+
+
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
