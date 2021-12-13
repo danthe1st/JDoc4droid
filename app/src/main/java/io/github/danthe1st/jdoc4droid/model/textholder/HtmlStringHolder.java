@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class HtmlStringHolder implements TextHolder, Externalizable {
-    private static final long serialVersionUID = -4913628830445599823L;
+    private static final long serialVersionUID = 2033469939306675188L;
 
     @NonNull
     private String html;
@@ -67,7 +67,7 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws ClassNotFoundException, IOException {
+    public void readExternal(ObjectInput in) throws IOException {
         html=LongStringSerializer.deSerialize(in);
         mainName=in.readUTF();
         if("".equals(mainName)){
