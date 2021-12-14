@@ -1,6 +1,10 @@
 package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
@@ -18,7 +22,8 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
 
     @Override
     public ListJavaDocsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ListJavaDocsViewHolder(this,LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_javadocs, parent, false));
+        View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_javadocs, parent, false);
+        return new ListJavaDocsViewHolder(this, view);
     }
 
     @Override
@@ -30,13 +35,13 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
         holder.getTypeView().setText(javaDocInformation.getType().toString());
     }
 
-    @Override//the purpose of this is to allow package-private access
+    @Override
     protected void setOnSelect(Consumer<JavaDocInformation> onSelect) {
+        //the purpose of this is to allow package-private access by overriding protected method
         super.setOnSelect(onSelect);
     }
 
     public JavaDocInformation getSelectedElement(){
         return selectedViewHolder==null?null:selectedViewHolder.item;
     }
-
 }

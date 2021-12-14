@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,7 +74,7 @@ public class JavaDocDownloader {
         ORACLE_SUBDIR_SUFFIXES_MAPPING = Collections.unmodifiableMap(suffixSubdirMapping);
     }
 
-    public boolean downloadJavaApiDocs(Context ctx, String url, Consumer<JavaDocInformation> onSuccess) {
+    public boolean downloadJavaApiDocs(Context ctx, String url, Consumer<JavaDocInformation> onSuccess, int currentNumberOfJavadocs) {
         int queryStartIndex = url.indexOf('?');
         if (queryStartIndex == -1) {
             queryStartIndex = url.length();
@@ -98,7 +99,7 @@ public class JavaDocDownloader {
 
                         return false;
                     } else {
-                        JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK);
+                        JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
                         downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), subDirToUnzip);
                         return true;
                     }
@@ -125,7 +126,7 @@ public class JavaDocDownloader {
         }
     }
 
-    public void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess) {
+    public void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
         if(version.isEmpty()){
             version="RELEASE";
         }
@@ -140,7 +141,7 @@ public class JavaDocDownloader {
         JavaDocInformation javaDocInfo = new JavaDocInformation(
                 artefactId + " " + version, src,
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
-                JavaDocType.MAVEN,artifactBaseUrl);
+                JavaDocType.MAVEN,artifactBaseUrl,numberOfJavadocs);
         Consumer<String> downloadAction=url->downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
         if("LATEST".equals(version)||"RELEASE".equals(version)){
             downloader.execute(()->{
@@ -155,10 +156,10 @@ public class JavaDocDownloader {
         downloadAction.accept(effectiveUrl);
     }
 
-    public void updateMavenJavadoc(Context ctx, JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess) {
+    public void updateMavenJavadoc(Context ctx, JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
         downloader.execute(()->{
             try {
-                JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl());
+                JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl(), numberOfJavadocs);
                 String url=getLatestMavenVersion(newJavaDocInfo);
                 downloadAndUnzipAsync(ctx, url, newJavaDocInfo, ()->{
                     onSuccess.accept(newJavaDocInfo);
@@ -234,9 +235,9 @@ public class JavaDocDownloader {
         }
     }
 
-    public void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess) {
+    public void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment(), "/");
-        JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP);
+        JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP,numberOfJavadocs);
         downloadAndUnzipAsync(ctx, () -> ctx.getContentResolver().openInputStream(uri), javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
     }
 
@@ -330,8 +331,30 @@ public class JavaDocDownloader {
         return dir;
     }
 
-    public List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) {
-        return Arrays.stream(getAllSavedJavaDocDirs(context)).map(JavaDocDownloader::readMetadataFileUnchecked).collect(Collectors.toList());
+    public List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) throws IOException {
+        try{
+            List<JavaDocInformation> ret = Arrays.stream(getAllSavedJavaDocDirs(context)).map(JavaDocDownloader::readMetadataFileUnchecked).sorted(Comparator.comparingInt(JavaDocInformation::getOrder)).collect(Collectors.toList());
+            for (int i = 0; i < ret.size(); i++) {
+                if(ret.get(i).getOrder()!=i){
+                    ret.get(i).setOrder(i);
+                    createMetadataFile(ret.get(i),ret.get(i).getDirectory());
+                }
+            }
+            return ret;
+        }catch (UncheckedIOException e){
+            throw e.getCause();
+        }
+    }
+
+    public void saveMetadata(Context ctx,JavaDocInformation javaDocInfo){
+        downloader.execute(()->{
+            try {
+                createMetadataFile(javaDocInfo,javaDocInfo.getDirectory());
+            } catch (IOException e) {
+                showError(ctx,R.string.saveMetadataError,e);
+            }
+        });
+
     }
 
     private void createMetadataFile(JavaDocInformation javaDocInfo, File javaDocDir) throws IOException {
@@ -344,8 +367,10 @@ public class JavaDocDownloader {
             bw.newLine();
             if(!javaDocInfo.getBaseDownloadUrl().isEmpty()){
                 bw.write(javaDocInfo.getBaseDownloadUrl());
-                bw.newLine();
             }
+            bw.newLine();
+            bw.write(""+javaDocInfo.getOrder());
+            bw.newLine();
         }
     }
 
@@ -365,10 +390,11 @@ public class JavaDocDownloader {
                 JavaDocType type = JavaDocType.valueOf(br.readLine());
                 String onlineUrl = br.readLine();
                 String downloadSrc=br.readLine();
-                return new JavaDocInformation(name, onlineUrl, javaDocDir, type,downloadSrc==null?"":downloadSrc);
+                String javadocNumber=br.readLine();
+                return new JavaDocInformation(name, onlineUrl, javaDocDir, type,downloadSrc==null?"":downloadSrc,(javadocNumber==null||javadocNumber.isEmpty())?-1:Integer.parseInt(javadocNumber));
             }
         } else {
-            return new JavaDocInformation(javaDocDir.getName(), "", javaDocDir, JavaDocType.ZIP);
+            return new JavaDocInformation(javaDocDir.getName(), "", javaDocDir, JavaDocType.ZIP, -1);
         }
     }
 

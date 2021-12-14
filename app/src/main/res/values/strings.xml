@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">JDoc4droid</string>
+    <string name="app_name" translatable="false">JDoc4droid</string>
     <string name="search">Search</string>
     <string name="placeholderText">Placeholder</string>
     <string name="downloadFromOracle">Download Java API docs</string>
@@ -18,4 +18,7 @@
     <string name="downloadBtnContentDesc">download Javadoc</string>
     <string name="javadocDownloadError">Cannot download Javadoc</string>
     <string name="javadocUpdateError">Cannot update Javadoc</string>
+    <string name="saveMetadataError">Cannot update Javadoc information</string>
+    <string name="moveJavadocError">Cannot move Javadoc</string>
+    <string name="loadJavadocError">Cannot load Javadocs</string>
 </resources>

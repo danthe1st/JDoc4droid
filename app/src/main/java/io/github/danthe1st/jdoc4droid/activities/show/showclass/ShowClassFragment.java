@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.util.Log;
@@ -25,7 +26,9 @@ import java.util.regex.Pattern;
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.AbstractFragment;
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
+import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
+import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.util.JavaDocLinkMovementMethod;
 import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
@@ -36,6 +39,9 @@ public class ShowClassFragment extends AbstractFragment {
     private static final String ARG_SELECTED_ID = "selected";
     private static final String ARG_BASE_SHARE_URL = "baseShareUrl";
     private static final String ARG_BASE_JAVADOC_DIR = "baseJavadocDir";
+    private static final String STATE_SELECTION_OUTER = "outerSelection";
+    private static final String STATE_SELECTION_MIDDLE = "middleSelection";
+    private static final String STATE_SELECTION_INNER = "innerSelection";
 
     private File classFile;
     private String selectedId;
@@ -69,7 +75,56 @@ public class ShowClassFragment extends AbstractFragment {
         return fragment;
     }
 
-    public static ShowClassFragment newInstance(File baseDir,File classFile, String baseShareUrl) {
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        saveSelection(outState,STATE_SELECTION_OUTER,information.getSelectedOuterSection());
+        saveSelection(outState,STATE_SELECTION_MIDDLE,information.getSelectedMiddleSection());
+        saveSelection(outState,STATE_SELECTION_INNER,information.getSelectedInnerSection());
+        super.onSaveInstanceState(outState);
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            classFile = new File(getArguments().getString(ARG_CLASS_FILE_PATH));
+            baseShareUrl=getArguments().getString(ARG_BASE_SHARE_URL);
+            baseJavadocDir=getArguments().getString(ARG_BASE_JAVADOC_DIR);
+            selectedId = getArguments().getString(ARG_SELECTED_ID);
+        }
+        if(savedInstanceState!=null){
+            information.setSelectedOuterSection(loadSelection(savedInstanceState,STATE_SELECTION_OUTER));
+            information.setSelectedMiddleSection(loadSelection(savedInstanceState,STATE_SELECTION_MIDDLE));
+            information.setSelectedInnerSection(loadSelection(savedInstanceState,STATE_SELECTION_INNER));
+        }
+    }
+    private void saveSelection(Bundle outState, String selectionStateName, TextHolder selectedSection){
+        if(selectedSection==null){
+            return;
+        }
+        outState.putString(selectionStateName,selectedSection.getRawText());
+        outState.putString(selectionStateName+"Type",selectedSection.getClass().getSimpleName());
+        outState.putString(selectionStateName+"MainName",selectedSection.getMainName());
+        if(selectedSection instanceof HtmlStringHolder){
+            outState.putInt(selectionStateName+"Flags",((HtmlStringHolder)selectedSection).getFlags());
+        }
+    }
+
+    private TextHolder loadSelection(Bundle inState, String selectionStateName){
+        String rawText=inState.getString(selectionStateName);
+        if(rawText==null){
+            return null;
+        }
+        String typeName=inState.getString(selectionStateName+"Type");
+        String mainName=inState.getString(selectionStateName+"MainName");
+        if (StringHolder.class.getSimpleName().equals(typeName)) {
+            return new StringHolder(rawText, mainName);
+        } else if (HtmlStringHolder.class.getSimpleName().equals(typeName)) {
+            return new HtmlStringHolder(rawText, inState.getInt(selectionStateName+"Flags"), mainName);
+        }
+        throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
+    }
+
+    public static ShowClassFragment newInstance(File baseDir, File classFile, String baseShareUrl) {
         return newInstance(baseDir, classFile, baseShareUrl, null);
     }
 
@@ -82,17 +137,6 @@ public class ShowClassFragment extends AbstractFragment {
             shareUrl += relativePath.getPath();
         }
         return shareUrl;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            classFile = new File(getArguments().getString(ARG_CLASS_FILE_PATH));
-            baseShareUrl=getArguments().getString(ARG_BASE_SHARE_URL);
-            baseJavadocDir=getArguments().getString(ARG_BASE_JAVADOC_DIR);
-            selectedId = getArguments().getString(ARG_SELECTED_ID);
-        }
     }
 
     @Override
@@ -157,7 +201,17 @@ public class ShowClassFragment extends AbstractFragment {
 
         getThreadPool().execute(() -> {
             try {
-                information = JavaDocParser.loadClassInformation(classFile, selectedId);//pass information directly
+                ClassInformation newInfo=JavaDocParser.loadClassInformation(classFile, selectedId);//pass information directly
+                if(information.getSelectedOuterSection()!=null){
+                    newInfo.setSelectedOuterSection(information.getSelectedOuterSection());
+                }
+                if(information.getSelectedMiddleSection()!=null){
+                    newInfo.setSelectedMiddleSection(information.getSelectedMiddleSection());
+                }
+                if(information.getSelectedInnerSection()!=null){
+                    newInfo.setSelectedInnerSection(information.getSelectedInnerSection());
+                }
+                information = newInfo;
 
                 outerAdapter.setSections(new ArrayList<>(information.getSections().keySet()));
                 runInUIThread(() -> {
@@ -166,6 +220,7 @@ public class ShowClassFragment extends AbstractFragment {
                         if (pos != -1) {
                             outerSelectionSpinner.setSelection(pos);
                             onOuterSelected(middleSelectionSpinner, innerSelectionSpinner, pos);
+
                             if (information.getSelectedMiddleSection() != null) {
                                 pos = middleAdapter.getPositionFromName(information.getSelectedMiddleSection());
                                 if (pos != -1) {
@@ -209,11 +264,14 @@ public class ShowClassFragment extends AbstractFragment {
             middleSelectionSpinner.setWillNotDraw(false);
             middleAdapter.setSections(new ArrayList<>(selected.keySet()));
             middleAdapter.notifyDataSetChanged();
-            onMiddleSelected(innerSelectionSpinner, 0);
+            onMiddleSelected(innerSelectionSpinner, middleAdapter.getSections().indexOf(information.getSelectedMiddleSection()));
         }
     }
 
     private void onMiddleSelected(Spinner innerSelectionSpinner, int position) {
+        if(position==-1){
+            position=0;
+        }
         TextHolder middleSelected = middleAdapter.getSections().get(position);
         information.setSelectedMiddleSection(middleSelected);
         Map<TextHolder, TextHolder> selected = information.getSections().get(information.getSelectedOuterSection()).get(middleSelected);
@@ -240,7 +298,7 @@ public class ShowClassFragment extends AbstractFragment {
         }
         innerAdapter.setSections(sections);
         innerAdapter.notifyDataSetChanged();
-        onInnerSelected(0);
+        onInnerSelected(innerAdapter.getSections().indexOf(information.getSelectedInnerSection()));
     }
 
     private boolean containsText(TextHolder textHolder,String textToContain){
@@ -253,6 +311,9 @@ public class ShowClassFragment extends AbstractFragment {
     }
 
     private void onInnerSelected(int position) {
+        if(position==-1){
+            position=0;
+        }
         TextHolder innerSelected = innerAdapter.getSections().get(position);
         information.setSelectedInnerSection(innerSelected);
         Map<TextHolder, Map<TextHolder, TextHolder>> outerSection = information.getSections().get(information.getSelectedOuterSection());
@@ -306,9 +367,7 @@ public class ShowClassFragment extends AbstractFragment {
 
     @Override
     public void onSearch(String search) {
-        if(information.getSelectedInnerSection()==null){
-            //TODO
-        }else{
+        if(information.getSelectedInnerSection()!=null){
             loadInnerSections(information.getSections().get(information.getSelectedOuterSection()).get(information.getSelectedMiddleSection()),search);
         }
     }

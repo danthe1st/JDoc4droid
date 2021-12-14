@@ -54,6 +54,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder
     void unselect(){
         setCardColor(selectedViewHolder.view,R.color.background);
         selectedViewHolder=null;
+        onSelect.accept(null);
     }
     void setCardColor(View view,@ColorRes int color){
         View card=view.findViewById(R.id.card);

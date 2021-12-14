@@ -5,10 +5,8 @@ import java.io.File;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class JavaDocInformation {
     private String name;
@@ -16,8 +14,12 @@ public class JavaDocInformation {
     private File directory;
     private JavaDocType type;
     private String baseDownloadUrl;
+    private int order;
 
-    public JavaDocInformation(String name,String onlineDocUrl,File directory,JavaDocType type){
-        this(name,onlineDocUrl,directory,type,"");
+    public JavaDocInformation() {
+    }
+
+    public JavaDocInformation(String name, String onlineDocUrl, File directory, JavaDocType type, int order){
+        this(name,onlineDocUrl,directory,type,"",order);
     }
 }

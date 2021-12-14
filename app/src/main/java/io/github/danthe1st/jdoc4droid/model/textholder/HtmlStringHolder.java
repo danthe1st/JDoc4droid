@@ -22,6 +22,7 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     @NonNull
     private String html;
     @NonNull
+    @Getter
     private int flags;
     @Getter
     private String mainName;

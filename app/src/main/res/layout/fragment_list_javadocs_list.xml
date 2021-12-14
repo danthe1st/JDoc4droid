@@ -8,6 +8,28 @@
     tools:context=".activities.list.javadocs.ListJavadocsFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/moveUpBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:clickable="true"
+        android:src="@android:drawable/arrow_up_float"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@+id/moveDownBtn"
+        app:layout_constraintTop_toTopOf="@+id/updateBtn" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/moveDownBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:clickable="true"
+        android:src="@android:drawable/arrow_down_float"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@+id/updateBtn"
+        app:layout_constraintTop_toTopOf="@+id/updateBtn" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/updateBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,7 +81,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="1.0"
         tools:context=".activities.list.javadocs.ListJavadocsFragment"
         tools:listitem="@layout/fragment_list_javadocs" />
 </androidx.constraintlayout.widget.ConstraintLayout>
