@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
 }
-
 android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
@@ -10,8 +9,8 @@ android {
         applicationId "io.github.danthe1st.jdoc4droid"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode Integer.parseInt(System.getProperty("versionCode", "1"))
-        versionName System.getProperty("versionName", "1.0")
+        versionCode Integer.parseInt(providers.systemProperty('versionCode').forUseAtConfigurationTime().getOrElse("1"))
+        versionName providers.systemProperty('versionName').forUseAtConfigurationTime().getOrElse("1.0")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
