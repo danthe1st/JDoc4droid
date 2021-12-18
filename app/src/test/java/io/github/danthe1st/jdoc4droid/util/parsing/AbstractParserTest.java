@@ -37,7 +37,7 @@ public abstract class AbstractParserTest {
                 .command(javaHome.getAbsolutePath()+"/bin/javadoc",
                         Objects.requireNonNull(ExampleClass.class.getPackage()).getName(),
                         "-d", outputDir.toFile().getAbsolutePath(),
-                        "--source-path", new File("src/test/java").getAbsolutePath()
+                        "-sourcepath", new File("src/test/java").getAbsolutePath()
                 ).start();
         majorVersionNumber=loadMajorVersionNumber(javaHome);
         if(javadocProcess.waitFor()!=0){
@@ -72,6 +72,7 @@ public abstract class AbstractParserTest {
                 endIndex=firstLine.indexOf('.',startIndex);
                 versionInt=Integer.parseInt(firstLine.substring(startIndex,endIndex));
             }
+            System.out.println(versionInt);
             return versionInt;
         }
     }

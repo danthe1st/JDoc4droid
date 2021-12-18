@@ -18,7 +18,7 @@ public class IndexParserTest extends AbstractParserTest {
         List<SimpleClassDescription> descs = IndexParser.parseClasses(outputDir.toFile());
         Optional<SimpleClassDescription> exampleClassDescription = descs.stream().filter(desc -> ExampleClass.class.getSimpleName().equals(desc.getName())).findAny();
         assertTrue("No SimpleClassDescription found for ExampleClass",exampleClassDescription.isPresent());
-        SimpleClassDescription expected=new SimpleClassDescription(ExampleClass.class.getSimpleName(),"Example class description","class",ExampleClass.class.getPackage().getName(), EXAMPLE_CLASS_PATH);
+        SimpleClassDescription expected=new SimpleClassDescription(ExampleClass.class.getSimpleName(),majorVersionNumber<11?"":"Example class description","class",ExampleClass.class.getPackage().getName(), EXAMPLE_CLASS_PATH);
         assertEquals("Loaded SimpleClassDescription does not match expected one",expected,exampleClassDescription.get());
     }
 
