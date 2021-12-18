@@ -72,7 +72,6 @@ public abstract class AbstractParserTest {
                 endIndex=firstLine.indexOf('.',startIndex);
                 versionInt=Integer.parseInt(firstLine.substring(startIndex,endIndex));
             }
-            System.out.println(versionInt);
             return versionInt;
         }
     }
