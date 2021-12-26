@@ -2,12 +2,8 @@ package io.github.danthe1st.jdoc4droid.util;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Xml;
-import android.widget.Toast;
-
-import androidx.annotation.StringRes;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,22 +33,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
-import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -74,39 +69,35 @@ public class JavaDocDownloader {
         ORACLE_SUBDIR_SUFFIXES_MAPPING = Collections.unmodifiableMap(suffixSubdirMapping);
     }
 
-    public boolean downloadJavaApiDocs(Context ctx, String url, Consumer<JavaDocInformation> onSuccess, int currentNumberOfJavadocs) {
+    public CompletableFuture<JavaDocInformation> downloadJavaApiDocs(Context ctx, String url, InputStream is, int currentNumberOfJavadocs) {
+
         int queryStartIndex = url.indexOf('?');
         if (queryStartIndex == -1) {
             queryStartIndex = url.length();
         }
         int fileNameStartIndex = url.lastIndexOf('/', queryStartIndex);
-        if (queryStartIndex > fileNameStartIndex) {
-            String fileName = url.substring(fileNameStartIndex + 1, queryStartIndex);
-            for (Map.Entry<String, String> suffixMappingEntry : ORACLE_SUBDIR_SUFFIXES_MAPPING.entrySet()) {
-                String suffix = suffixMappingEntry.getKey();
-                String subDirToUnzip = suffixMappingEntry.getValue();
-                if (fileName.endsWith(suffix)) {
-                    String name = fileName.substring(0, fileName.length() - suffix.length());
-                    File javaDocDir = getJavaDocDir(ctx, name);
-                    if (javaDocDir.exists()) {
-                        downloader.execute(()->{
-                            try {
-                                onSuccess.accept(readMetadataFile(javaDocDir));
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                        });
-
-                        return false;
-                    } else {
-                        JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
-                        downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), subDirToUnzip);
-                        return true;
-                    }
+        String fileName = url.substring(fileNameStartIndex + 1, queryStartIndex);
+        for (Map.Entry<String, String> suffixMappingEntry : ORACLE_SUBDIR_SUFFIXES_MAPPING.entrySet()) {
+            String suffix = suffixMappingEntry.getKey();
+            String subDirToUnzip = suffixMappingEntry.getValue();
+            if (fileName.endsWith(suffix)) {
+                String name = fileName.substring(0, fileName.length() - suffix.length());
+                File javaDocDir = getJavaDocDir(ctx, name);
+                if (javaDocDir.exists()) {
+                    return CompletableFuture.supplyAsync(()->{
+                        try {
+                            return readMetadataFile(javaDocDir);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    },downloader);
+                } else {
+                    JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
+                    return downloadAndUnzipAsync(()->is, javaDocInfo, subDirToUnzip);
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private String getJavaJavadocUrl(String name){
@@ -126,7 +117,7 @@ public class JavaDocDownloader {
         }
     }
 
-    public void downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
+    public CompletableFuture<JavaDocInformation> downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, int numberOfJavadocs) {
         if(version.isEmpty()){
             version="RELEASE";
         }
@@ -142,38 +133,40 @@ public class JavaDocDownloader {
                 artefactId + " " + version, src,
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
                 JavaDocType.MAVEN,artifactBaseUrl,numberOfJavadocs);
-        Consumer<String> downloadAction=url->downloadAndUnzipAsync(ctx, url, javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        Function<String,JavaDocInformation> downloadAction= url->downloadAndUnzip(url, javaDocInfo);
         if("LATEST".equals(version)||"RELEASE".equals(version)){
-            downloader.execute(()->{
-                try {
-                    String url = getLatestMavenVersion(javaDocInfo);
-                    downloadAction.accept(url);
-                } catch (IOException e) {
-                    downloadAction.accept(effectiveUrl);
-                }
-            });
+            return CompletableFuture.supplyAsync(()->getLatestMavenVersionUnchecked(javaDocInfo))
+                    .thenApply(downloadAction);
         }
-        downloadAction.accept(effectiveUrl);
+        return CompletableFuture.supplyAsync(()->downloadAction.apply(effectiveUrl),downloader);
     }
 
-    public void updateMavenJavadoc(Context ctx, JavaDocInformation javaDocInfo,Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
-        downloader.execute(()->{
+    public CompletableFuture<JavaDocInformation> updateMavenJavadoc(JavaDocInformation javaDocInfo, int numberOfJavadocs) {
+        return CompletableFuture.supplyAsync(()->{
             try {
-                JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl(), numberOfJavadocs);
+                JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl(), javaDocInfo.getOrder());
                 String url=getLatestMavenVersion(newJavaDocInfo);
-                downloadAndUnzipAsync(ctx, url, newJavaDocInfo, ()->{
-                    onSuccess.accept(newJavaDocInfo);
-                    try {
-                        ListJavadocsFragment.deleteRecursive(javaDocInfo.getDirectory());
-                    } catch (IOException e) {
-                        Log.e(JavaDocDownloader.class.getName(), "cannot delete old version after updating javadoc", e);
-                    }
-                }, "");
-
+                if(javaDocInfo.getName().equals(newJavaDocInfo.getName())){//nothing to update
+                    return null;
+                }
+                JavaDocInformation ret = downloadAndUnzip(url, newJavaDocInfo);
+                try {
+                    ListJavadocsFragment.deleteRecursive(javaDocInfo.getDirectory());
+                } catch (IOException e) {
+                    Log.e(JavaDocDownloader.class.getName(), "cannot delete old version after updating javadoc", e);
+                }
+                return ret;
             } catch (IOException e) {
-                showError(ctx, R.string.javadocUpdateError,e);
+                throw new UncheckedIOException(e);
             }
-        });
+        },downloader);
+    }
+    private String getLatestMavenVersionUnchecked(JavaDocInformation javaDocInfo) {
+        try {
+            return getLatestMavenVersion(javaDocInfo);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
     private String getLatestMavenVersion(JavaDocInformation javaDocInfo) throws IOException {
         try(BufferedInputStream is=new BufferedInputStream(new URL(javaDocInfo.getBaseDownloadUrl()+"maven-metadata.xml").openStream())){
@@ -235,10 +228,10 @@ public class JavaDocDownloader {
         }
     }
 
-    public void downloadFromUri(Context ctx, Uri uri,Consumer<JavaDocInformation> onSuccess, int numberOfJavadocs) {
+    public CompletableFuture<JavaDocInformation> downloadFromUri(Context ctx, Uri uri, int numberOfJavadocs) {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment(), "/");
         JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP,numberOfJavadocs);
-        downloadAndUnzipAsync(ctx, () -> ctx.getContentResolver().openInputStream(uri), javaDocInfo, ()->onSuccess.accept(javaDocInfo), "");
+        return downloadAndUnzipAsync(() -> ctx.getContentResolver().openInputStream(uri), javaDocInfo, "");
     }
 
     private String getLastOfSplitted(String toSplit, String delimitor) {
@@ -254,18 +247,17 @@ public class JavaDocDownloader {
         return toConvert.replaceAll("[^A-Za-z0-9]", "_");
     }
 
-    private void downloadAndUnzipAsync(Context ctx, String url, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
-        downloadAndUnzipAsync(ctx, () -> {
+    private CompletableFuture<JavaDocInformation> downloadAndUnzipAsync(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip) {
+        return CompletableFuture.supplyAsync(() -> downloadAndUnzip(inputStreamSupplier, javaDocInfo, subDirToUnzip),downloader);
+    }
+
+    private JavaDocInformation downloadAndUnzip(String url, JavaDocInformation javaDocInfo) {
+        return downloadAndUnzip(() -> {
             URL javaUrl = new URL(url);
             return javaUrl.openStream();
-        }, javaDocInfo, onSuccess, subDirToUnzip);
+        }, javaDocInfo, "");
     }
-
-    private void downloadAndUnzipAsync(Context ctx, Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
-        downloader.execute(() -> downloadAndUnzip(ctx, inputStreamSupplier, javaDocInfo, onSuccess, subDirToUnzip));
-    }
-
-    private void downloadAndUnzip(Context ctx, Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, Runnable onSuccess, String subDirToUnzip) {
+    private JavaDocInformation downloadAndUnzip(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip) {
         try {
             File tempDir = getTempDir();
             unzip(inputStreamSupplier, tempDir, subDirToUnzip);
@@ -274,9 +266,9 @@ public class JavaDocDownloader {
             }
             createMetadataFile(javaDocInfo, tempDir);
             Files.move(tempDir.toPath(), javaDocInfo.getDirectory().toPath());
-            onSuccess.run();
-        } catch (Exception e) {
-            showError(ctx, R.string.javadocDownloadError,e);
+            return javaDocInfo;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -285,12 +277,7 @@ public class JavaDocDownloader {
         return doc.title();
     }
 
-    private void showError(Context ctx, @StringRes int errorMessage, Exception e){
-        Log.e(JavaDocDownloader.class.getName(), "cannot download javadoc", e);
-        new Handler(ctx.getMainLooper()).post(()-> Toast.makeText(ctx, errorMessage,Toast.LENGTH_LONG).show());
-    }
-
-    private void unzip(Callable<InputStream> inputStreamLoader, File dest, String subDirToUnzip) throws Exception {
+    private void unzip(Callable<InputStream> inputStreamLoader, File dest, String subDirToUnzip) throws IOException {
         //
         //
         //long len = con.getContentLengthLong();
@@ -304,14 +291,18 @@ public class JavaDocDownloader {
                     String name = entry.getName().substring(subDirToUnzip.length());
                     File dFile = new File(dest, name);
                     if (entry.isDirectory()) {
-                        dFile.mkdirs();
+                        Files.createDirectories(dFile.toPath());
                     } else {
-                        dFile.getParentFile().mkdirs();
+                        Files.createDirectories(dFile.getParentFile().toPath());
                         Files.copy(zis, dFile.toPath());
                     }
                 }
                 //Log.i(JavaDocDownloader.class.getName(), byteCount + "/" + len + " downloaded");//TODO show somehow
             }
+        }catch (IOException e){
+            throw e;
+        }catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -346,15 +337,15 @@ public class JavaDocDownloader {
         }
     }
 
-    public void saveMetadata(Context ctx,JavaDocInformation javaDocInfo){
-        downloader.execute(()->{
+    public CompletableFuture<Void> saveMetadata(JavaDocInformation javaDocInfo){
+        return CompletableFuture.supplyAsync(()->{
             try {
                 createMetadataFile(javaDocInfo,javaDocInfo.getDirectory());
+                return null;
             } catch (IOException e) {
-                showError(ctx,R.string.saveMetadataError,e);
+                throw new UncheckedIOException(e);
             }
-        });
-
+        },downloader);
     }
 
     private void createMetadataFile(JavaDocInformation javaDocInfo, File javaDocDir) throws IOException {

@@ -22,6 +22,7 @@ public class MainActivity extends FragmentHolderActivity {
         if(getCurrentFragments().isEmpty()){
             AbstractFragment.openFragment(getSupportFragmentManager(), ListJavadocsFragment.newInstance(), this);
         }
+        
     }
 
     @Nullable

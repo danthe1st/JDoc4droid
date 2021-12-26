@@ -4,16 +4,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import io.github.danthe1st.jdoc4droid.R;
+import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 
 public abstract class AbstractFragment extends Fragment {
 
@@ -52,7 +56,8 @@ public abstract class AbstractFragment extends Fragment {
             activity.moveTaskToBack(true);
         } else {
             AbstractFragment fragment = activity.getCurrentFragments().peek();
-            getFragmentManager().beginTransaction().remove(oldFragment).attach(fragment).replace(R.id.fragHolder,fragment,fragment.getTag()).commit();
+            assert fragment != null;
+            getParentFragmentManager().beginTransaction().remove(oldFragment).attach(fragment).replace(R.id.fragHolder,fragment,fragment.getTag()).commit();
             fragment.onFragmentLoad(activity);
 
         }
@@ -99,5 +104,14 @@ public abstract class AbstractFragment extends Fragment {
 
     public String getShareLink(){
         return shareUrl;
+    }
+
+    protected Void showError(@StringRes int errorMessage, Throwable e){
+        if(e instanceof UncheckedIOException&&e.getCause()!=null){
+            e=e.getCause();
+        }
+        Log.e(this.getClass().getName(), getResources().getString(errorMessage), e);
+        runInUIThread(()-> Toast.makeText(getContext(), errorMessage,Toast.LENGTH_LONG).show());
+        return null;
     }
 }

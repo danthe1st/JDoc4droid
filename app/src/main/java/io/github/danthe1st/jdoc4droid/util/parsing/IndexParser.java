@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class IndexParser {
     @NonNull
-    private Element summaryTable;
+    private final Element summaryTable;
     static List<SimpleClassDescription> parseClasses(File javaDocDir) throws IOException {
         //TODO show error on exception
         File index = new File(javaDocDir, "allclasses-index.html");
@@ -64,6 +64,7 @@ class IndexParser {
         //TODO do this partially and add it to the list
         return summaryTable.children().parallelStream()
                 .filter(elem->"tbody".equals(elem.tagName()))
+                .filter(elem->!elem.select("td").isEmpty())
                 .findFirst()
                 .orElseThrow(()->new IllegalStateException("table does not have tbody"))
                 .children()

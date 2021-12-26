@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.danthe1st.jdoc4droid.R;
-import io.github.danthe1st.jdoc4droid.activities.DownloaderFragment;
+import io.github.danthe1st.jdoc4droid.activities.OracleDownloaderFragment;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListFragment;
 import io.github.danthe1st.jdoc4droid.activities.list.classes.ListClassesFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
@@ -33,7 +35,7 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformation,ListJavaDocsViewAdapter> {
+public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformation, ListJavaDocsViewAdapter> {
 
     private List<JavaDocInformation> javaDocInfos;
 
@@ -59,7 +61,7 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
         adapter.setOnSelect(javaDocInformation -> {
             view.findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
             view.findViewById(R.id.updateBtn).setVisibility(javaDocInformation == null || javaDocInformation.getBaseDownloadUrl().isEmpty() ? View.INVISIBLE : View.VISIBLE);
-            updateMoveButtons(view,javaDocInformation);
+            updateMoveButtons(view, javaDocInformation);
         });
         view.findViewById(R.id.deleteBtn).setOnClickListener(this::deleteSelectedJavadoc);
         view.findViewById(R.id.updateBtn).setOnClickListener(this::updateSelectedJavadoc);
@@ -68,9 +70,9 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
         return view;
     }
 
-    private void updateMoveButtons(View view, JavaDocInformation javaDocInformation){
-        view.findViewById(R.id.moveUpBtn).setVisibility(canMoveJavadoc(javaDocInformation,-1) ? View.VISIBLE : View.INVISIBLE);
-        view.findViewById(R.id.moveDownBtn).setVisibility(canMoveJavadoc(javaDocInformation,1) ? View.VISIBLE : View.INVISIBLE);
+    private void updateMoveButtons(View view, JavaDocInformation javaDocInformation) {
+        view.findViewById(R.id.moveUpBtn).setVisibility(canMoveJavadoc(javaDocInformation, -1) ? View.VISIBLE : View.INVISIBLE);
+        view.findViewById(R.id.moveDownBtn).setVisibility(canMoveJavadoc(javaDocInformation, 1) ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void moveJavadocDown(View view) {
@@ -81,39 +83,47 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
         moveSelectedJavadoc(-1);
     }
 
-    private void moveSelectedJavadoc(int indexChange){
-        JavaDocInformation info=adapter.getSelectedElement();
-        if(!canMoveJavadoc(info,indexChange)){
-            Toast.makeText(getContext(),R.string.moveJavadocError,Toast.LENGTH_LONG).show();
+    private void moveSelectedJavadoc(int indexChange) {
+        JavaDocInformation info = adapter.getSelectedElement();
+        if (!canMoveJavadoc(info, indexChange)) {
+            Toast.makeText(getContext(), R.string.moveJavadocError, Toast.LENGTH_LONG).show();
             return;
         }
         int index = adapter.getItems().indexOf(info);
-        int newIndex=index+indexChange;
-        adapter.getItems().add(newIndex,adapter.getItems().remove(index));
-        adapter.notifyItemMoved(index,newIndex);
-        for (int i = Math.min(index,newIndex); i <= Math.max(index,newIndex); i++) {
+        int newIndex = index + indexChange;
+        adapter.getItems().add(newIndex, adapter.getItems().remove(index));
+        adapter.notifyItemMoved(index, newIndex);
+        for (int i = Math.min(index, newIndex); i <= Math.max(index, newIndex); i++) {
             JavaDocInformation effectedJavadoc = adapter.getItems().get(i);
             effectedJavadoc.setOrder(i);
-            JavaDocDownloader.saveMetadata(getContext(),effectedJavadoc);
+            JavaDocDownloader.saveMetadata(effectedJavadoc)
+                    .exceptionally(e -> showError(R.string.saveMetadataError, e));
         }
-        updateMoveButtons(requireView(),info);
+        updateMoveButtons(requireView(), info);
     }
 
     private boolean canMoveJavadoc(JavaDocInformation info, int indexChange) {
-        if(info==null){
+        if (info == null) {
             return false;
         }
         int index = adapter.getItems().indexOf(info);
-        int newIndex=index+indexChange;
-        return newIndex>=0&&newIndex<adapter.getItems().size();
+        int newIndex = index + indexChange;
+        return newIndex >= 0 && newIndex < adapter.getItems().size();
     }
-
 
 
     private void updateSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
-        if (selected != null&&selected.getType() == JavaDocType.MAVEN) {
-            JavaDocDownloader.updateMavenJavadoc(getContext(), selected,docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)), javaDocInfos.size());
+        if (selected != null && selected.getType() == JavaDocType.MAVEN) {
+            JavaDocDownloader.updateMavenJavadoc(selected, javaDocInfos.size())
+                    .thenAccept(docInfo -> runInUIThread(()->{
+                        if (docInfo == null) {
+                            Toast.makeText(getContext(),R.string.javadocUpdateErrorAlreadyLatestVersion,Toast.LENGTH_LONG).show();
+                        } else {
+                            openFragment(ListClassesFragment.newInstance(docInfo));
+                        }
+                    }))
+                    .exceptionally(e -> showError(R.string.javadocUpdateError, e));
         }
     }
 
@@ -125,6 +135,7 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
                 int indexToRemove = adapter.getItems().indexOf(selected);
                 adapter.getItems().remove(indexToRemove);
                 adapter.notifyItemRemoved(indexToRemove);
+                javaDocInfos.remove(selected);
             } catch (IOException e) {
                 Toast.makeText(getContext(), "Cannot delete javadoc", Toast.LENGTH_SHORT).show();
                 Log.e(getClass().getName(), "Cannot delete javadoc", e);
@@ -155,7 +166,7 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
         } else if (itemId == R.id.downloadFromMaven) {
             showDownloadPopup("");
         } else if (itemId == R.id.downloadFromOracle) {
-            openFragment(DownloaderFragment.newInstance(javaDocInfos.size()));
+            openFragment(OracleDownloaderFragment.newInstance(javaDocInfos.size()));
         } else if (itemId == R.id.downloadFromZip) {
             loadZipJavadoc();
         } else {
@@ -175,8 +186,10 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1337&&data != null) {
-            JavaDocDownloader.downloadFromUri(getContext(), data.getData(), docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)),javaDocInfos.size());
+        if (requestCode == 1337 && data != null) {
+            JavaDocDownloader.downloadFromUri(getContext(), data.getData(), javaDocInfos.size())
+                    .thenAccept(docInfo -> openFragment(ListClassesFragment.newInstance(docInfo)))
+                    .exceptionally(e -> showError(R.string.importJavadocError, e));
         }
     }
 
@@ -186,14 +199,15 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
         popUp.setContentView(layout);
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
         repoSelector.setText(repo);
-        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v -> JavaDocDownloader.downloadFromMavenRepo(requireContext(),
-                repoSelector.getText().toString(),
-                layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
-                layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
-                layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(),
-                dir -> openFragment(ListClassesFragment.newInstance(dir)),
-                javaDocInfos.size()
-        ));
+        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v ->
+                JavaDocDownloader.downloadFromMavenRepo(requireContext(),
+                        repoSelector.getText().toString(),
+                        layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
+                        layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
+                        layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(), javaDocInfos.size()
+                ).thenAccept(dir -> openFragment(ListClassesFragment.newInstance(dir)))
+                        .exceptionally(e -> showError(R.string.javadocDownloadError, e))
+        );
         layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v -> popUp.dismiss());
         popUp.showAtLocation(getView(), Gravity.CENTER, 0, 0);
     }
@@ -202,13 +216,13 @@ public class ListJavadocsFragment extends AbstractListFragment<JavaDocInformatio
     protected ListJavaDocsViewAdapter createAdapter(Context ctx) {
         javaDocInfos = new ArrayList<>();
         ListJavaDocsViewAdapter listJavaDocsViewAdapter = new ListJavaDocsViewAdapter(javaDocInfos, this::onShow);
-        getThreadPool().execute(()->{
+        getThreadPool().execute(() -> {
             try {
-                javaDocInfos=JavaDocDownloader.getAllSavedJavaDocInfos(ctx);
+                javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(ctx);
                 listJavaDocsViewAdapter.setItems(javaDocInfos);
             } catch (IOException e) {
-                Toast.makeText(getContext(),R.string.loadJavadocError,Toast.LENGTH_LONG).show();
-                Log.e(getClass().getCanonicalName(),"Cannot load Javadocs",e);
+                Toast.makeText(getContext(), R.string.loadJavadocError, Toast.LENGTH_LONG).show();
+                Log.e(getClass().getCanonicalName(), "Cannot load Javadocs", e);
             }
         });
         return listJavaDocsViewAdapter;

@@ -18,7 +18,10 @@
     <string name="downloadBtnContentDesc">download Javadoc</string>
     <string name="javadocDownloadError">Cannot download Javadoc</string>
     <string name="javadocUpdateError">Cannot update Javadoc</string>
+    <string name="importJavadocError">Cannot import Javadoc</string>
     <string name="saveMetadataError">Cannot update Javadoc information</string>
     <string name="moveJavadocError">Cannot move Javadoc</string>
     <string name="loadJavadocError">Cannot load Javadocs</string>
+    <string name="downloadOracleDocPrompt">Please download the Javadoc you want.</string>
+    <string name="javadocUpdateErrorAlreadyLatestVersion">This Javadoc is already up-to-date.</string>
 </resources>

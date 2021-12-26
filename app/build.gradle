@@ -1,6 +1,11 @@
 plugins {
     id 'com.android.application'
 }
+repositories {
+    maven {
+        url "https://maven.mozilla.org/maven2/"
+    }
+}
 android {
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
@@ -58,7 +63,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'org.jsoup:jsoup:1.14.3'
-    implementation 'androidx.browser:browser:1.4.0'
+    implementation "org.mozilla.geckoview:geckoview:95.0.20211129150630"
     //noinspection AnnotationProcessorOnCompilePath
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'

@@ -23,7 +23,7 @@ import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class ClassParser {
+class ClassParser {
     private static final String SELECTOR_TOP = ".class-description,.description,.summary,.details";
     private static final String SELECTOR_MIDDLE = "section:not(" + SELECTOR_TOP + " section *)," + SELECTOR_TOP + ">ul>li>ul>li";
     private static final String SELECTOR_BOTTOM_RAW = "section\0,ul>li:not(:first-child)\0,ul:not(:first-child)>li\0,table>tr\0";
