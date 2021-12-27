@@ -27,7 +27,6 @@ public class ListJavaDocsViewHolder extends AbstractListViewHolder<JavaDocInform
     private final TextView sourceView;
     private final TextView typeView;
 
-
     public ListJavaDocsViewHolder(ListJavaDocsViewAdapter adapter, View view) {
 
         super(adapter,view);

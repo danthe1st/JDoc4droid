@@ -9,11 +9,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 public abstract class AbstractListViewHolder<T,H extends AbstractListViewHolder<T,H>> extends RecyclerView.ViewHolder {
-    private final AbstractListViewAdapter abstractListViewAdapter;
+    private final AbstractListViewAdapter<T,H> abstractListViewAdapter;
     public final View view;
     public T item;
 
-    protected AbstractListViewHolder(AbstractListViewAdapter abstractListViewAdapter, View binding) {
+    protected AbstractListViewHolder(AbstractListViewAdapter<T,H> abstractListViewAdapter, View binding) {
         super(binding);
         this.abstractListViewAdapter = abstractListViewAdapter;
         this.view = binding;

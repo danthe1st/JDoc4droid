@@ -7,6 +7,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -20,6 +22,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
         super(items, onShow);
     }
 
+    @NonNull
     @Override
     public ListJavaDocsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_javadocs, parent, false);
@@ -27,7 +30,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
     }
 
     @Override
-    public void onBindViewHolder(final ListJavaDocsViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ListJavaDocsViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         JavaDocInformation javaDocInformation = items.get(position);
         holder.getNameView().setText(javaDocInformation.getName());
