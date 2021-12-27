@@ -86,8 +86,6 @@ public class OracleDownloaderFragment extends AbstractFragment {
             @Nullable
             @Override
             public GeckoResult<AllowOrDeny> onLoadRequest(@NonNull GeckoSession session, @NonNull LoadRequest request) {
-                Log.i(OracleDownloaderFragment.class.getCanonicalName(), "LOAD REQUEST: " + request);
-                Log.i(OracleDownloaderFragment.class.getCanonicalName(), "test");
                 if (!request.uri.contains("oracle.com")) {
                     GeckoResult<AllowOrDeny> res = new GeckoResult<>();
                     res.complete(AllowOrDeny.DENY);
@@ -109,15 +107,9 @@ public class OracleDownloaderFragment extends AbstractFragment {
                 return null;
             }
 
-            @Override
-            public void onLocationChange(@NonNull GeckoSession session, @Nullable String url) {
-                Log.i(OracleDownloaderFragment.class.getCanonicalName(), "LOCATION CHANGE");
-            }
-
             @Nullable
             @Override
             public GeckoResult<GeckoSession> onNewSession(@NonNull GeckoSession session, @NonNull String uri) {
-                Log.i(OracleDownloaderFragment.class.getCanonicalName(), "NEW SESSION");
                 session.loadUri(uri);
                 return null;
             }
@@ -142,7 +134,6 @@ public class OracleDownloaderFragment extends AbstractFragment {
 
             @Override
             public void onExternalResponse(@NonNull GeckoSession session, @NonNull WebResponse response) {
-                Log.i(OracleDownloaderFragment.class.getCanonicalName(), "EXTERNAL Response: "+response.uri);
                 String fileUri=response.uri;
                 if(fileUri.contains("?")){
                     fileUri=fileUri.substring(0,fileUri.indexOf('?'));
