@@ -5,15 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar_actionbar" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:background="@color/secondary"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/include">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
@@ -22,8 +26,8 @@
             android:layout_height="match_parent"
             android:layout_marginVertical="5dp"
             app:layoutManager="LinearLayoutManager"
-            tools:context=".activities.list.classes.ListClassesFragment"
-            tools:listitem="@layout/fragment_list_classes" />
+            tools:context=".activities.list.classes.ListClassesActivity"
+            tools:listitem="@layout/activity_list_classes" />
     </LinearLayout>
 
     <ProgressBar

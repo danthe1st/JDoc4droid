@@ -1,9 +1,6 @@
 package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,7 +22,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
     @NonNull
     @Override
     public ListJavaDocsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_list_javadocs, parent, false);
+        View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_javadocs, parent, false);
         return new ListJavaDocsViewHolder(this, view);
     }
 

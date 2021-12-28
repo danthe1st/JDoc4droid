@@ -1,13 +1,17 @@
 package io.github.danthe1st.jdoc4droid.activities.list.classes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import android.os.PersistableBundle;
+import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.github.danthe1st.jdoc4droid.R;
-import io.github.danthe1st.jdoc4droid.activities.list.AbstractListFragment;
+import io.github.danthe1st.jdoc4droid.activities.list.AbstractListActivity;
 import io.github.danthe1st.jdoc4droid.activities.show.showclass.ShowClassFragment;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
@@ -25,7 +29,7 @@ import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 /**
  * A fragment representing a list of Items.
  */
-public class ListClassesFragment extends AbstractListFragment<SimpleClassDescription,ListClassesViewAdapter> {
+public class ListClassesActivity extends AbstractListActivity<SimpleClassDescription,ListClassesViewAdapter> {
 
     private static final String ARG_JAVADOC_DIR = "javaDocDir";
 
@@ -33,62 +37,55 @@ public class ListClassesFragment extends AbstractListFragment<SimpleClassDescrip
 
     private List<SimpleClassDescription> descriptions= Collections.emptyList();
 
-    public static ListClassesFragment newInstance(JavaDocInformation javaDocInfo) {
-        ListClassesFragment fragment = new ListClassesFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_JAVADOC_DIR, javaDocInfo.getDirectory().getAbsolutePath());
+    public static void open(Context applicationContext, JavaDocInformation javaDocInfo){
+        Intent intent=new Intent(applicationContext, ListClassesActivity.class);
+        intent.putExtra(ARG_JAVADOC_DIR,javaDocInfo.getDirectory().getAbsolutePath());
         String shareUrl=javaDocInfo.getOnlineDocUrl();
         if(shareUrl!=null&&!shareUrl.isEmpty()){
-            args.putString(ARG_SHARE_URL, shareUrl);
+            intent.putExtra(ARG_SHARE_URL, shareUrl);
         }
-        fragment.setArguments(args);
-        return fragment;
+        applicationContext.startActivity(intent);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            javaDocDir = new File(getArguments().getString(ARG_JAVADOC_DIR));
-        }
+        setContentView(R.layout.activity_list_classes_list);
+        javaDocDir = new File(getIntent().getStringExtra(ARG_JAVADOC_DIR));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater,container,savedInstanceState);
-
+    protected void onStart() {
+        super.onStart();
         getThreadPool().execute(()-> {
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
                 runInUIThread(()->{
                     adapter.setItems(descriptions);
-                    view.findViewById(R.id.progressBar2).setVisibility(View.GONE);
+                    findViewById(R.id.progressBar2).setVisibility(View.GONE);
                 });
             } catch (Exception e) {
                 runInUIThread(()->{
-                    Toast.makeText(getContext(),"Cannot load classes",Toast.LENGTH_LONG).show();
-                    goBack();
+                    Toast.makeText(this,"Cannot load classes",Toast.LENGTH_LONG).show();
+                    onBackPressed();
                     Log.e(getClass().getName(),"Cannot load class list",e);
                 });
             }
         });
-        return view;
     }
 
     @Override
-    protected ListClassesViewAdapter createAdapter(Context ctx) {
+    protected ListClassesViewAdapter createAdapter() {
         return new ListClassesViewAdapter(new ArrayList<>(),this::showClass);
     }
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_list_classes_list;
+        return R.layout.activity_list_classes_list;
     }
 
     private void showClass(SimpleClassDescription simpleClassDescription) {
-        openFragment(ShowClassFragment.newInstance(javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink()));
+        ShowClassFragment.open(getApplicationContext(),javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
     }
 
     @Override

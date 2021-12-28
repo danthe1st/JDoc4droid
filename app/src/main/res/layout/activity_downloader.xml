@@ -4,21 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.OracleDownloaderActivity">
 
     <include
         android:id="@+id/include"
         layout="@layout/toolbar_actionbar" />
 
-    <FrameLayout
-        android:id="@+id/fragHolder"
-        android:layout_width="match_parent"
+    <org.mozilla.geckoview.GeckoView
+        android:id="@+id/downloaderView"
+        android:layout_width="fill_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include">
 
-    </FrameLayout>
+    </org.mozilla.geckoview.GeckoView>
 
+    <ProgressBar
+        android:id="@+id/loadingText"
+        android:layout_width="298dp"
+        android:layout_height="298dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
 </androidx.constraintlayout.widget.ConstraintLayout>

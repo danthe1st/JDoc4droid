@@ -1,16 +1,16 @@
 package io.github.danthe1st.jdoc4droid.activities.show.showclass;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.annotation.Nullable;
 
+import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,16 +24,15 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import io.github.danthe1st.jdoc4droid.R;
-import io.github.danthe1st.jdoc4droid.activities.AbstractFragment;
+import io.github.danthe1st.jdoc4droid.activities.AbstractActivity;
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
-import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.util.JavaDocLinkMovementMethod;
 import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 
-public class ShowClassFragment extends AbstractFragment {
+public class ShowClassFragment extends AbstractActivity {
 
     private static final String ARG_CLASS_FILE_PATH = "classFile";
     private static final String ARG_SELECTED_ID = "selected";
@@ -62,17 +61,20 @@ public class ShowClassFragment extends AbstractFragment {
         // Required empty public constructor
     }
 
-    private static ShowClassFragment newInstance(File baseDir,File classFile, String baseShareUrl, String selectedId) {
-        ShowClassFragment fragment = new ShowClassFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
-        args.putString(ARG_SELECTED_ID, selectedId);
-        args.putString(ARG_BASE_SHARE_URL,baseShareUrl);
-        args.putString(ARG_BASE_JAVADOC_DIR,baseDir.getAbsolutePath());
-        args.putString(ARG_SHARE_URL,loadShareUrl(baseShareUrl,baseDir,classFile));
+    public static void open(Context applicationContext, File baseDir, File classFile, String baseShareUrl) {
+        open(applicationContext, baseDir, classFile, baseShareUrl, null);
+    }
 
-        fragment.setArguments(args);
-        return fragment;
+    private static void open(Context applicationContext, File baseDir,File classFile, String baseShareUrl, String selectedId) {
+        Intent intent=new Intent(applicationContext,ShowClassFragment.class);
+
+        intent.putExtra(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
+        intent.putExtra(ARG_SELECTED_ID, selectedId);
+        intent.putExtra(ARG_BASE_SHARE_URL,baseShareUrl);
+        intent.putExtra(ARG_BASE_JAVADOC_DIR,baseDir.getAbsolutePath());
+        intent.putExtra(ARG_SHARE_URL,loadShareUrl(baseShareUrl,baseDir,classFile));
+
+        applicationContext.startActivity(intent);
     }
 
     @Override
@@ -85,12 +87,11 @@ public class ShowClassFragment extends AbstractFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            classFile = new File(getArguments().getString(ARG_CLASS_FILE_PATH));
-            baseShareUrl=getArguments().getString(ARG_BASE_SHARE_URL);
-            baseJavadocDir=getArguments().getString(ARG_BASE_JAVADOC_DIR);
-            selectedId = getArguments().getString(ARG_SELECTED_ID);
-        }
+        classFile = new File(getIntent().getStringExtra(ARG_CLASS_FILE_PATH));
+        baseShareUrl=getIntent().getStringExtra(ARG_BASE_SHARE_URL);
+        baseJavadocDir=getIntent().getStringExtra(ARG_BASE_JAVADOC_DIR);
+        selectedId = getIntent().getStringExtra(ARG_SELECTED_ID);
+
         if(savedInstanceState!=null){
             information.setSelectedOuterSection(loadSelection(savedInstanceState,STATE_SELECTION_OUTER));
             information.setSelectedMiddleSection(loadSelection(savedInstanceState,STATE_SELECTION_MIDDLE));
@@ -124,9 +125,7 @@ public class ShowClassFragment extends AbstractFragment {
         throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
     }
 
-    public static ShowClassFragment newInstance(File baseDir, File classFile, String baseShareUrl) {
-        return newInstance(baseDir, classFile, baseShareUrl, null);
-    }
+
 
     private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
         String shareUrl=baseUrl;
@@ -139,15 +138,14 @@ public class ShowClassFragment extends AbstractFragment {
         return shareUrl;
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.fragment_show_class, container, false);
+    public View onCreateView(@NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        View view = super.onCreateView(name, context, attrs);
 
-        outerAdapter = new ShowSectionAdapter(inflater);
-        middleAdapter = new ShowSectionAdapter(inflater);
-        innerAdapter = new ShowSectionAdapter(inflater);
+        outerAdapter = new ShowSectionAdapter(getLayoutInflater());
+        middleAdapter = new ShowSectionAdapter(getLayoutInflater());
+        innerAdapter = new ShowSectionAdapter(getLayoutInflater());
 
         textView = view.findViewById(R.id.contentView);
         textView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
@@ -342,7 +340,7 @@ public class ShowClassFragment extends AbstractFragment {
                 //TODO fix this
             } else {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
-                openFragment(ShowClassFragment.newInstance(new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null));
+                open(getApplicationContext(),new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null);
             }
             return false;
 
@@ -353,7 +351,7 @@ public class ShowClassFragment extends AbstractFragment {
         //let it be handled by sth else
         Intent intent = new Intent(Intent.ACTION_VIEW,uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        if (intent.resolveActivity(getBelongingActivity().getPackageManager()) != null) {
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
             return true;
         }

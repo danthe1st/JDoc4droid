@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment;
+import io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsActivity;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
 import lombok.experimental.UtilityClass;
@@ -151,7 +151,7 @@ public class JavaDocDownloader {
                 }
                 JavaDocInformation ret = downloadAndUnzip(url, newJavaDocInfo);
                 try {
-                    ListJavadocsFragment.deleteRecursive(javaDocInfo.getDirectory());
+                    ListJavadocsActivity.deleteRecursive(javaDocInfo.getDirectory());
                 } catch (IOException e) {
                     Log.e(JavaDocDownloader.class.getName(), "cannot delete old version after updating javadoc", e);
                 }
