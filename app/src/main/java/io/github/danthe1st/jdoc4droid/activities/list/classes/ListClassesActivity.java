@@ -80,7 +80,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     }
 
     private void showClass(SimpleClassDescription simpleClassDescription) {
-        ShowClassActivity.open(getApplicationContext(),javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
+        ShowClassActivity.open(this,javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
     }
 
     @Override

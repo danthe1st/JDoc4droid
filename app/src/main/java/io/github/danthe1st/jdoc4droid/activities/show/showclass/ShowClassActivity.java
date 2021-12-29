@@ -61,12 +61,12 @@ public class ShowClassActivity extends AbstractActivity {
         // Required empty public constructor
     }
 
-    public static void open(Context applicationContext, File baseDir, File classFile, String baseShareUrl) {
-        open(applicationContext, baseDir, classFile, baseShareUrl, null);
+    public static void open(Context ctx, File baseDir, File classFile, String baseShareUrl) {
+        open(ctx, baseDir, classFile, baseShareUrl, null);
     }
 
-    private static void open(Context applicationContext, File baseDir,File classFile, String baseShareUrl, String selectedId) {
-        Intent intent=new Intent(applicationContext, ShowClassActivity.class);
+    private static void open(Context ctx, File baseDir,File classFile, String baseShareUrl, String selectedId) {
+        Intent intent=new Intent(ctx, ShowClassActivity.class);
 
         intent.putExtra(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
         intent.putExtra(ARG_SELECTED_ID, selectedId);
@@ -74,7 +74,7 @@ public class ShowClassActivity extends AbstractActivity {
         intent.putExtra(ARG_BASE_JAVADOC_DIR,baseDir.getAbsolutePath());
         intent.putExtra(ARG_SHARE_URL,loadShareUrl(baseShareUrl,baseDir,classFile));
 
-        applicationContext.startActivity(intent);
+        ctx.startActivity(intent);
     }
 
     @Override
@@ -87,6 +87,7 @@ public class ShowClassActivity extends AbstractActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_show_class);
         classFile = new File(getIntent().getStringExtra(ARG_CLASS_FILE_PATH));
         baseShareUrl=getIntent().getStringExtra(ARG_BASE_SHARE_URL);
         baseJavadocDir=getIntent().getStringExtra(ARG_BASE_JAVADOC_DIR);
@@ -138,24 +139,22 @@ public class ShowClassActivity extends AbstractActivity {
         return shareUrl;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-        View view = super.onCreateView(name, context, attrs);
-
+    protected void onStart() {
+        super.onStart();
         outerAdapter = new ShowSectionAdapter(getLayoutInflater());
         middleAdapter = new ShowSectionAdapter(getLayoutInflater());
         innerAdapter = new ShowSectionAdapter(getLayoutInflater());
 
-        textView = view.findViewById(R.id.contentView);
+        textView = findViewById(R.id.contentView);
         textView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
 
-        TextView headerView = view.findViewById(R.id.headerView);
+        TextView headerView = findViewById(R.id.headerView);
         headerView.setMovementMethod(new JavaDocLinkMovementMethod(this::linkClicked));
 
-        Spinner outerSelectionSpinner = view.findViewById(R.id.mainSectionSpinner);
-        Spinner middleSelectionSpinner = view.findViewById(R.id.middleSectionSpinner);
-        Spinner innerSelectionSpinner = view.findViewById(R.id.innerSelectionSpinner);
+        Spinner outerSelectionSpinner = findViewById(R.id.mainSectionSpinner);
+        Spinner middleSelectionSpinner = findViewById(R.id.middleSectionSpinner);
+        Spinner innerSelectionSpinner = findViewById(R.id.innerSelectionSpinner);
         outerSelectionSpinner.setAdapter(outerAdapter);
         middleSelectionSpinner.setAdapter(middleAdapter);
         innerSelectionSpinner.setAdapter(innerAdapter);
@@ -235,7 +234,7 @@ public class ShowClassActivity extends AbstractActivity {
                             }
                         }
                     }
-                    view.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    findViewById(R.id.progressBar).setVisibility(View.GONE);
                     headerView.setText(information.getHeader().getText());
                     outerAdapter.notifyDataSetChanged();
                 });
@@ -243,8 +242,6 @@ public class ShowClassActivity extends AbstractActivity {
                 Log.e(ShowClassActivity.class.getName(), "cannot parse class", e);
             }
         });
-
-        return view;
     }
 
     private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, int position) {
@@ -340,7 +337,7 @@ public class ShowClassActivity extends AbstractActivity {
                 //TODO fix this
             } else {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
-                open(getApplicationContext(),new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null);
+                open(this,new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null);
             }
             return false;
 
