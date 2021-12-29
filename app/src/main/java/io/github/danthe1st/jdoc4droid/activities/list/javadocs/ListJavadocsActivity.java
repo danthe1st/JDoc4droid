@@ -231,8 +231,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     @Override
     protected ListJavaDocsViewAdapter createAdapter() {
         javaDocInfos = new ArrayList<>();
-        ListJavaDocsViewAdapter listJavaDocsViewAdapter = new ListJavaDocsViewAdapter(javaDocInfos, this::onShow);
-        return listJavaDocsViewAdapter;
+        return new ListJavaDocsViewAdapter(javaDocInfos, this::onShow);
     }
 
     @UiThread
