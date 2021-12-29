@@ -4,14 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import android.os.PersistableBundle;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,7 +16,7 @@ import java.util.stream.Collectors;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListActivity;
-import io.github.danthe1st.jdoc4droid.activities.show.showclass.ShowClassFragment;
+import io.github.danthe1st.jdoc4droid.activities.show.showclass.ShowClassActivity;
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
@@ -85,7 +80,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     }
 
     private void showClass(SimpleClassDescription simpleClassDescription) {
-        ShowClassFragment.open(getApplicationContext(),javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
+        ShowClassActivity.open(getApplicationContext(),javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
     }
 
     @Override

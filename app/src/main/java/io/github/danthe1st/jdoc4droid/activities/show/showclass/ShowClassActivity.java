@@ -32,7 +32,7 @@ import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.util.JavaDocLinkMovementMethod;
 import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 
-public class ShowClassFragment extends AbstractActivity {
+public class ShowClassActivity extends AbstractActivity {
 
     private static final String ARG_CLASS_FILE_PATH = "classFile";
     private static final String ARG_SELECTED_ID = "selected";
@@ -57,7 +57,7 @@ public class ShowClassFragment extends AbstractActivity {
     private String baseJavadocDir;
 
 
-    public ShowClassFragment() {
+    public ShowClassActivity() {
         // Required empty public constructor
     }
 
@@ -66,7 +66,7 @@ public class ShowClassFragment extends AbstractActivity {
     }
 
     private static void open(Context applicationContext, File baseDir,File classFile, String baseShareUrl, String selectedId) {
-        Intent intent=new Intent(applicationContext,ShowClassFragment.class);
+        Intent intent=new Intent(applicationContext, ShowClassActivity.class);
 
         intent.putExtra(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
         intent.putExtra(ARG_SELECTED_ID, selectedId);
@@ -240,7 +240,7 @@ public class ShowClassFragment extends AbstractActivity {
                     outerAdapter.notifyDataSetChanged();
                 });
             } catch (IOException e) {
-                Log.e(ShowClassFragment.class.getName(), "cannot parse class", e);
+                Log.e(ShowClassActivity.class.getName(), "cannot parse class", e);
             }
         });
 

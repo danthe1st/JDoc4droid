@@ -30,6 +30,9 @@
             android:name=".activities.OracleDownloaderActivity"
             android:noHistory="true"
             android:exported="false" />
+        <activity
+            android:name=".activities.show.showclass.ShowClassActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
