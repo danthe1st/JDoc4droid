@@ -233,10 +233,7 @@ public class ShowClassActivity extends AbstractActivity {
     private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
         String shareUrl=baseUrl;
         if(shareUrl!=null){
-            URI baseUri = baseDir.toURI();
-            URI actualUri = actualFile.toURI();
-            URI relativePath = baseUri.relativize(actualUri);
-            shareUrl += relativePath.getPath();
+            shareUrl += baseDir.toPath().relativize(actualFile.toPath());
         }
         return shareUrl;
     }

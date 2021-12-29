@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 
+import android.os.Debug;
+import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,6 +28,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.danthe1st.jdoc4droid.BuildConfig;
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.OracleDownloaderActivity;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListActivity;
@@ -54,7 +57,11 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         findViewById(R.id.updateBtn).setOnClickListener(this::updateSelectedJavadoc);
         findViewById(R.id.moveUpBtn).setOnClickListener(this::moveJavadocUp);
         findViewById(R.id.moveDownBtn).setOnClickListener(this::moveJavadocDown);
-        getThreadPool().execute(()->JavaDocDownloader.clearCacheIfNoDownloadInProgress(this));
+        getThreadPool().execute(() -> JavaDocDownloader.clearCacheIfNoDownloadInProgress(this));
+        if (BuildConfig.DEBUG && Debug.isDebuggerConnected()) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitDiskReads().detectAll().penaltyLog().build());
+        }
     }
 
     @Override
@@ -145,7 +152,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         javaDocInfos.remove(selected);
                     });
                 } catch (IOException e) {
-                    showError(R.string.deleteJavadocError,e);
+                    showError(R.string.deleteJavadocError, e);
                 }
             });
         }
