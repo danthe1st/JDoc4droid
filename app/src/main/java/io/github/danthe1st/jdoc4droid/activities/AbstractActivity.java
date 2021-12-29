@@ -19,10 +19,12 @@ import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -66,14 +68,6 @@ public class AbstractActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    public void setListener(int key, Runnable listener) {
-        keyListeners.put(key, listener);
-    }
-
-    public Runnable getListener(int key) {
-        return keyListeners.get(key);
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +84,7 @@ public class AbstractActivity extends AppCompatActivity {
         getActionBarToolbar();
     }
 
+    @UiThread
     protected Toolbar getActionBarToolbar() {
         if (mActionBarToolbar == null) {
             mActionBarToolbar = findViewById(R.id.include);
@@ -106,6 +101,8 @@ public class AbstractActivity extends AppCompatActivity {
         loadOptionsMenu(menu);
         return super.onCreateOptionsMenu(menu);
     }
+
+    @UiThread
     private void loadOptionsMenu(Menu menu){
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
 
@@ -140,6 +137,7 @@ public class AbstractActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @UiThread
     private void onShareButton(){
         String shareLink=getShareLink();
         if(shareLink!=null){
@@ -151,6 +149,7 @@ public class AbstractActivity extends AppCompatActivity {
         }
     }
 
+    @UiThread
     public void reloadTopMenuButtons(){
         if (supportsSearch()) {
             searchView.setVisibility(View.VISIBLE);
@@ -160,16 +159,17 @@ public class AbstractActivity extends AppCompatActivity {
         shareButton.setVisible(getShareLink() != null);
     }
 
-
     public void runInUIThread(Runnable toRun) {
         new Handler(Looper.getMainLooper()).post(toRun);
     }
 
+    @UiThread
     public void onSearch(String search) {
         //default implementation
         Log.w(getClass().getName(), "default implementation of onSearch() called");
     }
 
+    @UiThread
     public void onSearchType(String search) {
         //default implementation
     }
@@ -182,6 +182,7 @@ public class AbstractActivity extends AppCompatActivity {
         return shareUrl;
     }
 
+    @AnyThread
     protected Void showError(@StringRes int errorMessage, Throwable e){
         if(e instanceof UncheckedIOException &&e.getCause()!=null){
             e=e.getCause();
@@ -189,5 +190,11 @@ public class AbstractActivity extends AppCompatActivity {
         Log.e(this.getClass().getName(), getResources().getString(errorMessage), e);
         runInUIThread(()-> Toast.makeText(this, errorMessage,Toast.LENGTH_LONG).show());
         return null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        threadPool.shutdown();
     }
 }

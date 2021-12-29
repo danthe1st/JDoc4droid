@@ -1,12 +1,6 @@
 package io.github.danthe1st.jdoc4droid.activities.list;
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
-
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,11 +20,8 @@ public abstract class AbstractListActivity<T,A extends AbstractListViewAdapter<T
         recyclerView.setAdapter(adapter);
     }
 
-
+    @UiThread
     protected abstract A createAdapter();
-
-    @LayoutRes
-    protected abstract int getLayoutId();
 
     protected RecyclerView getRecyclerView() {
         return findViewById(R.id.list);

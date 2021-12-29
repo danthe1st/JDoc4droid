@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 
 import android.util.AttributeSet;
 import android.util.Log;
@@ -59,19 +61,23 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         findViewById(R.id.moveDownBtn).setOnClickListener(this::moveJavadocDown);
     }
 
+    @UiThread
     private void updateMoveButtons(JavaDocInformation javaDocInformation) {
         findViewById(R.id.moveUpBtn).setVisibility(canMoveJavadoc(javaDocInformation, -1) ? View.VISIBLE : View.INVISIBLE);
         findViewById(R.id.moveDownBtn).setVisibility(canMoveJavadoc(javaDocInformation, 1) ? View.VISIBLE : View.INVISIBLE);
     }
 
+    @UiThread
     private void moveJavadocDown(View view) {
         moveSelectedJavadoc(1);
     }
 
+    @UiThread
     private void moveJavadocUp(View view) {
         moveSelectedJavadoc(-1);
     }
 
+    @UiThread
     private void moveSelectedJavadoc(int indexChange) {
         JavaDocInformation info = adapter.getSelectedElement();
         if (!canMoveJavadoc(info, indexChange)) {
@@ -83,7 +89,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         adapter.getItems().add(newIndex, adapter.getItems().remove(index));
         adapter.notifyItemMoved(index, newIndex);
         for (int i = Math.min(index, newIndex); i <= Math.max(index, newIndex); i++) {
-            JavaDocInformation effectedJavadoc = adapter.getItems().get(i);
+            JavaDocInformation effectedJavadoc = javaDocInfos.get(i);
             effectedJavadoc.setOrder(i);
             JavaDocDownloader.saveMetadata(effectedJavadoc)
                     .exceptionally(e -> showError(R.string.saveMetadataError, e));
@@ -100,38 +106,42 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         return newIndex >= 0 && newIndex < adapter.getItems().size();
     }
 
-
     private void updateSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
         if (selected != null && selected.getType() == JavaDocType.MAVEN) {
-            JavaDocDownloader.updateMavenJavadoc(selected, javaDocInfos.size())
-                    .thenAccept(docInfo -> runInUIThread(()->{
+            JavaDocDownloader.updateMavenJavadoc(selected)
+                    .thenAccept(docInfo -> runInUIThread(() -> {
                         if (docInfo == null) {
-                            Toast.makeText(this,R.string.javadocUpdateErrorAlreadyLatestVersion,Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.javadocUpdateErrorAlreadyLatestVersion, Toast.LENGTH_LONG).show();
                         } else {
-                            ListClassesActivity.open(this,docInfo);
+                            ListClassesActivity.open(this, docInfo);
                         }
                     }))
                     .exceptionally(e -> showError(R.string.javadocUpdateError, e));
         }
     }
 
+    @UiThread
     private void deleteSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
         if (selected != null) {
-            try {
-                deleteRecursive(selected.getDirectory());
-                int indexToRemove = adapter.getItems().indexOf(selected);
-                adapter.getItems().remove(indexToRemove);
-                adapter.notifyItemRemoved(indexToRemove);
-                javaDocInfos.remove(selected);
-            } catch (IOException e) {
-                Toast.makeText(this, "Cannot delete javadoc", Toast.LENGTH_SHORT).show();
-                Log.e(getClass().getName(), "Cannot delete javadoc", e);
-            }
+            getThreadPool().execute(() -> {
+                try {
+                    deleteRecursive(selected.getDirectory());
+                    runInUIThread(() -> {
+                        int indexToRemove = adapter.getItems().indexOf(selected);
+                        adapter.getItems().remove(indexToRemove);
+                        adapter.notifyItemRemoved(indexToRemove);
+                        javaDocInfos.remove(selected);
+                    });
+                } catch (IOException e) {
+                    showError(R.string.deleteJavadocError,e);
+                }
+            });
         }
     }
 
+    @WorkerThread
     public static void deleteRecursive(File directory) throws IOException {
         if (directory.isDirectory()) {
             for (File file : directory.listFiles()) {
@@ -141,6 +151,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         Files.delete(directory.toPath());
     }
 
+    @UiThread
     private void downloadBtnClicked(View view) {
         PopupMenu menu = new PopupMenu(view.getContext(), view);
         menu.setOnMenuItemClickListener(this::downloadMenuItemClicked);
@@ -148,6 +159,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         menu.show();
     }
 
+    @UiThread
     private boolean downloadMenuItemClicked(MenuItem menuItem) {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.downloadFromCentral) {
@@ -155,7 +167,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         } else if (itemId == R.id.downloadFromMaven) {
             showDownloadPopup("");
         } else if (itemId == R.id.downloadFromOracle) {
-            OracleDownloaderActivity.open(this,javaDocInfos.size());
+            OracleDownloaderActivity.open(this, javaDocInfos.size());
         } else if (itemId == R.id.downloadFromZip) {
             loadZipJavadoc();
         } else {
@@ -164,6 +176,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         return true;
     }
 
+    @UiThread
     private void loadZipJavadoc() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -177,11 +190,12 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1337 && data != null) {
             JavaDocDownloader.downloadFromUri(this, data.getData(), javaDocInfos.size())
-                    .thenAccept(docInfo -> ListClassesActivity.open(this,docInfo))
+                    .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
                     .exceptionally(e -> showError(R.string.importJavadocError, e));
         }
     }
 
+    @UiThread
     private void showDownloadPopup(String repo) {
         View layout = getLayoutInflater().inflate(R.layout.popup_artifact_selector, null, false);
         PopupWindow popUp = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
@@ -195,7 +209,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
                         layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(), javaDocInfos.size()
                 ).thenAccept(info -> {
-                    ListClassesActivity.open(this,info);
+                    ListClassesActivity.open(this, info);
                     runInUIThread(popUp::dismiss);
                 })
                         .exceptionally(e -> showError(R.string.javadocDownloadError, e))
@@ -211,7 +225,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         getThreadPool().execute(() -> {
             try {
                 javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(this);
-                listJavaDocsViewAdapter.setItems(javaDocInfos);
+                runInUIThread(() -> listJavaDocsViewAdapter.setItems(javaDocInfos));
             } catch (IOException e) {
                 Toast.makeText(this, R.string.loadJavadocError, Toast.LENGTH_LONG).show();
                 Log.e(getClass().getCanonicalName(), "Cannot load Javadocs", e);
@@ -220,13 +234,9 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         return listJavaDocsViewAdapter;
     }
 
-    @Override
-    protected int getLayoutId() {
-        return R.layout.activity_list_javadocs_list;
-    }
-
+    @UiThread
     private void onShow(JavaDocInformation javaDocInformation) {
-        ListClassesActivity.open(this,javaDocInformation);
+        ListClassesActivity.open(this, javaDocInformation);
     }
 
     @Override

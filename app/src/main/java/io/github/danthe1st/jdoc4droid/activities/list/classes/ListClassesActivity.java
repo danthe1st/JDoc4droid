@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.UiThread;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     private List<SimpleClassDescription> descriptions= Collections.emptyList();
 
+    @UiThread
     public static void open(Context ctx, JavaDocInformation javaDocInfo){
         Intent intent=new Intent(ctx, ListClassesActivity.class);
         intent.putExtra(ARG_JAVADOC_DIR,javaDocInfo.getDirectory().getAbsolutePath());
@@ -74,11 +77,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         return new ListClassesViewAdapter(new ArrayList<>(),this::showClass);
     }
 
-    @Override
-    protected int getLayoutId() {
-        return R.layout.activity_list_classes_list;
-    }
-
+    @UiThread
     private void showClass(SimpleClassDescription simpleClassDescription) {
         ShowClassActivity.open(this,javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
     }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import android.util.AttributeSet;
 import android.util.Log;
@@ -61,10 +62,12 @@ public class ShowClassActivity extends AbstractActivity {
         // Required empty public constructor
     }
 
+    @UiThread
     public static void open(Context ctx, File baseDir, File classFile, String baseShareUrl) {
         open(ctx, baseDir, classFile, baseShareUrl, null);
     }
 
+    @UiThread
     private static void open(Context ctx, File baseDir,File classFile, String baseShareUrl, String selectedId) {
         Intent intent=new Intent(ctx, ShowClassActivity.class);
 
@@ -125,8 +128,6 @@ public class ShowClassActivity extends AbstractActivity {
         }
         throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
     }
-
-
 
     private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
         String shareUrl=baseUrl;
@@ -244,6 +245,7 @@ public class ShowClassActivity extends AbstractActivity {
         });
     }
 
+    @UiThread
     private void onOuterSelected(Spinner middleSelectionSpinner, Spinner innerSelectionSpinner, int position) {
         TextHolder outerSelected = outerAdapter.getSections().get(position);
         information.setSelectedOuterSection(outerSelected);
@@ -263,6 +265,7 @@ public class ShowClassActivity extends AbstractActivity {
         }
     }
 
+    @UiThread
     private void onMiddleSelected(Spinner innerSelectionSpinner, int position) {
         if(position==-1){
             position=0;
@@ -283,6 +286,7 @@ public class ShowClassActivity extends AbstractActivity {
         }
     }
 
+    @UiThread
     private void loadInnerSections(Map<TextHolder, TextHolder> selected, String search){
         List<TextHolder> sections=new ArrayList<>(selected.keySet());
         if(search!=null){
@@ -305,6 +309,7 @@ public class ShowClassActivity extends AbstractActivity {
         }
     }
 
+    @UiThread
     private void onInnerSelected(int position) {
         if(position==-1){
             position=0;
@@ -321,6 +326,7 @@ public class ShowClassActivity extends AbstractActivity {
         }
     }
 
+    @UiThread
     private boolean linkClicked(String link) {
         String[] split = link.split(Pattern.quote("#"), 2);
         File file;

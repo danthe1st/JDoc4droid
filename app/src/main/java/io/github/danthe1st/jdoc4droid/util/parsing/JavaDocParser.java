@@ -2,6 +2,8 @@ package io.github.danthe1st.jdoc4droid.util.parsing;
 
 import android.util.Log;
 
+import androidx.annotation.WorkerThread;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -21,6 +23,7 @@ import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@WorkerThread
 public class JavaDocParser {
 
     Document parseFile(File file) throws IOException {

@@ -3,6 +3,7 @@ package io.github.danthe1st.jdoc4droid.activities.list;
 import android.view.View;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder
     protected long lastClickTime=0;
 
     @Override
+    @UiThread
     public void onBindViewHolder(H holder, int position) {
         holder.item = items.get(position);
         if(selectedViewHolder==holder){
@@ -47,16 +49,19 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder
         return items.size();
     }
 
+    @UiThread
     public void setItems(List<T> items) {
         this.items = items;
         notifyDataSetChanged();
     }
+    @UiThread
     void unselect(){
         setCardColor(selectedViewHolder.view,R.color.background);
         selectedViewHolder=null;
         onSelect.accept(null);
     }
-    void setCardColor(View view,@ColorRes int color){
+    @UiThread
+    void setCardColor(View view, @ColorRes int color){
         View card=view.findViewById(R.id.card);
         if(card==null){
             card=view;

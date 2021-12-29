@@ -6,11 +6,13 @@ import android.text.style.URLSpan;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
+import java.util.function.Predicate;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class JavaDocLinkMovementMethod extends LinkMovementMethod {
-    private final OnLinkClickedListener mOnLinkClickedListener;
+    private final Predicate<String> onLinkClickedListener;
 
     //https://stackoverflow.com/a/50342669/10871900
     //https://gitlab.com/Commit451/LabCoat/commit/0da57c371815902f4ba24fcd7bceaa1e7a8d7bb7#1869e1cd937878326e16d1ab7139f68380c48172
@@ -36,7 +38,7 @@ public class JavaDocLinkMovementMethod extends LinkMovementMethod {
             URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
             if (link.length != 0) {
                 String url = link[0].getURL();
-                boolean handled = mOnLinkClickedListener.onLinkClicked(url);
+                boolean handled = onLinkClickedListener.test(url);
                 if (handled) {
                     return true;
                 }
@@ -45,9 +47,4 @@ public class JavaDocLinkMovementMethod extends LinkMovementMethod {
         }
         return super.onTouchEvent(widget, buffer, event);
     }
-    @FunctionalInterface
-    public interface OnLinkClickedListener {
-        boolean onLinkClicked(String url);
-    }
-
 }

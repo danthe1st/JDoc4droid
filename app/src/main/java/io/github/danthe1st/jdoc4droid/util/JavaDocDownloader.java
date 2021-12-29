@@ -5,6 +5,10 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.Xml;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.xmlpull.v1.XmlPullParser;
@@ -69,8 +73,8 @@ public class JavaDocDownloader {
         ORACLE_SUBDIR_SUFFIXES_MAPPING = Collections.unmodifiableMap(suffixSubdirMapping);
     }
 
+    @AnyThread
     public CompletableFuture<JavaDocInformation> downloadJavaApiDocs(Context ctx, String url, InputStream is, int currentNumberOfJavadocs) {
-
         int queryStartIndex = url.indexOf('?');
         if (queryStartIndex == -1) {
             queryStartIndex = url.length();
@@ -99,7 +103,7 @@ public class JavaDocDownloader {
         }
         return null;
     }
-
+    @AnyThread
     private String getJavaJavadocUrl(String name){
         int majorVersion=getJavaJavadocMajorVersion(name);
         String type=name.contains("javafx")?"javafx":"docs";
@@ -107,7 +111,7 @@ public class JavaDocDownloader {
         return "https://docs.oracle.com"+prefix+"/javase/"+majorVersion+"/"+type+"/api/";
         //https://docs.oracle.com/en/java/javase/11/docs/api/
     }
-
+    @AnyThread
     private int getJavaJavadocMajorVersion(String fullVersionName){
         Matcher matcher = JDK_JAVADOC_MAJOR_VERSION_PATTERN.matcher(fullVersionName);
         if(matcher.matches()){
@@ -117,6 +121,7 @@ public class JavaDocDownloader {
         }
     }
 
+    @AnyThread
     public CompletableFuture<JavaDocInformation> downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, int numberOfJavadocs) {
         if(version.isEmpty()){
             version="RELEASE";
@@ -141,7 +146,8 @@ public class JavaDocDownloader {
         return CompletableFuture.supplyAsync(()->downloadAction.apply(effectiveUrl),downloader);
     }
 
-    public CompletableFuture<JavaDocInformation> updateMavenJavadoc(JavaDocInformation javaDocInfo, int numberOfJavadocs) {
+    @AnyThread
+    public CompletableFuture<JavaDocInformation> updateMavenJavadoc(JavaDocInformation javaDocInfo) {
         return CompletableFuture.supplyAsync(()->{
             try {
                 JavaDocInformation newJavaDocInfo=new JavaDocInformation(javaDocInfo.getName(),javaDocInfo.getOnlineDocUrl(),javaDocInfo.getDirectory(),JavaDocType.MAVEN, javaDocInfo.getBaseDownloadUrl(), javaDocInfo.getOrder());
@@ -161,6 +167,7 @@ public class JavaDocDownloader {
             }
         },downloader);
     }
+    @WorkerThread
     private String getLatestMavenVersionUnchecked(JavaDocInformation javaDocInfo) {
         try {
             return getLatestMavenVersion(javaDocInfo);
@@ -168,6 +175,7 @@ public class JavaDocDownloader {
             throw new UncheckedIOException(e);
         }
     }
+    @WorkerThread
     private String getLatestMavenVersion(JavaDocInformation javaDocInfo) throws IOException {
         try(BufferedInputStream is=new BufferedInputStream(new URL(javaDocInfo.getBaseDownloadUrl()+"maven-metadata.xml").openStream())){
             String gId=null;
@@ -228,6 +236,7 @@ public class JavaDocDownloader {
         }
     }
 
+    @UiThread
     public CompletableFuture<JavaDocInformation> downloadFromUri(Context ctx, Uri uri, int numberOfJavadocs) {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment(), "/");
         JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP,numberOfJavadocs);
@@ -247,16 +256,19 @@ public class JavaDocDownloader {
         return toConvert.replaceAll("[^A-Za-z0-9]", "_");
     }
 
+    @AnyThread
     private CompletableFuture<JavaDocInformation> downloadAndUnzipAsync(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip) {
         return CompletableFuture.supplyAsync(() -> downloadAndUnzip(inputStreamSupplier, javaDocInfo, subDirToUnzip),downloader);
     }
 
+    @WorkerThread
     private JavaDocInformation downloadAndUnzip(String url, JavaDocInformation javaDocInfo) {
         return downloadAndUnzip(() -> {
             URL javaUrl = new URL(url);
             return javaUrl.openStream();
         }, javaDocInfo, "");
     }
+    @WorkerThread
     private JavaDocInformation downloadAndUnzip(Callable<InputStream> inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip) {
         try {
             File tempDir = getTempDir();
@@ -272,11 +284,13 @@ public class JavaDocDownloader {
         }
     }
 
+    @WorkerThread
     public String loadName(File tempDir) throws IOException {
         Document doc = Jsoup.parse(new File(tempDir,"index.html"), StandardCharsets.UTF_8.name());
         return doc.title();
     }
 
+    @WorkerThread
     private void unzip(Callable<InputStream> inputStreamLoader, File dest, String subDirToUnzip) throws IOException {
         //
         //
@@ -302,7 +316,7 @@ public class JavaDocDownloader {
         }catch (IOException e){
             throw e;
         }catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
     }
 
@@ -322,6 +336,7 @@ public class JavaDocDownloader {
         return dir;
     }
 
+    @WorkerThread
     public List<JavaDocInformation> getAllSavedJavaDocInfos(Context context) throws IOException {
         try{
             List<JavaDocInformation> ret = Arrays.stream(getAllSavedJavaDocDirs(context)).map(JavaDocDownloader::readMetadataFileUnchecked).sorted(Comparator.comparingInt(JavaDocInformation::getOrder)).collect(Collectors.toList());
@@ -333,10 +348,12 @@ public class JavaDocDownloader {
             }
             return ret;
         }catch (UncheckedIOException e){
-            throw e.getCause();
+            IOException cause=e.getCause();
+            throw cause==null?new IOException(e):cause;
         }
     }
 
+    @AnyThread
     public CompletableFuture<Void> saveMetadata(JavaDocInformation javaDocInfo){
         return CompletableFuture.supplyAsync(()->{
             try {
@@ -348,6 +365,7 @@ public class JavaDocDownloader {
         },downloader);
     }
 
+    @WorkerThread
     private void createMetadataFile(JavaDocInformation javaDocInfo, File javaDocDir) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(javaDocDir, METADATA_FILE_NAME)), StandardCharsets.UTF_8))) {
             bw.write(javaDocInfo.getName());
@@ -365,6 +383,7 @@ public class JavaDocDownloader {
         }
     }
 
+    @WorkerThread
     private JavaDocInformation readMetadataFileUnchecked(File javaDocDir) {
         try {
             return readMetadataFile(javaDocDir);
@@ -373,6 +392,7 @@ public class JavaDocDownloader {
         }
     }
 
+    @WorkerThread
     private JavaDocInformation readMetadataFile(File javaDocDir) throws IOException {
         File metadataFile=new File(javaDocDir, METADATA_FILE_NAME);
         if (metadataFile.exists()) {

@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import org.mozilla.geckoview.AllowOrDeny;
 import org.mozilla.geckoview.GeckoResult;
@@ -35,6 +36,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
     private GeckoSession session;
     private boolean canGoBack = false;
 
+    @UiThread
     public static void open(Context ctx, int numberOfJavadocs) {
         Intent intent = new Intent(ctx, OracleDownloaderActivity.class);
         intent.putExtra(NUM_JAVADOCS_ARG_NAME, numberOfJavadocs);

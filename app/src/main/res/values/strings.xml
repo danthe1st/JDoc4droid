@@ -24,4 +24,5 @@
     <string name="loadJavadocError">Cannot load Javadocs</string>
     <string name="downloadOracleDocPrompt">Please download the Javadoc you want.</string>
     <string name="javadocUpdateErrorAlreadyLatestVersion">This Javadoc is already up-to-date.</string>
+    <string name="deleteJavadocError">Cannot delete Javadoc</string>
 </resources>

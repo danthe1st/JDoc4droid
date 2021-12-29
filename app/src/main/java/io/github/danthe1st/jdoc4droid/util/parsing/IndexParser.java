@@ -1,5 +1,7 @@
 package io.github.danthe1st.jdoc4droid.util.parsing;
 
+import androidx.annotation.WorkerThread;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,6 +19,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@WorkerThread
 class IndexParser {
     @NonNull
     private final Element summaryTable;

@@ -2,6 +2,7 @@ package io.github.danthe1st.jdoc4droid.activities.list;
 
 import android.view.View;
 
+import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.github.danthe1st.jdoc4droid.R;
@@ -20,6 +21,7 @@ public abstract class AbstractListViewHolder<T,H extends AbstractListViewHolder<
         view.setOnClickListener(this::onClick);
     }
 
+    @UiThread
     protected void onClick(View view) {
         if (abstractListViewAdapter.selectedViewHolder == this) {
             if (abstractListViewAdapter.lastClickTime > System.nanoTime() - 500_000_000) {//2 clicks per second-->double-click

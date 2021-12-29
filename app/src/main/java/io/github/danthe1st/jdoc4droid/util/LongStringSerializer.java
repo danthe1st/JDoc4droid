@@ -1,5 +1,7 @@
 package io.github.danthe1st.jdoc4droid.util;
 
+import androidx.annotation.WorkerThread;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -10,6 +12,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class LongStringSerializer {
     final int MAX_SUPPLY_SIZE=1024;
+    @WorkerThread
     public void serialize(ObjectOutput out,String toWrite) throws IOException {
         byte[] rawDataBytes=toWrite.getBytes(StandardCharsets.UTF_8);
         out.writeInt(rawDataBytes.length);
@@ -21,6 +24,7 @@ public class LongStringSerializer {
             }
         }
     }
+    @WorkerThread
     public String deSerialize(ObjectInput in) throws IOException {
         int rawDataLength=in.readInt();
         if(rawDataLength==0){
