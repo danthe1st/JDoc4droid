@@ -101,48 +101,7 @@ public class ShowClassActivity extends AbstractActivity {
             information.setSelectedMiddleSection(loadSelection(savedInstanceState,STATE_SELECTION_MIDDLE));
             information.setSelectedInnerSection(loadSelection(savedInstanceState,STATE_SELECTION_INNER));
         }
-    }
-    private void saveSelection(Bundle outState, String selectionStateName, TextHolder selectedSection){
-        if(selectedSection==null){
-            return;
-        }
-        outState.putString(selectionStateName,selectedSection.getRawText());
-        outState.putString(selectionStateName+"Type",selectedSection.getClass().getSimpleName());
-        outState.putString(selectionStateName+"MainName",selectedSection.getMainName());
-        if(selectedSection instanceof HtmlStringHolder){
-            outState.putInt(selectionStateName+"Flags",((HtmlStringHolder)selectedSection).getFlags());
-        }
-    }
 
-    private TextHolder loadSelection(Bundle inState, String selectionStateName){
-        String rawText=inState.getString(selectionStateName);
-        if(rawText==null){
-            return null;
-        }
-        String typeName=inState.getString(selectionStateName+"Type");
-        String mainName=inState.getString(selectionStateName+"MainName");
-        if (StringHolder.class.getSimpleName().equals(typeName)) {
-            return new StringHolder(rawText, mainName);
-        } else if (HtmlStringHolder.class.getSimpleName().equals(typeName)) {
-            return new HtmlStringHolder(rawText, inState.getInt(selectionStateName+"Flags"), mainName);
-        }
-        throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
-    }
-
-    private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
-        String shareUrl=baseUrl;
-        if(shareUrl!=null){
-            URI baseUri = baseDir.toURI();
-            URI actualUri = actualFile.toURI();
-            URI relativePath = baseUri.relativize(actualUri);
-            shareUrl += relativePath.getPath();
-        }
-        return shareUrl;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         outerAdapter = new ShowSectionAdapter(getLayoutInflater());
         middleAdapter = new ShowSectionAdapter(getLayoutInflater());
         innerAdapter = new ShowSectionAdapter(getLayoutInflater());
@@ -243,6 +202,43 @@ public class ShowClassActivity extends AbstractActivity {
                 Log.e(ShowClassActivity.class.getName(), "cannot parse class", e);
             }
         });
+    }
+    private void saveSelection(Bundle outState, String selectionStateName, TextHolder selectedSection){
+        if(selectedSection==null){
+            return;
+        }
+        outState.putString(selectionStateName,selectedSection.getRawText());
+        outState.putString(selectionStateName+"Type",selectedSection.getClass().getSimpleName());
+        outState.putString(selectionStateName+"MainName",selectedSection.getMainName());
+        if(selectedSection instanceof HtmlStringHolder){
+            outState.putInt(selectionStateName+"Flags",((HtmlStringHolder)selectedSection).getFlags());
+        }
+    }
+
+    private TextHolder loadSelection(Bundle inState, String selectionStateName){
+        String rawText=inState.getString(selectionStateName);
+        if(rawText==null){
+            return null;
+        }
+        String typeName=inState.getString(selectionStateName+"Type");
+        String mainName=inState.getString(selectionStateName+"MainName");
+        if (StringHolder.class.getSimpleName().equals(typeName)) {
+            return new StringHolder(rawText, mainName);
+        } else if (HtmlStringHolder.class.getSimpleName().equals(typeName)) {
+            return new HtmlStringHolder(rawText, inState.getInt(selectionStateName+"Flags"), mainName);
+        }
+        throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
+    }
+
+    private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
+        String shareUrl=baseUrl;
+        if(shareUrl!=null){
+            URI baseUri = baseDir.toURI();
+            URI actualUri = actualFile.toURI();
+            URI relativePath = baseUri.relativize(actualUri);
+            shareUrl += relativePath.getPath();
+        }
+        return shareUrl;
     }
 
     @UiThread

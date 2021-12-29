@@ -44,11 +44,6 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_list_javadocs_list);
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         findViewById(R.id.downloadBtn).setOnClickListener(this::downloadBtnClicked);
         adapter.setOnSelect(javaDocInformation -> {
             findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
@@ -59,6 +54,21 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         findViewById(R.id.updateBtn).setOnClickListener(this::updateSelectedJavadoc);
         findViewById(R.id.moveUpBtn).setOnClickListener(this::moveJavadocUp);
         findViewById(R.id.moveDownBtn).setOnClickListener(this::moveJavadocDown);
+        getThreadPool().execute(()->JavaDocDownloader.clearCacheIfNoDownloadInProgress(this));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getThreadPool().execute(() -> {
+            try {
+                javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(this);
+                runInUIThread(() -> adapter.setItems(javaDocInfos));
+            } catch (IOException e) {
+                Toast.makeText(this, R.string.loadJavadocError, Toast.LENGTH_LONG).show();
+                Log.e(getClass().getCanonicalName(), "Cannot load Javadocs", e);
+            }
+        });
     }
 
     @UiThread
@@ -222,15 +232,6 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     protected ListJavaDocsViewAdapter createAdapter() {
         javaDocInfos = new ArrayList<>();
         ListJavaDocsViewAdapter listJavaDocsViewAdapter = new ListJavaDocsViewAdapter(javaDocInfos, this::onShow);
-        getThreadPool().execute(() -> {
-            try {
-                javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(this);
-                runInUIThread(() -> listJavaDocsViewAdapter.setItems(javaDocInfos));
-            } catch (IOException e) {
-                Toast.makeText(this, R.string.loadJavadocError, Toast.LENGTH_LONG).show();
-                Log.e(getClass().getCanonicalName(), "Cannot load Javadocs", e);
-            }
-        });
         return listJavaDocsViewAdapter;
     }
 

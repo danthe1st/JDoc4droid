@@ -1,5 +1,8 @@
 package io.github.danthe1st.jdoc4droid.activities.list;
 
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,13 +14,17 @@ public abstract class AbstractListActivity<T,A extends AbstractListViewAdapter<T
     protected A adapter;
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         RecyclerView recyclerView = getRecyclerView();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         adapter = createAdapter();
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @UiThread

@@ -28,6 +28,7 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,6 +47,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -57,9 +59,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class JavaDocDownloader {
 
+    private final LinkedBlockingQueue<Runnable> tasks=new LinkedBlockingQueue<>();
     private final ExecutorService downloader = new ThreadPoolExecutor(1, 3,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>());
+            tasks);
 
     private final Map<String, String> ORACLE_SUBDIR_SUFFIXES_MAPPING;
     private final String METADATA_FILE_NAME = ".metadata";
@@ -414,6 +417,31 @@ public class JavaDocDownloader {
             return new JavaDocInformation(javaDocDir.getName(), "", javaDocDir, JavaDocType.ZIP, -1);
         }
     }
-
-
+    @WorkerThread
+    public void clearCacheIfNoDownloadInProgress(Context ctx) {
+        File[] dirs = ctx.getCacheDir().listFiles();
+        if(dirs==null||!tasks.isEmpty()){
+            return;
+        }
+        Arrays.stream(dirs)
+                .filter(dir->dir.getName().startsWith("javadoc"))
+                .map(File::toPath)
+                .flatMap(JavaDocDownloader::fileWalkOrEmpty)
+                .sorted(Comparator.reverseOrder())
+                .forEach(JavaDocDownloader::deleteUnchecked);
+    }
+    private Stream<Path> fileWalkOrEmpty(Path path){
+        try {
+            return Files.walk(path);
+        } catch (IOException e) {
+            return Stream.empty();
+        }
+    }
+    private void deleteUnchecked(Path path){
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

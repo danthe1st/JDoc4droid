@@ -47,14 +47,9 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_classes_list);
+        super.onCreate(savedInstanceState);
         javaDocDir = new File(getIntent().getStringExtra(ARG_JAVADOC_DIR));
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         getThreadPool().execute(()-> {
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
