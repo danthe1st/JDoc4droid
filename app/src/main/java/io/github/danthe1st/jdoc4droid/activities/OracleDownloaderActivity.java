@@ -37,10 +37,10 @@ public class OracleDownloaderActivity extends AbstractActivity {
     private GeckoSession session;
     private boolean canGoBack = false;
 
-    public static void open(Context applicationContext, int numberOfJavadocs) {
-        Intent intent = new Intent(applicationContext, OracleDownloaderActivity.class);
+    public static void open(Context ctx, int numberOfJavadocs) {
+        Intent intent = new Intent(ctx, OracleDownloaderActivity.class);
         intent.putExtra(NUM_JAVADOCS_ARG_NAME, numberOfJavadocs);
-        applicationContext.startActivity(intent);
+        ctx.startActivity(intent);
     }
 
     @Override
@@ -107,9 +107,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
                         webView.setVisibility(View.INVISIBLE);
                         future
                                 .thenAccept(dir ->
-                                        runInUIThread(() -> {
-                                            ListClassesActivity.open(getApplicationContext(), dir);
-                                        })
+                                        runInUIThread(() -> ListClassesActivity.open(OracleDownloaderActivity.this, dir))
                                 )
                                 .exceptionally(e -> {
                                     showError(R.string.javadocDownloadError, e);

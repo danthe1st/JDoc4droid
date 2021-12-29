@@ -109,7 +109,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         if (docInfo == null) {
                             Toast.makeText(this,R.string.javadocUpdateErrorAlreadyLatestVersion,Toast.LENGTH_LONG).show();
                         } else {
-                            ListClassesActivity.open(getApplicationContext(),docInfo);
+                            ListClassesActivity.open(this,docInfo);
                         }
                     }))
                     .exceptionally(e -> showError(R.string.javadocUpdateError, e));
@@ -155,7 +155,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         } else if (itemId == R.id.downloadFromMaven) {
             showDownloadPopup("");
         } else if (itemId == R.id.downloadFromOracle) {
-            OracleDownloaderActivity.open(getApplicationContext(),javaDocInfos.size());
+            OracleDownloaderActivity.open(this,javaDocInfos.size());
         } else if (itemId == R.id.downloadFromZip) {
             loadZipJavadoc();
         } else {
@@ -177,7 +177,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1337 && data != null) {
             JavaDocDownloader.downloadFromUri(this, data.getData(), javaDocInfos.size())
-                    .thenAccept(docInfo -> ListClassesActivity.open(getApplicationContext(),docInfo))
+                    .thenAccept(docInfo -> ListClassesActivity.open(this,docInfo))
                     .exceptionally(e -> showError(R.string.importJavadocError, e));
         }
     }
@@ -195,7 +195,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
                         layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(), javaDocInfos.size()
                 ).thenAccept(info -> {
-                    ListClassesActivity.open(getApplicationContext(),info);
+                    ListClassesActivity.open(this,info);
                     runInUIThread(popUp::dismiss);
                 })
                         .exceptionally(e -> showError(R.string.javadocDownloadError, e))
@@ -226,7 +226,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     }
 
     private void onShow(JavaDocInformation javaDocInformation) {
-        ListClassesActivity.open(getApplicationContext(),javaDocInformation);
+        ListClassesActivity.open(this,javaDocInformation);
     }
 
     @Override

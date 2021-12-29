@@ -37,14 +37,14 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     private List<SimpleClassDescription> descriptions= Collections.emptyList();
 
-    public static void open(Context applicationContext, JavaDocInformation javaDocInfo){
-        Intent intent=new Intent(applicationContext, ListClassesActivity.class);
+    public static void open(Context ctx, JavaDocInformation javaDocInfo){
+        Intent intent=new Intent(ctx, ListClassesActivity.class);
         intent.putExtra(ARG_JAVADOC_DIR,javaDocInfo.getDirectory().getAbsolutePath());
         String shareUrl=javaDocInfo.getOnlineDocUrl();
         if(shareUrl!=null&&!shareUrl.isEmpty()){
             intent.putExtra(ARG_SHARE_URL, shareUrl);
         }
-        applicationContext.startActivity(intent);
+        ctx.startActivity(intent);
     }
 
     @Override
