@@ -24,7 +24,6 @@ class IndexParser {
     @NonNull
     private final Element summaryTable;
     static List<SimpleClassDescription> parseClasses(File javaDocDir) throws IOException {
-        //TODO show error on exception
         File index = new File(javaDocDir, "allclasses-index.html");
         File noFrameFile=new File(javaDocDir, "allclasses-noframe.html");
         if (index.exists()) {
@@ -72,7 +71,7 @@ class IndexParser {
                 .orElseThrow(()->new IllegalStateException("table does not have tbody"))
                 .children()
                 .parallelStream()
-                .filter(elem->elem.children().stream().anyMatch(c->"td".equals(c.tagName())))//TODO test with all java version, prev: skip(1)
+                .filter(elem->elem.children().stream().anyMatch(c->"td".equals(c.tagName())))
                 .map(elem -> loadSimpleClassDescription(elem.child(0), elem.child(1).text()))
                 .collect(Collectors.toList());
     }

@@ -340,7 +340,7 @@ public class ShowClassActivity extends AbstractActivity {
         if (file.isFile()) {
             if (file.getName().endsWith("-summary.html")) {
                 Log.i(getClass().getName(), "Tried to access a summary link, not implemented");
-                //TODO fix this
+                //TODO implement this
             } else {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
                 open(this,new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null);

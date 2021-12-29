@@ -96,7 +96,13 @@ public class JavaDocDownloader {
                         }
                     },downloader);
                 } else {
-                    JavaDocInformation javaDocInfo = new JavaDocInformation(name, getJavaJavadocUrl(name), javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
+                    String remoteUrl;
+                    try{
+                        remoteUrl = getJavaJavadocUrl(name);
+                    }catch (IllegalArgumentException e){
+                        remoteUrl="";
+                    }
+                    JavaDocInformation javaDocInfo = new JavaDocInformation(name, remoteUrl , javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
                     return downloadAndUnzipAsync(()->is, javaDocInfo, subDirToUnzip);
                 }
             }
@@ -117,7 +123,7 @@ public class JavaDocDownloader {
         if(matcher.matches()){
             return Integer.parseInt(matcher.group(1));
         }else{
-            throw new IllegalArgumentException("invalid JDK version");//TODO handle somehow
+            throw new IllegalArgumentException("invalid JDK version");
         }
     }
 
