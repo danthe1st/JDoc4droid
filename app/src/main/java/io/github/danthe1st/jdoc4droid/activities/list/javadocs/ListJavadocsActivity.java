@@ -16,7 +16,7 @@ import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +46,7 @@ import lombok.NoArgsConstructor;
 public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformation, ListJavaDocsViewAdapter> {
 
     private List<JavaDocInformation> javaDocInfos;
+    private ActivityResultLauncher<Object> zipLauncher;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,32 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitDiskReads().detectAll().penaltyLog().build());
         }
+
+        zipLauncher = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
+            @NonNull
+            @Override
+            public Intent createIntent(@NonNull Context context, Object input) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/java-archive"});
+                return intent;
+            }
+
+            @Override
+            public Uri parseResult(int resultCode, @Nullable Intent intent) {
+                if (intent == null) {
+                    return null;
+                }
+                return intent.getData();
+            }
+        }, result -> {
+            if (result != null) {
+                JavaDocDownloader.downloadFromUri(this, result, javaDocInfos.size())
+                        .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
+                        .exceptionally(e -> showError(R.string.importJavadocError, e));
+            }
+        });
     }
 
     @Override
@@ -223,31 +250,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     }
     @UiThread
     private void loadZipJavadoc() {
-        registerForActivityResult(new ActivityResultContract<Object, Uri>() {
-            @NonNull
-            @Override
-            public Intent createIntent(@NonNull Context context, Object input) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/java-archive"});
-                return intent;
-            }
-
-            @Override
-            public Uri parseResult(int resultCode, @Nullable Intent intent) {
-                if(intent==null){
-                    return null;
-                }
-                return intent.getData();
-            }
-        }, result -> {
-            if(result!=null){
-                JavaDocDownloader.downloadFromUri(this, result, javaDocInfos.size())
-                        .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
-                        .exceptionally(e -> showError(R.string.importJavadocError, e));
-            }
-        });
+        zipLauncher.launch(null);
     }
 
     @UiThread
