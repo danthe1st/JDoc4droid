@@ -6,9 +6,26 @@
     android:layout_height="match_parent"
     android:background="@color/secondary"
     tools:context=".activities.list.javadocs.ListJavadocsActivity">
+
     <include
         android:id="@+id/include"
-        layout="@layout/toolbar_actionbar" />
+        layout="@layout/toolbar_actionbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@id/downloadProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/list"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/moveUpBtn"
         android:layout_width="wrap_content"
@@ -75,15 +92,15 @@
         android:name="io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include"
+        app:layout_constraintTop_toBottomOf="@+id/downloadProgressBar"
         app:layout_constraintVertical_bias="1.0"
         tools:context=".activities.list.javadocs.ListJavadocsActivity"
         tools:listitem="@layout/activity_list_javadocs" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

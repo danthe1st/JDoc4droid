@@ -19,6 +19,7 @@ import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
 import org.mozilla.geckoview.WebResponse;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.danthe1st.jdoc4droid.R;
@@ -34,7 +35,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
     private String startURL;
     private int numberOfJavadocs;
     private GeckoRuntime runtime;
-    private GeckoView webView;
+    private GeckoView geckoView;
     private GeckoSession session;
     private boolean canGoBack = false;
 
@@ -52,23 +53,20 @@ public class OracleDownloaderActivity extends AbstractActivity {
         setContentView(R.layout.activity_downloader);
         numberOfJavadocs = getIntent().getIntExtra(NUM_JAVADOCS_ARG_NAME, 0);
         startURL =getIntent().getStringExtra(URL_ARG_NAME);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        webView = findViewById(R.id.downloaderView);
-        ProgressBar loadingView = findViewById(R.id.loadingText);
+        geckoView = findViewById(R.id.downloaderView);
+        ProgressBar loadingView = findViewById(R.id.downloadProgressBar);
+        ProgressBar progressVisibleBar = findViewById(R.id.downloadProgressVisibleBar);
 
         CookieManager.getInstance().setAcceptCookie(true);
 
-        session = new GeckoSession();
-
-
         runtime = GeckoRuntime.getDefault(this);
 
-        session.open(runtime);
-        webView.setSession(session);
+        session= geckoView.getSession();
+        if(session==null){
+            session = new GeckoSession();
+            geckoView.setSession(session);
+            session.open(runtime);
+        }
 
         session.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
             @Nullable
@@ -105,16 +103,22 @@ public class OracleDownloaderActivity extends AbstractActivity {
                     fileUri = fileUri.substring(0, fileUri.indexOf('?'));
                 }
                 if (fileUri.endsWith(".zip")) {
-                    CompletableFuture<JavaDocInformation> future = JavaDocDownloader.downloadJavaApiDocs(OracleDownloaderActivity.this, response.uri, response.body, numberOfJavadocs);
+                    CompletableFuture<JavaDocInformation> future = JavaDocDownloader.downloadOracleJavadoc(OracleDownloaderActivity.this, response.uri, response.body, Long.parseLong(Objects.requireNonNull(response.headers.getOrDefault("Content-Length", "-1"))), numberOfJavadocs, loadingView::setProgress);
                     if (future != null) {
                         loadingView.setVisibility(View.VISIBLE);
-                        webView.setVisibility(View.INVISIBLE);
+                        progressVisibleBar.setVisibility(View.VISIBLE);
+                        geckoView.setVisibility(View.INVISIBLE);
                         future
                                 .thenAccept(dir ->
                                         runInUIThread(() -> ListClassesActivity.open(OracleDownloaderActivity.this, dir))
                                 )
                                 .exceptionally(e -> {
                                     showError(R.string.javadocDownloadError, e);
+                                    return null;
+                                })
+                                .handle((a, b) -> {
+                                    loadingView.setVisibility(View.GONE);
+                                    progressVisibleBar.setVisibility(View.GONE);
                                     return null;
                                 });
                     }

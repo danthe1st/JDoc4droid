@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -48,11 +49,14 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     private List<JavaDocInformation> javaDocInfos;
     private ActivityResultLauncher<Object> zipLauncher;
 
+    private ProgressBar progressBar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_list_javadocs_list);
         super.onCreate(savedInstanceState);
         findViewById(R.id.downloadBtn).setOnClickListener(this::downloadBtnClicked);
+        progressBar=findViewById(R.id.downloadProgressBar);
         adapter.setOnSelect(javaDocInformation -> {
             findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
             findViewById(R.id.updateBtn).setVisibility(javaDocInformation == null || javaDocInformation.getBaseDownloadUrl().isEmpty() ? View.INVISIBLE : View.VISIBLE);
@@ -88,9 +92,11 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
             }
         }, result -> {
             if (result != null) {
-                JavaDocDownloader.downloadFromUri(this, result, javaDocInfos.size())
+                progressBar.setVisibility(View.VISIBLE);
+                JavaDocDownloader.downloadFromUri(this, result, javaDocInfos.size(), progressBar::setProgress)
                         .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
-                        .exceptionally(e -> showError(R.string.importJavadocError, e));
+                        .exceptionally(e -> showError(R.string.importJavadocError, e))
+                        .handle(this::removeProgressBar);
             }
         });
     }
@@ -160,15 +166,18 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     private void updateSelectedJavadoc(View view) {
         JavaDocInformation selected = adapter.getSelectedElement();
         if (selected != null && selected.getType() == JavaDocType.MAVEN) {
-            JavaDocDownloader.updateMavenJavadoc(selected)
+            progressBar.setVisibility(View.VISIBLE);
+            JavaDocDownloader.updateMavenJavadoc(selected, progressBar::setProgress)
                     .thenAccept(docInfo -> runInUIThread(() -> {
                         if (docInfo == null) {
                             Toast.makeText(this, R.string.javadocUpdateErrorAlreadyLatestVersion, Toast.LENGTH_LONG).show();
                         } else {
                             ListClassesActivity.open(this, docInfo);
                         }
+                        progressBar.setVisibility(View.GONE);
                     }))
-                    .exceptionally(e -> showError(R.string.javadocUpdateError, e));
+                    .exceptionally(e -> showError(R.string.javadocUpdateError, e))
+            .handle(this::removeProgressBar);
         }
     }
 
@@ -263,16 +272,21 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         popUp.setContentView(layout);
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
         repoSelector.setText(repo);
-        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v ->
-                JavaDocDownloader.downloadFromMavenRepo(this,
-                        repoSelector.getText().toString(),
-                        layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
-                        layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
-                        layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(), javaDocInfos.size()
-                ).thenAccept(info -> {
-                    ListClassesActivity.open(this, info);
-                    runInUIThread(popUp::dismiss);
-                }).exceptionally(e -> showError(R.string.javadocDownloadError, e))
+
+        layout.findViewById(R.id.artifactSelectorDownloadBtn).setOnClickListener(v -> {
+                    progressBar.setVisibility(View.VISIBLE);
+                    JavaDocDownloader.downloadFromMavenRepo(this,
+                            repoSelector.getText().toString(),
+                            layout.<EditText>findViewById(R.id.artifactSelectorGroupSelector).getText().toString(),
+                            layout.<EditText>findViewById(R.id.artifactSelectorArtifactSelector).getText().toString(),
+                            layout.<EditText>findViewById(R.id.artifactSelectorVersionSelector).getText().toString(), javaDocInfos.size(),
+                            progressBar::setProgress
+                    ).thenAccept(info -> {
+                        ListClassesActivity.open(this, info);
+                        runInUIThread(popUp::dismiss);
+                    }).exceptionally(e -> showError(R.string.javadocDownloadError, e))
+                            .handle(this::removeProgressBar);
+                }
         );
         layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v -> popUp.dismiss());
         popUp.showAtLocation(layout, Gravity.CENTER, 0, 0);
@@ -306,5 +320,10 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     @Override
     public boolean supportsSearch() {
         return true;
+    }
+
+    private Object removeProgressBar(Void a, Throwable b) {
+        progressBar.setVisibility(View.GONE);
+        return null;
     }
 }
