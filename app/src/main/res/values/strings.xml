@@ -25,4 +25,8 @@
     <string name="downloadOracleDocPrompt">Please download the Javadoc you want.</string>
     <string name="javadocUpdateErrorAlreadyLatestVersion">This Javadoc is already up-to-date.</string>
     <string name="deleteJavadocError">Cannot delete Javadoc</string>
+    <string name="javaDownloadName11">Java 11</string>
+    <string name="javaDownloadName8">Java 8</string>
+    <string name="javaDownloadName17">Java 17</string>
+    <string name="javaDownloadNameCustom">Select manually</string>
 </resources>

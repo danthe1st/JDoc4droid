@@ -30,6 +30,8 @@ import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
 public class OracleDownloaderActivity extends AbstractActivity {
 
     private static final String NUM_JAVADOCS_ARG_NAME = "numberOfJavadocs";
+    private static final String URL_ARG_NAME = "url";
+    private String startURL;
     private int numberOfJavadocs;
     private GeckoRuntime runtime;
     private GeckoView webView;
@@ -37,9 +39,10 @@ public class OracleDownloaderActivity extends AbstractActivity {
     private boolean canGoBack = false;
 
     @UiThread
-    public static void open(Context ctx, int numberOfJavadocs) {
+    public static void open(Context ctx, String url, int numberOfJavadocs) {
         Intent intent = new Intent(ctx, OracleDownloaderActivity.class);
         intent.putExtra(NUM_JAVADOCS_ARG_NAME, numberOfJavadocs);
+        intent.putExtra(URL_ARG_NAME, url);
         ctx.startActivity(intent);
     }
 
@@ -48,6 +51,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_downloader);
         numberOfJavadocs = getIntent().getIntExtra(NUM_JAVADOCS_ARG_NAME, 0);
+        startURL =getIntent().getStringExtra(URL_ARG_NAME);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
         session = new GeckoSession();
 
 
-        runtime = GeckoRuntime.create(this);
+        runtime = GeckoRuntime.getDefault(this);
 
         session.open(runtime);
         webView.setSession(session);
@@ -91,7 +95,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
             }
         });
 
-        session.loadUri("https://www.oracle.com/java/technologies/javase-downloads.html");
+        session.loadUri(startURL);
         session.setContentDelegate(new GeckoSession.ContentDelegate() {
 
             @Override
@@ -124,7 +128,6 @@ public class OracleDownloaderActivity extends AbstractActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        runtime.shutdown();
     }
 
     @Override

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/oracleDownloadSelector8"
+        android:title="@string/javaDownloadName8" />
+    <item
+        android:id="@+id/oracleDownloadSelector11"
+        android:title="@string/javaDownloadName11" />
+    <item
+        android:id="@+id/oracleDownloadSelector17"
+        android:title="@string/javaDownloadName17" />
+    <item
+        android:id="@+id/oracleDownloadSelectorCustom"
+        android:title="@string/javaDownloadNameCustom" />
+</menu>

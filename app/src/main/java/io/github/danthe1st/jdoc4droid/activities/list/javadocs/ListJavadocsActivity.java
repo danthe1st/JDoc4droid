@@ -189,7 +189,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     @UiThread
     private void downloadBtnClicked(View view) {
-        PopupMenu menu = new PopupMenu(view.getContext(), view);
+        PopupMenu menu = new PopupMenu(this, view);
         menu.setOnMenuItemClickListener(this::downloadMenuItemClicked);
         menu.inflate(R.menu.download_menu);
         menu.show();
@@ -198,20 +198,29 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     @UiThread
     private boolean downloadMenuItemClicked(MenuItem menuItem) {
         int itemId = menuItem.getItemId();
+        String url = null;
         if (itemId == R.id.downloadFromCentral) {
             showDownloadPopup("https://repo1.maven.org/maven2");
         } else if (itemId == R.id.downloadFromMaven) {
             showDownloadPopup("");
-        } else if (itemId == R.id.downloadFromOracle) {
-            OracleDownloaderActivity.open(this, javaDocInfos.size());
         } else if (itemId == R.id.downloadFromZip) {
             loadZipJavadoc();
+        } else if (itemId == R.id.oracleDownloadSelector8) {
+            url = "https://www.oracle.com/java/technologies/javase-jdk8-doc-downloads.html";
+        } else if (itemId == R.id.oracleDownloadSelector11) {
+            url = "https://www.oracle.com/java/technologies/javase-jdk11-doc-downloads.html";
+        } else if (itemId == R.id.oracleDownloadSelector17) {
+            url = "https://www.oracle.com/java/technologies/javase-jdk17-doc-downloads.html";
+        } else if (itemId == R.id.oracleDownloadSelectorCustom) {
+            url="https://www.oracle.com/java/technologies/javase-downloads.html";
         } else {
             return false;
         }
+        if(url!=null){
+            OracleDownloaderActivity.open(this, url, javaDocInfos.size());
+        }
         return true;
     }
-
     @UiThread
     private void loadZipJavadoc() {
         registerForActivityResult(new ActivityResultContract<Object, Uri>() {
