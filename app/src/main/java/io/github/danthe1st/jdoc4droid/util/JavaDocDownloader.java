@@ -440,24 +440,6 @@ public class JavaDocDownloader {
         Arrays.stream(dirs)
                 .filter(dir -> dir.getName().startsWith("javadoc"))
                 .map(File::toPath)
-                .flatMap(JavaDocDownloader::fileWalkOrEmpty)
-                .sorted(Comparator.reverseOrder())
-                .forEach(JavaDocDownloader::deleteUnchecked);
-    }
-
-    private Stream<Path> fileWalkOrEmpty(Path path) {
-        try {
-            return Files.walk(path);
-        } catch (IOException e) {
-            return Stream.empty();
-        }
-    }
-
-    private void deleteUnchecked(Path path) {
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+                .forEach(ListJavadocsActivity::deleteRecursive);
     }
 }

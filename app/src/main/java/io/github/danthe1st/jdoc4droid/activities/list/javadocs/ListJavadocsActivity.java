@@ -2,16 +2,10 @@ package io.github.danthe1st.jdoc4droid.activities.list.javadocs;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.annotation.WorkerThread;
-
 import android.os.Debug;
 import android.os.StrictMode;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -22,11 +16,21 @@ import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.github.danthe1st.jdoc4droid.BuildConfig;
 import io.github.danthe1st.jdoc4droid.R;
@@ -160,12 +164,27 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     @WorkerThread
     public static void deleteRecursive(File directory) throws IOException {
-        if (directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                deleteRecursive(file);
-            }
+        try {
+            deleteRecursive(directory.toPath());
+        } catch (UncheckedIOException e) {
+            IOException cause = e.getCause();
+            throw cause == null ? new IOException(e) : cause;
         }
-        Files.delete(directory.toPath());
+    }
+
+    @WorkerThread
+    public static void deleteRecursive(Path directory) {
+        try {
+            if (Files.isDirectory(directory)) {
+                try (Stream<Path> list = Files.list(directory)) {
+                    list.forEach(ListJavadocsActivity::deleteRecursive);
+                }
+            }
+            Files.delete(directory);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
     }
 
     @UiThread
@@ -195,21 +214,31 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     @UiThread
     private void loadZipJavadoc() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/java-archive"});
-        startActivityForResult(intent, 1337);
-    }
+        registerForActivityResult(new ActivityResultContract<Object, Uri>() {
+            @NonNull
+            @Override
+            public Intent createIntent(@NonNull Context context, Object input) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"application/zip", "application/java-archive"});
+                return intent;
+            }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1337 && data != null) {
-            JavaDocDownloader.downloadFromUri(this, data.getData(), javaDocInfos.size())
-                    .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
-                    .exceptionally(e -> showError(R.string.importJavadocError, e));
-        }
+            @Override
+            public Uri parseResult(int resultCode, @Nullable Intent intent) {
+                if(intent==null){
+                    return null;
+                }
+                return intent.getData();
+            }
+        }, result -> {
+            if(result!=null){
+                JavaDocDownloader.downloadFromUri(this, result, javaDocInfos.size())
+                        .thenAccept(docInfo -> ListClassesActivity.open(this, docInfo))
+                        .exceptionally(e -> showError(R.string.importJavadocError, e));
+            }
+        });
     }
 
     @UiThread

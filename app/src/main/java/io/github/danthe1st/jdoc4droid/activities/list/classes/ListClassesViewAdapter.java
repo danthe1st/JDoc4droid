@@ -4,6 +4,8 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListViewAdapter;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
@@ -17,17 +19,16 @@ public class ListClassesViewAdapter extends AbstractListViewAdapter<SimpleClassD
         super(classes, onShow);
     }
 
+    @NonNull
     @Override
     public ListClassesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ListClassesViewHolder(this, LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_classes, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(final ListClassesViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ListClassesViewHolder holder, int position) {
         super.onBindViewHolder(holder,position);
         holder.classNameView.setText(Html.fromHtml(holder.item.getPackageName()+".<b>"+holder.item.getName()+"</b>",Html.FROM_HTML_MODE_LEGACY));
         holder.classDescriptionView.setText(holder.item.getDescription());
     }
-
-
 }
