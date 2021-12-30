@@ -16,16 +16,17 @@
 
         <TextView
             android:id="@+id/listClassesClassName"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"
             android:textAppearance="?attr/textAppearanceListItem" />
 
         <TextView
             android:id="@+id/listClassesClassDesc"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"
+            android:textAlignment="textStart"
             android:textAppearance="?attr/textAppearanceListItem" />
     </LinearLayout>
 
