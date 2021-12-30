@@ -101,7 +101,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         getThreadPool().execute(() -> {
             try {
                 javaDocInfos = JavaDocDownloader.getAllSavedJavaDocInfos(this);
-                runInUIThread(() -> adapter.setItems(javaDocInfos));
+                runInUIThread(() -> adapter.setItems(new ArrayList<>(javaDocInfos)));
             } catch (IOException e) {
                 Toast.makeText(this, R.string.loadJavadocError, Toast.LENGTH_LONG).show();
                 Log.e(getClass().getCanonicalName(), "Cannot load Javadocs", e);
@@ -133,10 +133,13 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
             return;
         }
         int index = adapter.getItems().indexOf(info);
+        int actualIndex=javaDocInfos.indexOf(info);
         int newIndex = index + indexChange;
         adapter.getItems().add(newIndex, adapter.getItems().remove(index));
+        int actualNewIndex = javaDocInfos.indexOf(adapter.getItems().get(newIndex-indexChange));
+        javaDocInfos.add(actualNewIndex,javaDocInfos.remove(actualIndex));
         adapter.notifyItemMoved(index, newIndex);
-        for (int i = Math.min(index, newIndex); i <= Math.max(index, newIndex); i++) {
+        for (int i = Math.min(actualIndex, actualNewIndex); i <= Math.max(actualIndex, actualNewIndex); i++) {
             JavaDocInformation effectedJavadoc = javaDocInfos.get(i);
             effectedJavadoc.setOrder(i);
             JavaDocDownloader.saveMetadata(effectedJavadoc)
@@ -255,7 +258,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     @UiThread
     private void showDownloadPopup(String repo) {
-        View layout = getLayoutInflater().inflate(R.layout.popup_artifact_selector, null, false);
+        View layout = getLayoutInflater().inflate(R.layout.popup_artifact_selector, findViewById(android.R.id.content), false);
         PopupWindow popUp = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popUp.setContentView(layout);
         EditText repoSelector = layout.findViewById(R.id.artifactSelectorRepoSelector);
@@ -269,8 +272,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                 ).thenAccept(info -> {
                     ListClassesActivity.open(this, info);
                     runInUIThread(popUp::dismiss);
-                })
-                        .exceptionally(e -> showError(R.string.javadocDownloadError, e))
+                }).exceptionally(e -> showError(R.string.javadocDownloadError, e))
         );
         layout.findViewById(R.id.artifactSelectorDismissBtn).setOnClickListener(v -> popUp.dismiss());
         popUp.showAtLocation(layout, Gravity.CENTER, 0, 0);
@@ -292,7 +294,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         if (javaDocInfos != null) {
             List<JavaDocInformation> items = new ArrayList<>(javaDocInfos);
             items.removeIf(item -> !item.getName().toLowerCase().contains(search.toLowerCase()));
-            adapter.setItems(items);
+            adapter.setItems(new ArrayList<>(items));
         }
     }
 
@@ -305,6 +307,4 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
     public boolean supportsSearch() {
         return true;
     }
-
-
 }
