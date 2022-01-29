@@ -6,10 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,7 +16,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -377,7 +374,7 @@ public class ShowClassActivity extends AbstractActivity {
         TextHolder selected=getSelected();
         String id="";
         if(selected instanceof HtmlStringHolder){
-            id = "#"+((HtmlStringHolder) selected).getId();
+            id = "#"+((HtmlStringHolder) selected).getAnchor();
         }
         return super.getShareLink()+id;
     }

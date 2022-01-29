@@ -27,7 +27,7 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     @Getter
     private String mainName;
     @Getter
-    private String id="";
+    private String anchor ="";
     private CharSequence spanned;
 
     public HtmlStringHolder(String html, int flags,String mainName) {
@@ -36,11 +36,11 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
         this.mainName=mainName;
     }
 
-    public HtmlStringHolder(String html, int flags,String mainName, String id) {
+    public HtmlStringHolder(String html, int flags,String mainName, String anchor) {
         this.html=html;
         this.flags=flags;
         this.mainName=mainName;
-        this.id=id;
+        this.anchor = anchor;
     }
 
     @Override

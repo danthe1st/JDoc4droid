@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClassInformation implements Serializable {
-    private static final long serialVersionUID = 7618988607928849792L;
+    private static final long serialVersionUID = 7618988607928849793L;
 
     private TextHolder header;
     private Map<TextHolder,Map<TextHolder,Map<TextHolder,TextHolder>>> sections;

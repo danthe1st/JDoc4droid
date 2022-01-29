@@ -45,7 +45,7 @@ class ClassParser {
         if(headers.isEmpty()){
             throw new IOException("No headers found - '"+classFile.getPath()+"' does not seem like a valid class javadoc");
         }
-        TextHolder header = new HtmlStringHolder(headers.get(0).html(), Html.FROM_HTML_MODE_COMPACT);
+        TextHolder header = new HtmlStringHolder(headers.get(0).html(), Html.FROM_HTML_MODE_COMPACT, null, getAnchorName(headers.get(0)));
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> outerSections =
                 findAllSections(elem, null, data -> Collections.singletonMap(TextHolder.EMPTY, Collections.singletonMap(TextHolder.EMPTY, data)), selectedElemParents, selectedOuterSection, SELECTOR_TOP, (middleElem, middleNames) ->
                         findAllSections(middleElem, middleNames, data -> Collections.singletonMap(TextHolder.EMPTY, data), selectedElemParents, selectedMiddleSection, SELECTOR_MIDDLE, (innerElem, innerNames) ->
@@ -108,12 +108,44 @@ class ClassParser {
             elem.tagName("p");
         }
 
-        Element idLookup=element;
-        String id;
-        while((id=idLookup.id()).isEmpty()&&idLookup.childrenSize()>0&&idLookup.ownText().replaceAll("\\s+","").isEmpty()){
-            idLookup=idLookup.child(0);
+        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,null,getAnchorName(element));
+    }
+
+    private String getAnchorName(Element element){
+        String anchor="";
+        if(element.previousElementSibling()==null){
+            Element parent = element.parent();
+            if(parent!=null&&parent.ownText().trim().isEmpty()){
+                anchor=getDirectAnchorName(parent);
+            }
         }
-        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,null,id);
+        if(!anchor.isEmpty()){
+            return anchor;
+        }
+        while((anchor=getDirectAnchorName(element)).isEmpty()&&element.childrenSize()>0&&element.ownText().replaceAll("\\s+","").isEmpty()){
+            element=element.child(0);
+        }
+        return anchor;
+    }
+
+    private String getDirectAnchorName(Element element){
+        String id=element.id();
+        if(id.isEmpty()){
+            Element prevSibling = element.previousElementSibling();
+            if(prevSibling!=null&&"a".equals(prevSibling.tagName())){
+                id=prevSibling.attr("name");
+                if(id.isEmpty()){
+                    id=prevSibling.attr("id");
+                }
+            }
+        }
+        if(id.isEmpty()&&"a".equals(element.tagName())){
+            id=element.attr("name");
+            if(id.isEmpty()){
+                id=element.attr("id");
+            }
+        }
+        return id;
     }
 
     private boolean isMapWithProperSubElements(Object toTest) {

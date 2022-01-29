@@ -32,9 +32,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
 
     private static final String NUM_JAVADOCS_ARG_NAME = "numberOfJavadocs";
     private static final String URL_ARG_NAME = "url";
-    private String startURL;
     private int numberOfJavadocs;
-    private GeckoRuntime runtime;
     private GeckoView geckoView;
     private GeckoSession session;
     private boolean canGoBack = false;
@@ -47,26 +45,27 @@ public class OracleDownloaderActivity extends AbstractActivity {
         ctx.startActivity(intent);
     }
 
+    private void loadSession() {
+        GeckoRuntime runtime = GeckoRuntime.getDefault(this);
+        session = geckoView.getSession();
+        if (session == null) {
+            session = new GeckoSession();
+            geckoView.setSession(session);
+            session.open(runtime);
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_downloader);
         numberOfJavadocs = getIntent().getIntExtra(NUM_JAVADOCS_ARG_NAME, 0);
-        startURL =getIntent().getStringExtra(URL_ARG_NAME);
+        String startURL = getIntent().getStringExtra(URL_ARG_NAME);
         geckoView = findViewById(R.id.downloaderView);
         ProgressBar loadingView = findViewById(R.id.downloadProgressBar);
         ProgressBar progressVisibleBar = findViewById(R.id.downloadProgressVisibleBar);
 
-        CookieManager.getInstance().setAcceptCookie(true);
-
-        runtime = GeckoRuntime.getDefault(this);
-
-        session= geckoView.getSession();
-        if(session==null){
-            session = new GeckoSession();
-            geckoView.setSession(session);
-            session.open(runtime);
-        }
+        loadSession();
 
         session.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
             @Nullable

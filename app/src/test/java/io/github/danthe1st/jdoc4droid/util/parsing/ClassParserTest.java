@@ -16,7 +16,6 @@ import java.util.Objects;
 
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
-import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
 import io.github.danthe1st.jdoc4droid.tests.example.ExampleClass;
 
@@ -42,6 +41,8 @@ public class ClassParserTest extends AbstractParserTest {
         String innerKey=majorVersionNumber>12&&majorVersionNumber<15?"someMethod":signature;
         TextHolder data=getSection(classInformation,"details",majorVersionNumber>12?"Method Details":"Method Detail",innerKey);
         assertEquals("someMethod "+signature+" Example method description",cleanUp(getTextFromHTML(data.getRawText())));
+        assertTrue(data instanceof HtmlStringHolder);
+        assertEquals("someMethod--",((HtmlStringHolder)data).getAnchor().replaceAll("[()]","-"));
     }
 
     private TextHolder getSection(ClassInformation classInformation, String outerKey, String middleKey, String innerKey){
