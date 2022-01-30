@@ -1,4 +1,5 @@
 # JDoc4droid
+[<img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='100px'/>](https://play.google.com/store/apps/details?id=io.github.danthe1st.jdoc4droid&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
 
 A Javadoc Viewer for Android
 
