@@ -122,8 +122,6 @@ public class AbstractActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.app_bar_share) {
             onShareButton();
-        }else if (item.getItemId() == R.id.app_bar_filter){
-            onFilterButton();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -138,11 +136,6 @@ public class AbstractActivity extends AppCompatActivity {
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
         }
-    }
-
-    @UiThread
-    private void onFilterButton() {
-        // pass
     }
 
 
