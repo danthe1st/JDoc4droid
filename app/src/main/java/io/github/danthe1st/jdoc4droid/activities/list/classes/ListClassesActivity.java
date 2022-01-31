@@ -36,7 +36,6 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     private File javaDocDir;
     private MenuItem filterButton;
-    private Set<String> availableFilters;
 
     private List<SimpleClassDescription> descriptions = Collections.emptyList();
     private Set<String> classTypes=Collections.emptySet();
@@ -63,7 +62,6 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
                 classTypes = descriptions.stream().map(SimpleClassDescription::getClassType).collect(Collectors.toSet());
-                availableFilters = getAvailableFilters();
                 runInUIThread(()->{
                     adapter.setItems(descriptions);
                     findViewById(R.id.progressBar2).setVisibility(View.GONE);
@@ -78,7 +76,6 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         });
     }
 
-    // I will be back after dinner 20 mins? cyea okie okk
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean ret=super.onCreateOptionsMenu(menu);
@@ -86,7 +83,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         filterButton.setVisible(true);
         filterButton.setOnMenuItemClickListener(menuItem -> {
             filterButton.getSubMenu().clear();
-            for (String availableFilter : availableFilters) {
+            for (String availableFilter : getAvailableFilters()) {
                 filterButton.getSubMenu().add(availableFilter);
             }
             filterButton.getSubMenu();
@@ -98,7 +95,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         final String title = String.valueOf(item.getTitle());
-        if (availableFilters.contains(title)){
+        if (getAvailableFilters().contains(title)){
             onFilterChange(title);
         }
         return super.onOptionsItemSelected(item);
