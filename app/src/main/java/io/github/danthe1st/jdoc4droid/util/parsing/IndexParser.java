@@ -93,8 +93,17 @@ class IndexParser {
         return new SimpleClassDescription(
                 link.text(),
                 description,
-                link.attr("title").split(" ")[0],
+                capitalize(link.attr("title").split(" ")[0]),
                 link.attr("title").split(" ")[2],
                 link.attr("href"));
+    }
+    private static String capitalize(String toCapitalize){
+        char[] chars=toCapitalize.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if(i==0||Character.isWhitespace(chars[i-1])){
+                chars[i]=Character.toUpperCase(chars[i]);
+            }
+        }
+        return String.valueOf(chars);
     }
 }

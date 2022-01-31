@@ -165,10 +165,9 @@ public class ShowClassActivity extends AbstractActivity {
                 if(information.getSelectedInnerSection()!=null){
                     newInfo.setSelectedInnerSection(information.getSelectedInnerSection());
                 }
-                information = newInfo;
-
-                outerAdapter.setSections(new ArrayList<>(information.getSections().keySet()));
                 runInUIThread(() -> {
+                    information = newInfo;
+                    outerAdapter.setSections(new ArrayList<>(information.getSections().keySet()));
                     if (information.getSelectedOuterSection() != null) {
                         int pos = outerAdapter.getPositionFromName(information.getSelectedOuterSection());
                         if (pos != -1) {

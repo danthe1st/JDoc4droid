@@ -13,5 +13,4 @@ public class SimpleClassDescription implements Serializable {
     private String classType;
     private String packageName;
     private String path;
-
 }

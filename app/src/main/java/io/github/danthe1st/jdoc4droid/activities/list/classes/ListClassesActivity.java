@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.github.danthe1st.jdoc4droid.R;
@@ -32,7 +33,10 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     private File javaDocDir;
 
-    private List<SimpleClassDescription> descriptions= Collections.emptyList();
+    private List<SimpleClassDescription> descriptions = Collections.emptyList();
+    private Set<String> classTypes=Collections.emptySet();
+    private String selectedType=null;
+    private String currentSearch="";
 
     @UiThread
     public static void open(Context ctx, JavaDocInformation javaDocInfo){
@@ -53,6 +57,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         getThreadPool().execute(()-> {
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
+                classTypes = descriptions.stream().map(SimpleClassDescription::getClassType).collect(Collectors.toSet());
                 runInUIThread(()->{
                     adapter.setItems(descriptions);
                     findViewById(R.id.progressBar2).setVisibility(View.GONE);
@@ -79,7 +84,26 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @Override
     public void onSearch(String search) {
-        adapter.setItems(descriptions.stream().filter(desc->(desc.getPackageName()+"."+desc.getName()).toLowerCase().contains(search.toLowerCase())).collect(Collectors.toList()));
+        currentSearch=search;
+        filterElements();
+    }
+
+    //TODO use this for filtering
+    public void onFilterChange(String newFilter){
+        selectedType=newFilter;
+    }
+
+    public Set<String> getAvailableFilters(){
+        return Collections.unmodifiableSet(classTypes);
+    }
+
+    private void filterElements(){
+        adapter.setItems(
+                descriptions.stream()
+                        .filter(desc->selectedType==null||selectedType.equals(desc.getClassType()))
+                        .filter(desc->(desc.getPackageName()+"."+desc.getName()).toLowerCase().contains(currentSearch.toLowerCase()))
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override

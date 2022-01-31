@@ -16,9 +16,6 @@ public class JavaDocInformation {
     private String baseDownloadUrl;
     private int order;
 
-    public JavaDocInformation() {
-    }
-
     public JavaDocInformation(String name, String onlineDocUrl, File directory, JavaDocType type, int order){
         this(name,onlineDocUrl,directory,type,"",order);
     }
