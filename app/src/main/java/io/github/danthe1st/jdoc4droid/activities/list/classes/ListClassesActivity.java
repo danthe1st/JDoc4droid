@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -65,6 +68,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
                 runInUIThread(()->{
                     adapter.setItems(descriptions);
                     findViewById(R.id.progressBar2).setVisibility(View.GONE);
+                    reloadFilters();
                 });
             } catch (Exception e) {
                 runInUIThread(()->{
@@ -81,14 +85,6 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         boolean ret=super.onCreateOptionsMenu(menu);
         filterButton=menu.findItem(R.id.app_bar_filter);
         filterButton.setVisible(true);
-        filterButton.setOnMenuItemClickListener(menuItem -> {
-            filterButton.getSubMenu().clear();
-            for (String availableFilter : getAvailableFilters()) {
-                filterButton.getSubMenu().add(availableFilter);
-            }
-            filterButton.getSubMenu();
-            return ret;
-        });
         return ret;
     }
 
@@ -133,6 +129,17 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
                         .filter(desc->(desc.getPackageName()+"."+desc.getName()).toLowerCase().contains(currentSearch.toLowerCase()))
                         .collect(Collectors.toList())
         );
+    }
+
+    @UiThread
+    private void reloadFilters(){
+        for (String availableFilter : getAvailableFilters()) {
+            MenuItem item = filterButton.getSubMenu().add(availableFilter);
+            SpannableString title = new SpannableString(availableFilter);
+            title.setSpan(ContextCompat.getColor(this, R.color.teal_200), 0, title.length(), 0);
+            item.setTitle(title);
+
+        }
     }
 
     @Override
