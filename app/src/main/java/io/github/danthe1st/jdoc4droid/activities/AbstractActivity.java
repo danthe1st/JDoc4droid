@@ -1,20 +1,15 @@
 package io.github.danthe1st.jdoc4droid.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -27,18 +22,13 @@ import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 
 import java.io.UncheckedIOException;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import io.github.danthe1st.jdoc4droid.BuildConfig;
 import io.github.danthe1st.jdoc4droid.R;
 import lombok.Getter;
 
@@ -103,9 +93,8 @@ public class AbstractActivity extends AppCompatActivity {
     }
 
     @UiThread
-    private void loadOptionsMenu(Menu menu){
+    protected void loadOptionsMenu(Menu menu){
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
-
         shareButton = menu.findItem(R.id.app_bar_share);
 
         EditText searchEditText = searchView.findViewById( searchView.getContext()
@@ -133,6 +122,8 @@ public class AbstractActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.app_bar_share) {
             onShareButton();
+        }else if (item.getItemId() == R.id.app_bar_filter){
+            onFilterButton();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -148,6 +139,12 @@ public class AbstractActivity extends AppCompatActivity {
             startActivity(shareIntent);
         }
     }
+
+    @UiThread
+    private void onFilterButton() {
+        // pass
+    }
+
 
     @UiThread
     public void reloadTopMenuButtons(){
