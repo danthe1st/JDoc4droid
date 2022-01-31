@@ -134,11 +134,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     @UiThread
     private void reloadFilters(){
         for (String availableFilter : getAvailableFilters()) {
-            MenuItem item = filterButton.getSubMenu().add(availableFilter);
-            SpannableString title = new SpannableString(availableFilter);
-            title.setSpan(ContextCompat.getColor(this, R.color.teal_200), 0, title.length(), 0);
-            item.setTitle(title);
-
+            filterButton.getSubMenu().add(availableFilter);
         }
     }
 
