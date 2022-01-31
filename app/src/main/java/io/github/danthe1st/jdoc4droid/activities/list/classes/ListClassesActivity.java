@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 
 import java.io.File;
@@ -32,6 +35,8 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     private static final String ARG_JAVADOC_DIR = "javaDocDir";
 
     private File javaDocDir;
+    private MenuItem filterButton;
+    private Set<String> availableFilters;
 
     private List<SimpleClassDescription> descriptions = Collections.emptyList();
     private Set<String> classTypes=Collections.emptySet();
@@ -58,6 +63,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
                 classTypes = descriptions.stream().map(SimpleClassDescription::getClassType).collect(Collectors.toSet());
+                availableFilters = getAvailableFilters();
                 runInUIThread(()->{
                     adapter.setItems(descriptions);
                     findViewById(R.id.progressBar2).setVisibility(View.GONE);
@@ -70,6 +76,32 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
                 });
             }
         });
+    }
+
+    // I will be back after dinner 20 mins? cyea okie okk
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean ret=super.onCreateOptionsMenu(menu);
+        filterButton=menu.findItem(R.id.app_bar_filter);
+        filterButton.setVisible(true);
+        filterButton.setOnMenuItemClickListener(menuItem -> {
+            filterButton.getSubMenu().clear();
+            for (String availableFilter : availableFilters) {
+                filterButton.getSubMenu().add(availableFilter);
+            }
+            filterButton.getSubMenu();
+            return ret;
+        });
+        return ret;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        final String title = String.valueOf(item.getTitle());
+        if (availableFilters.contains(title)){
+            onFilterChange(title);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -88,9 +120,9 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         filterElements();
     }
 
-    //TODO use this for filtering
     public void onFilterChange(String newFilter){
         selectedType=newFilter;
+        filterElements();
     }
 
     public Set<String> getAvailableFilters(){
