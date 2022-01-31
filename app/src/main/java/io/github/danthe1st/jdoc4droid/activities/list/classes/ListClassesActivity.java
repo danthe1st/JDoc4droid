@@ -90,11 +90,15 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        final String title = String.valueOf(item.getTitle());
-        if (getAvailableFilters().contains(title)){
-            onFilterChange(title);
+        if(item.getItemId()==R.id.app_bar_filter){
+            final String title = String.valueOf(item.getTitle());
+            if (getAvailableFilters().contains(title)){
+                onFilterChange(title);
+            }
+            return true;
+        }else{
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
