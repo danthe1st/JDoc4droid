@@ -90,7 +90,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.app_bar_filter){
+        if(item.getGroupId()==R.id.app_bar_filter){
             final String title = String.valueOf(item.getTitle());
             if (getAvailableFilters().contains(title)){
                 onFilterChange(title);
@@ -118,7 +118,11 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     }
 
     public void onFilterChange(String newFilter){
-        selectedType=newFilter;
+        if(newFilter.equals(selectedType)){
+            selectedType=null;
+        }else{
+            selectedType=newFilter;
+        }
         filterElements();
     }
 
@@ -138,7 +142,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     @UiThread
     private void reloadFilters(){
         for (String availableFilter : getAvailableFilters()) {
-            filterButton.getSubMenu().add(availableFilter);
+            filterButton.getSubMenu().add(filterButton.getItemId(),Menu.NONE,Menu.NONE,availableFilter);
         }
     }
 
