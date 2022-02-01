@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/downloadFromOracle" android:id="@+id/downloadFromOracle">
+    <item
+        android:id="@+id/downloadFromOracle"
+        android:title="@string/downloadFromOracle">
         <menu>
 
             <item
@@ -17,7 +19,13 @@
                 android:title="@string/javaDownloadNameCustom" />
         </menu>
     </item>
-    <item android:title="@string/downloadFromCentral" android:id="@+id/downloadFromCentral" />
-    <item android:title="@string/downloadFromMavenRepo" android:id="@+id/downloadFromMaven" />
-    <item android:title="@string/downloadFromZip" android:id="@+id/downloadFromZip" ></item>
+    <item
+        android:id="@+id/downloadFromCentral"
+        android:title="@string/downloadFromCentral" />
+    <item
+        android:id="@+id/downloadFromMaven"
+        android:title="@string/downloadFromMavenRepo" />
+    <item
+        android:id="@+id/downloadFromZip"
+        android:title="@string/downloadFromZip"></item>
 </menu>

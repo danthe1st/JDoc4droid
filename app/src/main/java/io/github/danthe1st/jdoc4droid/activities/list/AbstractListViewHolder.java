@@ -6,15 +6,13 @@ import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.github.danthe1st.jdoc4droid.R;
-import lombok.AccessLevel;
-import lombok.Getter;
 
-public abstract class AbstractListViewHolder<T,H extends AbstractListViewHolder<T,H>> extends RecyclerView.ViewHolder {
-    private final AbstractListViewAdapter<T,H> abstractListViewAdapter;
+public abstract class AbstractListViewHolder<T, H extends AbstractListViewHolder<T, H>> extends RecyclerView.ViewHolder {
     public final View view;
+    private final AbstractListViewAdapter<T, H> abstractListViewAdapter;
     public T item;
 
-    protected AbstractListViewHolder(AbstractListViewAdapter<T,H> abstractListViewAdapter, View binding) {
+    protected AbstractListViewHolder(AbstractListViewAdapter<T, H> abstractListViewAdapter, View binding) {
         super(binding);
         this.abstractListViewAdapter = abstractListViewAdapter;
         this.view = binding;

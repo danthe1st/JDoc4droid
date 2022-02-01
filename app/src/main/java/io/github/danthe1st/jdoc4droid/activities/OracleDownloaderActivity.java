@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.CookieManager;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 

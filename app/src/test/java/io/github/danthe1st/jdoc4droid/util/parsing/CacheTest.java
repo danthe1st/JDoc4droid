@@ -13,28 +13,31 @@ import java.util.List;
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
 
-public class CacheTest extends AbstractParserTest{
+public class CacheTest extends AbstractParserTest {
     private File cacheFile;
+
     @Before
     public void setUpTest() throws IOException {
-        cacheFile = new File(outputDir.toFile(),"cachetest.cache");
-        if(cacheFile.exists()){
+        cacheFile = new File(outputDir.toFile(), "cachetest.cache");
+        if (cacheFile.exists()) {
             Files.delete(cacheFile.toPath());
         }
     }
+
     @Test
     public void testIndexCache() throws IOException, ClassNotFoundException {
         List<SimpleClassDescription> descs = IndexParser.parseClasses(outputDir.toFile());
-        JavaDocParser.saveClassesToCache(descs,cacheFile);
+        JavaDocParser.saveClassesToCache(descs, cacheFile);
         List<SimpleClassDescription> fromCache = JavaDocParser.loadClassesFromCache(cacheFile);
-        assertEquals(descs,fromCache);
+        assertEquals(descs, fromCache);
     }
+
     @Test
     public void testClassCache() throws IOException, ClassNotFoundException {
         ClassInformation classInformation = ClassParserTest.loadExampleClass();
-        JavaDocParser.saveInformationToCache(classInformation,cacheFile);
+        JavaDocParser.saveInformationToCache(classInformation, cacheFile);
         System.out.println("----------------------");
         ClassInformation fromCache = JavaDocParser.loadInformationFromCache(cacheFile);
-        assertEquals(classInformation,fromCache);
+        assertEquals(classInformation, fromCache);
     }
 }

@@ -51,12 +51,37 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     private ProgressBar progressBar;
 
+    @WorkerThread
+    public static void deleteRecursive(File directory) throws IOException {
+        try {
+            deleteRecursive(directory.toPath());
+        } catch (UncheckedIOException e) {
+            IOException cause = e.getCause();
+            throw cause == null ? new IOException(e) : cause;
+        }
+    }
+
+    @WorkerThread
+    public static void deleteRecursive(Path directory) {
+        try {
+            if (Files.isDirectory(directory)) {
+                try (Stream<Path> list = Files.list(directory)) {
+                    list.forEach(ListJavadocsActivity::deleteRecursive);
+                }
+            }
+            Files.delete(directory);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_list_javadocs_list);
         super.onCreate(savedInstanceState);
         findViewById(R.id.downloadBtn).setOnClickListener(this::downloadBtnClicked);
-        progressBar=findViewById(R.id.downloadProgressBar);
+        progressBar = findViewById(R.id.downloadProgressBar);
         adapter.setOnSelect(javaDocInformation -> {
             findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
             findViewById(R.id.updateBtn).setVisibility(javaDocInformation == null || javaDocInformation.getBaseDownloadUrl().isEmpty() ? View.INVISIBLE : View.VISIBLE);
@@ -139,11 +164,11 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
             return;
         }
         int index = adapter.getItems().indexOf(info);
-        int actualIndex=javaDocInfos.indexOf(info);
+        int actualIndex = javaDocInfos.indexOf(info);
         int newIndex = index + indexChange;
         adapter.getItems().add(newIndex, adapter.getItems().remove(index));
-        int actualNewIndex = javaDocInfos.indexOf(adapter.getItems().get(newIndex-indexChange));
-        javaDocInfos.add(actualNewIndex,javaDocInfos.remove(actualIndex));
+        int actualNewIndex = javaDocInfos.indexOf(adapter.getItems().get(newIndex - indexChange));
+        javaDocInfos.add(actualNewIndex, javaDocInfos.remove(actualIndex));
         adapter.notifyItemMoved(index, newIndex);
         for (int i = Math.min(actualIndex, actualNewIndex); i <= Math.max(actualIndex, actualNewIndex); i++) {
             JavaDocInformation effectedJavadoc = javaDocInfos.get(i);
@@ -177,7 +202,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         progressBar.setVisibility(View.GONE);
                     }))
                     .exceptionally(e -> showError(R.string.javadocUpdateError, e))
-            .handle(this::removeProgressBar);
+                    .handle(this::removeProgressBar);
         }
     }
 
@@ -199,31 +224,6 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                 }
             });
         }
-    }
-
-    @WorkerThread
-    public static void deleteRecursive(File directory) throws IOException {
-        try {
-            deleteRecursive(directory.toPath());
-        } catch (UncheckedIOException e) {
-            IOException cause = e.getCause();
-            throw cause == null ? new IOException(e) : cause;
-        }
-    }
-
-    @WorkerThread
-    public static void deleteRecursive(Path directory) {
-        try {
-            if (Files.isDirectory(directory)) {
-                try (Stream<Path> list = Files.list(directory)) {
-                    list.forEach(ListJavadocsActivity::deleteRecursive);
-                }
-            }
-            Files.delete(directory);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
     }
 
     @UiThread
@@ -251,15 +251,16 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         } else if (itemId == R.id.oracleDownloadSelector17) {
             url = "https://www.oracle.com/java/technologies/javase-jdk17-doc-downloads.html";
         } else if (itemId == R.id.oracleDownloadSelectorCustom) {
-            url="https://www.oracle.com/java/technologies/javase-downloads.html";
+            url = "https://www.oracle.com/java/technologies/javase-downloads.html";
         } else {
             return false;
         }
-        if(url!=null){
+        if (url != null) {
             OracleDownloaderActivity.open(this, url, javaDocInfos.size());
         }
         return true;
     }
+
     @UiThread
     private void loadZipJavadoc() {
         zipLauncher.launch(null);

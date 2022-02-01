@@ -27,26 +27,26 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     @Getter
     private String mainName;
     @Getter
-    private String anchor ="";
+    private String anchor = "";
     private CharSequence spanned;
 
-    public HtmlStringHolder(String html, int flags,String mainName) {
-        this.html=html;
-        this.flags=flags;
-        this.mainName=mainName;
+    public HtmlStringHolder(String html, int flags, String mainName) {
+        this.html = html;
+        this.flags = flags;
+        this.mainName = mainName;
     }
 
-    public HtmlStringHolder(String html, int flags,String mainName, String anchor) {
-        this.html=html;
-        this.flags=flags;
-        this.mainName=mainName;
+    public HtmlStringHolder(String html, int flags, String mainName, String anchor) {
+        this.html = html;
+        this.flags = flags;
+        this.mainName = mainName;
         this.anchor = anchor;
     }
 
     @Override
     public CharSequence getText() {
-        if(spanned==null){
-            spanned= Html.fromHtml(html,flags);
+        if (spanned == null) {
+            spanned = Html.fromHtml(html, flags);
         }
         return spanned;
     }
@@ -58,10 +58,10 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        LongStringSerializer.serialize(out,html);
-        if(mainName==null){
+        LongStringSerializer.serialize(out, html);
+        if (mainName == null) {
             out.writeUTF("");
-        }else{
+        } else {
             out.writeUTF(mainName);
         }
         out.writeInt(flags);
@@ -69,12 +69,12 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException {
-        html=LongStringSerializer.deSerialize(in);
-        mainName=in.readUTF();
-        if("".equals(mainName)){
-            mainName=null;
+        html = LongStringSerializer.deSerialize(in);
+        mainName = in.readUTF();
+        if ("".equals(mainName)) {
+            mainName = null;
         }
-        flags=in.readInt();
+        flags = in.readInt();
     }
 
     @Override

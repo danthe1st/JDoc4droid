@@ -29,11 +29,6 @@ class ClassParser {
     private static final String SELECTOR_BOTTOM_RAW = "section\0,ul>li:not(:first-child)\0,ul:not(:first-child)>li\0,table>tr\0";
     private static final String SELECTOR_BOTTOM = SELECTOR_BOTTOM_RAW.replace("\0", ":not(" + SELECTOR_MIDDLE + " " + SELECTOR_BOTTOM_RAW.replace("\0", " *") + ")");
 
-
-    private static class Holder<T> {
-        T elem;
-    }
-
     ClassInformation parseClassInformation(File classFile, String selectedId) throws IOException {
         Element elem = JavaDocParser.parseFile(classFile);
         Holder<TextHolder> selectedOuterSection = new Holder<>();
@@ -42,8 +37,8 @@ class ClassParser {
         Element selectedElement = selectedId == null ? null : elem.getElementById(selectedId);
         Elements selectedElemParents = selectedElement == null ? null : selectedElement.parents();
         Elements headers = elem.getElementsByClass("header");
-        if(headers.isEmpty()){
-            throw new IOException("No headers found - '"+classFile.getPath()+"' does not seem like a valid class javadoc");
+        if (headers.isEmpty()) {
+            throw new IOException("No headers found - '" + classFile.getPath() + "' does not seem like a valid class javadoc");
         }
         TextHolder header = new HtmlStringHolder(headers.get(0).html(), Html.FROM_HTML_MODE_COMPACT, null, getAnchorName(headers.get(0)));
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> outerSections =
@@ -53,13 +48,14 @@ class ClassParser {
                 );
         return new ClassInformation(header, outerSections, selectedOuterSection.elem, selectedMiddleSection.elem, selectedInnerSection.elem);
     }
+
     private <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
         return elem.select(selector)
                 .stream()
                 .filter(e -> e != elem)
                 .map(outerChild ->
                         findSectionFromElement(usedNames, converter, selectedElemParents, selectedSection, adder, outerChild))
-                .collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue, (a,b)->a,LinkedHashMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
     private <T> Map.Entry<TextHolder, T> findSectionFromElement(Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, BiFunction<Element, Set<TextHolder>, T> adder, Element outerChild) {
@@ -78,18 +74,18 @@ class ClassParser {
                     innerNames = onlyInnerNames;
                     sectionName = NameLoader.findName(outerChild, innerNames);
                 }
-                section=new AbstractMap.SimpleEntry<>(sectionName, inner);
+                section = new AbstractMap.SimpleEntry<>(sectionName, inner);
             } else {
                 for (Element e : outerChild.select(".summary-table>.table-header,.caption")) {
                     e.remove();
                 }
                 T converted = converter.apply(convertToHtmlStringHolder(outerChild));
-                section=new AbstractMap.SimpleEntry<>(sectionName, converted);
+                section = new AbstractMap.SimpleEntry<>(sectionName, converted);
             }
         } else {
             sectionName = NameLoader.findName(outerChild, innerNames, new String[]{"li.blockList>h4+pre", ".member-signature", NameLoader.SELECTOR_NAME_HEADER});
             T converted = converter.apply(convertToHtmlStringHolder(outerChild));
-            section=new AbstractMap.SimpleEntry<>(sectionName, converted);
+            section = new AbstractMap.SimpleEntry<>(sectionName, converted);
         }
         if (usedNames != null) {
             usedNames.addAll(innerNames);
@@ -108,41 +104,41 @@ class ClassParser {
             elem.tagName("p");
         }
 
-        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,null,getAnchorName(element));
+        return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH, null, getAnchorName(element));
     }
 
-    private String getAnchorName(Element element){
-        String anchor="";
-        if(element.previousElementSibling()==null){
+    private String getAnchorName(Element element) {
+        String anchor = "";
+        if (element.previousElementSibling() == null) {
             Element parent = element.parent();
-            if(parent!=null&&parent.ownText().trim().isEmpty()){
-                anchor=getDirectAnchorName(parent);
+            if (parent != null && parent.ownText().trim().isEmpty()) {
+                anchor = getDirectAnchorName(parent);
             }
         }
-        if(!anchor.isEmpty()){
+        if (!anchor.isEmpty()) {
             return anchor;
         }
-        while((anchor=getDirectAnchorName(element)).isEmpty()&&element.childrenSize()>0&&element.ownText().replaceAll("\\s+","").isEmpty()){
-            element=element.child(0);
+        while ((anchor = getDirectAnchorName(element)).isEmpty() && element.childrenSize() > 0 && element.ownText().replaceAll("\\s+", "").isEmpty()) {
+            element = element.child(0);
         }
         return anchor;
     }
 
-    private String getDirectAnchorName(Element element){
-        String id=element.id();
-        if(id.isEmpty()){
+    private String getDirectAnchorName(Element element) {
+        String id = element.id();
+        if (id.isEmpty()) {
             Element prevSibling = element.previousElementSibling();
-            if(prevSibling!=null&&"a".equals(prevSibling.tagName())){
-                id=prevSibling.attr("name");
-                if(id.isEmpty()){
-                    id=prevSibling.attr("id");
+            if (prevSibling != null && "a".equals(prevSibling.tagName())) {
+                id = prevSibling.attr("name");
+                if (id.isEmpty()) {
+                    id = prevSibling.attr("id");
                 }
             }
         }
-        if(id.isEmpty()&&"a".equals(element.tagName())){
-            id=element.attr("name");
-            if(id.isEmpty()){
-                id=element.attr("id");
+        if (id.isEmpty() && "a".equals(element.tagName())) {
+            id = element.attr("name");
+            if (id.isEmpty()) {
+                id = element.attr("id");
             }
         }
         return id;
@@ -160,6 +156,10 @@ class ClassParser {
             return true;
         }
         return !mapToTest.containsKey(TextHolder.EMPTY);
+    }
+
+    private static class Holder<T> {
+        T elem;
     }
 
 }

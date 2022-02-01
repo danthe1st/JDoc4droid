@@ -28,8 +28,8 @@
         </activity>
         <activity
             android:name=".activities.OracleDownloaderActivity"
-            android:noHistory="true"
-            android:exported="false" />
+            android:exported="false"
+            android:noHistory="true" />
         <activity
             android:name=".activities.show.showclass.ShowClassActivity"
             android:exported="false" />

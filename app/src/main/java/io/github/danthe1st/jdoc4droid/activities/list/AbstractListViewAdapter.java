@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @RequiredArgsConstructor
-public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder<T,H>> extends RecyclerView.Adapter<H>{
+public abstract class AbstractListViewAdapter<T, H extends AbstractListViewHolder<T, H>> extends RecyclerView.Adapter<H> {
 
     @NonNull
     @Getter
@@ -28,18 +28,16 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder
     @NonNull
     @Setter
     protected Consumer<T> onShow;
-
+    protected long lastClickTime = 0;
     @Setter(AccessLevel.PROTECTED)
     @Getter(AccessLevel.PACKAGE)
     private Consumer<T> onSelect;
-
-    protected long lastClickTime=0;
 
     @Override
     @UiThread
     public void onBindViewHolder(H holder, int position) {
         holder.item = items.get(position);
-        if(selectedViewHolder==holder){
+        if (selectedViewHolder == holder) {
             unselect();
         }
     }
@@ -54,20 +52,22 @@ public abstract class AbstractListViewAdapter<T,H extends AbstractListViewHolder
         this.items = items;
         notifyDataSetChanged();
     }
+
     @UiThread
-    void unselect(){
-        setCardColor(selectedViewHolder.view,R.color.background);
-        selectedViewHolder=null;
-        if(onSelect!=null){
+    void unselect() {
+        setCardColor(selectedViewHolder.view, R.color.background);
+        selectedViewHolder = null;
+        if (onSelect != null) {
             onSelect.accept(null);
         }
     }
+
     @UiThread
-    void setCardColor(View view, @ColorRes int color){
-        View card=view.findViewById(R.id.card);
-        if(card==null){
-            card=view;
+    void setCardColor(View view, @ColorRes int color) {
+        View card = view.findViewById(R.id.card);
+        if (card == null) {
+            card = view;
         }
-        card.setBackgroundColor(view.getResources().getColor(color,null));
+        card.setBackgroundColor(view.getResources().getColor(color, null));
     }
 }

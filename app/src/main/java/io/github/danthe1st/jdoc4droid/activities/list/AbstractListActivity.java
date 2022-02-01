@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.AbstractActivity;
 
-public abstract class AbstractListActivity<T,A extends AbstractListViewAdapter<T,?>> extends AbstractActivity {
+public abstract class AbstractListActivity<T, A extends AbstractListViewAdapter<T, ?>> extends AbstractActivity {
     protected A adapter;
 
     @Override

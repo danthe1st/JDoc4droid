@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -72,13 +71,6 @@ public final class JavaDocDownloader {
     private static final String METADATA_FILE_NAME = ".metadata";
     private static final Pattern JDK_JAVADOC_MAJOR_VERSION_PATTERN = Pattern.compile("[^0-9]*([0-9]+)([^0-9].*)?");
 
-    private InputStreamLoader inputStreamSupplier;
-    private final JavaDocInformation javaDocInfo;
-    private final String subDirToUnzip;
-    private long inputStreamLen=-1;
-    private final IntConsumer progressUpdater;
-
-
     static {
         Map<String, String> suffixSubdirMapping = new HashMap<>();
         suffixSubdirMapping.put("-apidocs.zip", "api");
@@ -87,32 +79,34 @@ public final class JavaDocDownloader {
         ORACLE_SUBDIR_SUFFIXES_MAPPING = Collections.unmodifiableMap(suffixSubdirMapping);
     }
 
-    private JavaDocDownloader(String url, JavaDocInformation javaDocInfo, IntConsumer progressUpdater){
-        this(getInputStreamSupplierFromURL(url),javaDocInfo,"", progressUpdater);
-    }
+    private final JavaDocInformation javaDocInfo;
+    private final String subDirToUnzip;
+    private final IntConsumer progressUpdater;
+    private InputStreamLoader inputStreamSupplier;
+    private long inputStreamLen = -1;
 
-    @FunctionalInterface
-    private interface InputStreamLoader{
-        InputStream load(JavaDocDownloader downloader) throws IOException;
-    }
-
-    private static InputStreamLoader getInputStreamSupplierFromURL(String url){
-        return downloader -> {
-            URLConnection con = new URL(url).openConnection();
-            downloader.inputStreamLen=con.getContentLengthLong();
-            return con.getInputStream();
-        };
+    private JavaDocDownloader(String url, JavaDocInformation javaDocInfo, IntConsumer progressUpdater) {
+        this(getInputStreamSupplierFromURL(url), javaDocInfo, "", progressUpdater);
     }
 
     private JavaDocDownloader(InputStream is, long len, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
-        this(dl->is,javaDocInfo,subDirToUnzip,progressUpdater);
-        inputStreamLen=len;
+        this(dl -> is, javaDocInfo, subDirToUnzip, progressUpdater);
+        inputStreamLen = len;
     }
+
     private JavaDocDownloader(InputStreamLoader inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
         this.inputStreamSupplier = inputStreamSupplier;
         this.javaDocInfo = javaDocInfo;
         this.subDirToUnzip = subDirToUnzip;
         this.progressUpdater = progressUpdater;
+    }
+
+    private static InputStreamLoader getInputStreamSupplierFromURL(String url) {
+        return downloader -> {
+            URLConnection con = new URL(url).openConnection();
+            downloader.inputStreamLen = con.getContentLengthLong();
+            return con.getInputStream();
+        };
     }
 
     @AnyThread
@@ -177,7 +171,7 @@ public final class JavaDocDownloader {
 
     @AnyThread
     public static CompletableFuture<JavaDocInformation> downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, int numberOfJavadocs, IntConsumer progressUpdater) {
-        if (version==null||version.isEmpty()) {
+        if (version == null || version.isEmpty()) {
             return downloadFromMavenRepo(ctx, repoUrl, groupId, artefactId, "RELEASE", numberOfJavadocs, progressUpdater);
         }
         String artifactBaseUrl = repoUrl + "/" + groupId.replace('.', '/') + "/" + artefactId + "/";
@@ -193,12 +187,12 @@ public final class JavaDocDownloader {
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
                 JavaDocType.MAVEN, artifactBaseUrl, numberOfJavadocs);
         JavaDocDownloader javaDocDownloader = new JavaDocDownloader(effectiveUrl, javaDocInfo, progressUpdater);
-        return CompletableFuture.supplyAsync(()->{
+        return CompletableFuture.supplyAsync(() -> {
             if ("LATEST".equals(version) || "RELEASE".equals(version)) {
                 javaDocDownloader.loadLatestMavenVersionUnchecked();
             }
             return javaDocDownloader.downloadAndUnzip();
-        },downloader);
+        }, downloader);
     }
 
     @AnyThread
@@ -224,84 +218,13 @@ public final class JavaDocDownloader {
         }, downloader);
     }
 
-    @WorkerThread
-    private void loadLatestMavenVersionUnchecked() {
-        try {
-            loadLatestMavenVersion();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @WorkerThread
-    private void loadLatestMavenVersion() throws IOException {
-        try (BufferedInputStream is = new BufferedInputStream(new URL(javaDocInfo.getBaseDownloadUrl() + "maven-metadata.xml").openStream())) {
-            String gId = null;
-            String aId = null;
-            String version = null;
-            XmlPullParser parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(is, null);
-            Set<String> allVersions = new HashSet<>();
-            int tagType;
-            do {
-                tagType = parser.next();
-                if (tagType == XmlPullParser.START_TAG) {
-                    if ("release".equals(parser.getName())) {
-                        if (parser.next() == XmlPullParser.TEXT) {
-                            version = parser.getText();
-                            allVersions.add(version);
-                        }
-
-                    } else if ("groupId".equals(parser.getName())) {
-                        if (parser.next() == XmlPullParser.TEXT) {
-                            gId = parser.getText();
-                        }
-                    } else if ("artifactId".equals(parser.getName())) {
-                        if (parser.next() == XmlPullParser.TEXT) {
-                            aId = parser.getText();
-                        }
-                    } else if ("version".equals(parser.getName())) {
-                        if (parser.next() == XmlPullParser.TEXT) {
-                            allVersions.add(parser.getText());
-                        }
-                    }
-                }
-            } while (tagType != XmlPullParser.END_DOCUMENT);
-            if (gId == null || aId == null || version == null) {
-                throw new IOException("invalid maven-metadata.xml");
-            }
-            String newOnlineUrl = javaDocInfo.getOnlineDocUrl();
-            String newDirectory = javaDocInfo.getDirectory().getPath();
-            String newName = javaDocInfo.getName();
-            allVersions.add("LATEST");
-            allVersions.add("RELEASE");
-            for (String v : allVersions) {
-                newOnlineUrl = newOnlineUrl.replace(v, version);
-                newName = newName.replace(v, version);
-                newDirectory = newDirectory.replace(fileNameFromString(v), fileNameFromString(version));
-            }
-            javaDocInfo.setOnlineDocUrl(newOnlineUrl);
-            File newDirectoryAsFile = new File(newDirectory);
-            if (newDirectoryAsFile.equals(javaDocInfo.getDirectory())) {
-                newDirectoryAsFile = new File(newDirectoryAsFile + "_");
-            }
-            javaDocInfo.setDirectory(newDirectoryAsFile);
-            javaDocInfo.setName(newName);
-            String url = javaDocInfo.getBaseDownloadUrl() + version + "/" + aId + "-" + version + "-javadoc.jar";
-            inputStreamSupplier=getInputStreamSupplierFromURL(url);
-        } catch (XmlPullParserException e) {
-            throw new IOException(e);
-        }
-    }
-
     @UiThread
     public static CompletableFuture<JavaDocInformation> downloadFromUri(Context ctx, Uri uri, int numberOfJavadocs, IntConsumer progressUpdater) {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment());
         JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP, numberOfJavadocs);
         return new JavaDocDownloader(downloader -> {
-            AssetFileDescriptor fileDescriptor = ctx.getContentResolver().openAssetFileDescriptor(uri , "r");
-            downloader.inputStreamLen=fileDescriptor.getLength();
+            AssetFileDescriptor fileDescriptor = ctx.getContentResolver().openAssetFileDescriptor(uri, "r");
+            downloader.inputStreamLen = fileDescriptor.getLength();
             return ctx.getContentResolver().openInputStream(uri);
         }, javaDocInfo, "", progressUpdater)
                 .downloadAndUnzipAsync();
@@ -320,60 +243,10 @@ public final class JavaDocDownloader {
         return toConvert.replaceAll("[^A-Za-z0-9]", "_");
     }
 
-    @AnyThread
-    private CompletableFuture<JavaDocInformation> downloadAndUnzipAsync() {
-        return CompletableFuture.supplyAsync(this::downloadAndUnzip, downloader);
-    }
-
-    @WorkerThread
-    private JavaDocInformation downloadAndUnzip() {
-        try {
-            File tempDir = getTempDir();
-            unzip(tempDir);
-            if (javaDocInfo.getName().isEmpty()) {
-                javaDocInfo.setName(loadName(tempDir));
-            }
-            createMetadataFile(javaDocInfo, tempDir);
-            Files.move(tempDir.toPath(), javaDocInfo.getDirectory().toPath());
-            return javaDocInfo;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     @WorkerThread
     public static String loadName(File tempDir) throws IOException {
         Document doc = Jsoup.parse(new File(tempDir, "index.html"), StandardCharsets.UTF_8.name());
         return doc.title();
-    }
-
-    @WorkerThread
-    private void unzip(File dest) throws IOException {
-        //long len = con.getContentLengthLong();
-        //Log.i(JavaDocDownloader.class.getName(), "downloading javadoc: " + con.getContentLengthLong() + " bytes");
-        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStreamSupplier.load(this)))) {
-            ZipEntry entry;
-            long byteCount = 0;
-            while ((entry = zis.getNextEntry()) != null) {
-                byteCount += entry.getCompressedSize();
-                if (entry.getName().startsWith(subDirToUnzip)) {
-                    String name = entry.getName().substring(subDirToUnzip.length());
-                    File dFile = new File(dest, name);
-                    if (entry.isDirectory()) {
-                        Files.createDirectories(dFile.toPath());
-                    } else {
-                        Files.createDirectories(dFile.getParentFile().toPath());
-                        Files.copy(zis, dFile.toPath());
-                    }
-                }
-                progressUpdater.accept((int)(100*byteCount/inputStreamLen));
-                //Log.i(JavaDocDownloader.class.getName(), byteCount + "/" + len + " downloaded");//TODO show somehow
-            }
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
     }
 
     private static File getTempDir() throws IOException {
@@ -478,5 +351,131 @@ public final class JavaDocDownloader {
                 .filter(dir -> dir.getName().startsWith("javadoc"))
                 .map(File::toPath)
                 .forEach(ListJavadocsActivity::deleteRecursive);
+    }
+
+    @WorkerThread
+    private void loadLatestMavenVersionUnchecked() {
+        try {
+            loadLatestMavenVersion();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @WorkerThread
+    private void loadLatestMavenVersion() throws IOException {
+        try (BufferedInputStream is = new BufferedInputStream(new URL(javaDocInfo.getBaseDownloadUrl() + "maven-metadata.xml").openStream())) {
+            String gId = null;
+            String aId = null;
+            String version = null;
+            XmlPullParser parser = Xml.newPullParser();
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(is, null);
+            Set<String> allVersions = new HashSet<>();
+            int tagType;
+            do {
+                tagType = parser.next();
+                if (tagType == XmlPullParser.START_TAG) {
+                    if ("release".equals(parser.getName())) {
+                        if (parser.next() == XmlPullParser.TEXT) {
+                            version = parser.getText();
+                            allVersions.add(version);
+                        }
+
+                    } else if ("groupId".equals(parser.getName())) {
+                        if (parser.next() == XmlPullParser.TEXT) {
+                            gId = parser.getText();
+                        }
+                    } else if ("artifactId".equals(parser.getName())) {
+                        if (parser.next() == XmlPullParser.TEXT) {
+                            aId = parser.getText();
+                        }
+                    } else if ("version".equals(parser.getName())) {
+                        if (parser.next() == XmlPullParser.TEXT) {
+                            allVersions.add(parser.getText());
+                        }
+                    }
+                }
+            } while (tagType != XmlPullParser.END_DOCUMENT);
+            if (gId == null || aId == null || version == null) {
+                throw new IOException("invalid maven-metadata.xml");
+            }
+            String newOnlineUrl = javaDocInfo.getOnlineDocUrl();
+            String newDirectory = javaDocInfo.getDirectory().getPath();
+            String newName = javaDocInfo.getName();
+            allVersions.add("LATEST");
+            allVersions.add("RELEASE");
+            for (String v : allVersions) {
+                newOnlineUrl = newOnlineUrl.replace(v, version);
+                newName = newName.replace(v, version);
+                newDirectory = newDirectory.replace(fileNameFromString(v), fileNameFromString(version));
+            }
+            javaDocInfo.setOnlineDocUrl(newOnlineUrl);
+            File newDirectoryAsFile = new File(newDirectory);
+            if (newDirectoryAsFile.equals(javaDocInfo.getDirectory())) {
+                newDirectoryAsFile = new File(newDirectoryAsFile + "_");
+            }
+            javaDocInfo.setDirectory(newDirectoryAsFile);
+            javaDocInfo.setName(newName);
+            String url = javaDocInfo.getBaseDownloadUrl() + version + "/" + aId + "-" + version + "-javadoc.jar";
+            inputStreamSupplier = getInputStreamSupplierFromURL(url);
+        } catch (XmlPullParserException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @AnyThread
+    private CompletableFuture<JavaDocInformation> downloadAndUnzipAsync() {
+        return CompletableFuture.supplyAsync(this::downloadAndUnzip, downloader);
+    }
+
+    @WorkerThread
+    private JavaDocInformation downloadAndUnzip() {
+        try {
+            File tempDir = getTempDir();
+            unzip(tempDir);
+            if (javaDocInfo.getName().isEmpty()) {
+                javaDocInfo.setName(loadName(tempDir));
+            }
+            createMetadataFile(javaDocInfo, tempDir);
+            Files.move(tempDir.toPath(), javaDocInfo.getDirectory().toPath());
+            return javaDocInfo;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @WorkerThread
+    private void unzip(File dest) throws IOException {
+        //long len = con.getContentLengthLong();
+        //Log.i(JavaDocDownloader.class.getName(), "downloading javadoc: " + con.getContentLengthLong() + " bytes");
+        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStreamSupplier.load(this)))) {
+            ZipEntry entry;
+            long byteCount = 0;
+            while ((entry = zis.getNextEntry()) != null) {
+                byteCount += entry.getCompressedSize();
+                if (entry.getName().startsWith(subDirToUnzip)) {
+                    String name = entry.getName().substring(subDirToUnzip.length());
+                    File dFile = new File(dest, name);
+                    if (entry.isDirectory()) {
+                        Files.createDirectories(dFile.toPath());
+                    } else {
+                        Files.createDirectories(dFile.getParentFile().toPath());
+                        Files.copy(zis, dFile.toPath());
+                    }
+                }
+                progressUpdater.accept((int) (100 * byteCount / inputStreamLen));
+                //Log.i(JavaDocDownloader.class.getName(), byteCount + "/" + len + " downloaded");//TODO show somehow
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    @FunctionalInterface
+    private interface InputStreamLoader {
+        InputStream load(JavaDocDownloader downloader) throws IOException;
     }
 }

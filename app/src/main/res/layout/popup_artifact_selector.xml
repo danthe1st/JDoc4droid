@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/popupBackground">
@@ -15,13 +14,13 @@
         android:layout_marginEnd="10dp"
         android:ems="10"
         android:hint="@string/repoField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="parent"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/artifactSelectorGroupSelector"
@@ -30,13 +29,13 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/groupField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorRepoSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorRepoSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorRepoSelector"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorRepoSelector" />
 
     <EditText
         android:id="@+id/artifactSelectorArtifactSelector"
@@ -45,13 +44,13 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/artifactField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorGroupSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorGroupSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorGroupSelector"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorGroupSelector" />
 
     <TextView
         android:id="@+id/textView3"
@@ -104,13 +103,13 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/versionField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorArtifactSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorArtifactSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorArtifactSelector"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorArtifactSelector" />
 
     <Button
         android:id="@+id/artifactSelectorDownloadBtn"

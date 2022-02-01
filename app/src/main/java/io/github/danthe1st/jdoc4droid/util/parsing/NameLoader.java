@@ -29,16 +29,16 @@ class NameLoader {
     TextHolder findName(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
         String name;
         Element root = elem.parents().last();
-        TextHolder ret=tryFindNameFromFirstHeader(elem, currentNames, selectorNameHeaders);
-        if(ret!=null){
+        TextHolder ret = tryFindNameFromFirstHeader(elem, currentNames, selectorNameHeaders);
+        if (ret != null) {
             return ret;
         }
         name = elem.attr("id");
         if (!name.isEmpty()) {
-            return findFirstNameFromId(name,root);
+            return findFirstNameFromId(name, root);
         }
         name = elem.attr("class");
-        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name,Normalizer.Form.NFKC));
+        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name, Normalizer.Form.NFKC));
         if (name.isEmpty() || currentNames.contains(nameHolder)) {
             //fallback if nothing else works
             generateName();
@@ -47,21 +47,22 @@ class NameLoader {
         }
         return nameHolder;
     }
-    private TextHolder tryFindNameFromFirstHeader(Element elem,Set<TextHolder> currentNames,String[] selectorNameHeaders){
+
+    private TextHolder tryFindNameFromFirstHeader(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
         Element firstHeader = null;
         for (int i = 0; firstHeader == null && i < selectorNameHeaders.length; i++) {
             String selectorNameHeader = selectorNameHeaders[i];
             firstHeader = elem.selectFirst(selectorNameHeader);
         }
         if (firstHeader != null) {
-            return tryFindNameFromHeader(firstHeader,elem,currentNames);
+            return tryFindNameFromHeader(firstHeader, elem, currentNames);
         }
         return null;
     }
 
-    private TextHolder tryFindNameFromHeader(Element header,Element elem,Set<TextHolder> currentNames){
+    private TextHolder tryFindNameFromHeader(Element header, Element elem, Set<TextHolder> currentNames) {
         String name = header.text();
-        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name,Normalizer.Form.NFKC));
+        TextHolder nameHolder = new StringHolder(Normalizer.normalize(name, Normalizer.Form.NFKC));
         if (!name.isEmpty() && !currentNames.contains(nameHolder)) {
             TextHolder ret = nameHolder;
             currentNames.add(nameHolder);
@@ -78,22 +79,23 @@ class NameLoader {
         }
         return null;
     }
-    private TextHolder findFirstNameFromId(String id,Element root){
+
+    private TextHolder findFirstNameFromId(String id, Element root) {
         String encoded;
         try {
             encoded = URLEncoder.encode(id, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("encoding UTF-8 not supported",e);
+            throw new IllegalStateException("encoding UTF-8 not supported", e);
         }
         Elements referencers = root.getElementsByAttributeValue("href", "#" + encoded);
-        return new StringHolder(Normalizer.normalize(referencers.stream().map(Element::text).findFirst().orElse(id),Normalizer.Form.NFKC));
+        return new StringHolder(Normalizer.normalize(referencers.stream().map(Element::text).findFirst().orElse(id), Normalizer.Form.NFKC));
     }
-    private TextHolder generateName(){
+
+    private TextHolder generateName() {
         String name = UUID.randomUUID().toString();
         Log.e(JavaDocParser.class.getName(), "Need to generate UUID");
         return new StringHolder(name);
     }
-
 
 
 }
