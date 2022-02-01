@@ -1,8 +1,6 @@
 package io.github.danthe1st.jdoc4droid.util.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -19,13 +17,13 @@ public class IndexParserTest extends AbstractParserTest {
     public void testExample() throws IOException {
         List<SimpleClassDescription> descs = IndexParser.parseClasses(outputDir.toFile());
         Optional<SimpleClassDescription> exampleClassDescription = descs.stream().filter(desc -> ExampleClass.class.getSimpleName().equals(desc.getName())).findAny();
-        assertTrue("No SimpleClassDescription found for ExampleClass", exampleClassDescription.isPresent());
-        SimpleClassDescription expected = new SimpleClassDescription(ExampleClass.class.getSimpleName(), majorVersionNumber < 11 ? "" : "Example class description", "Class", ExampleClass.class.getPackage().getName(), EXAMPLE_CLASS_PATH);
-        assertEquals("Loaded SimpleClassDescription does not match expected one", expected, exampleClassDescription.get());
+        assertTrue("No SimpleClassDescription found for ExampleClass",exampleClassDescription.isPresent());
+        SimpleClassDescription expected=new SimpleClassDescription(ExampleClass.class.getSimpleName(),majorVersionNumber<11?"":"Example class description",majorVersionNumber>=17?"Classes":"Class",ExampleClass.class.getPackage().getName(), EXAMPLE_CLASS_PATH);
+        assertEquals("Loaded SimpleClassDescription does not match expected one",expected,exampleClassDescription.get());
     }
 
     @Test
-    public void testNonExistingJavadoc() {
-        assertThrows(IOException.class, () -> IndexParser.parseClasses(new File("thisdoesnotexist")));
+    public void testNonExistingJavadoc(){
+        assertThrows(IOException.class,()->IndexParser.parseClasses(new File("thisdoesnotexist")));
     }
 }
