@@ -34,4 +34,5 @@
     <string name="classHeaderDesc">header</string>
     <string name="selectionSpinnerText">section selection</string>
     <string name="showClassContentDesc">Content</string>
+    <string name="downloaderContentDesc">Website</string>
 </resources>
