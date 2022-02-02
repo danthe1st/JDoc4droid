@@ -6,6 +6,17 @@
     android:layout_height="wrap_content"
     android:background="@color/popupBackground">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="@string/repoField"
+        android:textColor="@color/contrastColor"
+        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorRepoSelector"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/artifactSelectorRepoSelector" />
+
     <EditText
         android:id="@+id/artifactSelectorRepoSelector"
         android:layout_width="wrap_content"
@@ -15,13 +26,25 @@
         android:layout_marginEnd="10dp"
         android:ems="10"
         android:hint="@string/repoField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColor="@color/contrastColor"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="parent"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/groupField"
+        android:textColor="@color/contrastColor"
+        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorGroupSelector"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="@+id/artifactSelectorGroupSelector" />
 
     <EditText
         android:id="@+id/artifactSelectorGroupSelector"
@@ -30,13 +53,25 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/groupField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColor="@color/contrastColor"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorRepoSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorRepoSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorRepoSelector"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorRepoSelector" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/artifactField"
+        android:textColor="@color/contrastColor"
+        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorArtifactSelector"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="@+id/artifactSelectorArtifactSelector" />
 
     <EditText
         android:id="@+id/artifactSelectorArtifactSelector"
@@ -45,53 +80,21 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/artifactField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textUri"
         android:minHeight="48dp"
+        android:textColor="@color/contrastColor"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorGroupSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorGroupSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorGroupSelector"
-        android:importantForAutofill="no" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/artifactField"
-        android:textColor="@color/mainContrastColor"
-        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorArtifactSelector"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="@+id/artifactSelectorArtifactSelector" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/groupField"
-        android:textColor="@color/mainContrastColor"
-        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorGroupSelector"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="@+id/artifactSelectorGroupSelector" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:text="@string/repoField"
-        android:textColor="@color/mainContrastColor"
-        app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorRepoSelector"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/artifactSelectorRepoSelector" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorGroupSelector" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/versionField"
-        android:textColor="@color/mainContrastColor"
+        android:textColor="@color/contrastColor"
         app:layout_constraintBottom_toBottomOf="@+id/artifactSelectorVersionSelector"
         app:layout_constraintEnd_toEndOf="@+id/textView"
         app:layout_constraintStart_toStartOf="@+id/textView"
@@ -104,13 +107,14 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="@string/versionField"
-        android:textColorHint="@color/mainContrastColor"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:textColor="@color/contrastColor"
+        android:textColorHint="@color/mainContrastColor"
         app:layout_constraintEnd_toEndOf="@+id/artifactSelectorArtifactSelector"
         app:layout_constraintStart_toStartOf="@+id/artifactSelectorArtifactSelector"
-        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorArtifactSelector"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/artifactSelectorArtifactSelector" />
 
     <Button
         android:id="@+id/artifactSelectorDownloadBtn"
