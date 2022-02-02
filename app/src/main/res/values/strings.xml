@@ -31,4 +31,7 @@
     <string name="javaDownloadNameCustom">Select manually</string>
     <string name="filter">Filter</string>
     <string name="filter_options">Filter Options</string>
+    <string name="classHeaderDesc">header</string>
+    <string name="selectionSpinnerText">section selection</string>
+    <string name="showClassContentDesc">Content</string>
 </resources>

@@ -45,6 +45,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
         ctx.startActivity(intent);
     }
 
+    @UiThread
     private void loadSession() {
         GeckoRuntime runtime = GeckoRuntime.getDefault(this);
         session = geckoView.getSession();
