@@ -44,7 +44,7 @@ public class AbstractActivity extends AppCompatActivity {
 
     private MenuItem shareButton;
 
-    private Toolbar mActionBarToolbar;
+    private Toolbar actionBarToolbar;
 
     protected static final String ARG_SHARE_URL = "shareUrl";
     private String shareUrl;
@@ -76,13 +76,13 @@ public class AbstractActivity extends AppCompatActivity {
 
     @UiThread
     protected Toolbar getActionBarToolbar() {
-        if (mActionBarToolbar == null) {
-            mActionBarToolbar = findViewById(R.id.include);
-            if (mActionBarToolbar != null) {
-                setSupportActionBar(mActionBarToolbar);
+        if (actionBarToolbar == null) {
+            actionBarToolbar = findViewById(R.id.include);
+            if (actionBarToolbar != null) {
+                setSupportActionBar(actionBarToolbar);
             }
         }
-        return mActionBarToolbar;
+        return actionBarToolbar;
     }
 
     @Override

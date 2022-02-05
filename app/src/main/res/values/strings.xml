@@ -35,4 +35,11 @@
     <string name="selectionSpinnerText">section selection</string>
     <string name="showClassContentDesc">Content</string>
     <string name="downloaderContentDesc">Website</string>
+    <string name="javadocListDesc">Javadoc List</string>
+    <string name="repoLabelDesc">Repository label</string>
+    <string name="groupIdLabelDesc">Group Id label</string>
+    <string name="artifactIdLabelDesc">artifact Id label</string>
+    <string name="versionLabelDesc">version label</string>
+    <string name="moveJavadocUpBtnDesc">move Javadoc up</string>
+    <string name="moveJavadocDownBtnDesc">Move Javadoc down</string>
 </resources>

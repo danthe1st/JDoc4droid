@@ -8,7 +8,7 @@
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:iconTint="@color/contrastColor"
         android:title="@string/filter"
-        app:showAsAction="ifRoom|withText">
+        app:showAsAction="ifRoom">
 
         <menu>
         </menu>
@@ -26,6 +26,7 @@
         android:contentDescription="@string/search"
         android:icon="@android:drawable/ic_menu_search"
         android:iconTint="@color/contrastColor"
+
         android:title="@string/search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
