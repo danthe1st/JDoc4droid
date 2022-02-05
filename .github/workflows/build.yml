@@ -27,67 +27,62 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
-      steps:
-        - uses: actions/checkout@v2
-        - name: Set up JDK 11
-          uses: actions/setup-java@v1
-          with:
-            java-version: 11
-        - name: Setup keystore
-          run: echo "$keystore" | base64 -d - > ./keystore.jks
-          env:
-            keystore: '${{ secrets.keystore }}'
-        - name: build
-          run: ./gradlew build -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
-          env:
-            KEYSTORE: '../keystore.jks'
-            KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
-            SIGNING_KEY: '${{ secrets.signingKey }}'
-            SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
-        - name: upload apk
-          uses: actions/upload-artifact@v2
-          with:
-            name: prebuilt APK
-            path: app/build/outputs/apk/release/app-release.apk
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Setup keystore
+        run: echo "$keystore" | base64 -d - > ./keystore.jks
+        env:
+          keystore: '${{ secrets.keystore }}'
+      - name: build
+        run: ./gradlew build -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
+        env:
+          KEYSTORE: '../keystore.jks'
+          KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
+          SIGNING_KEY: '${{ secrets.signingKey }}'
+          SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
+      - name: upload apk
+        uses: actions/upload-artifact@v2
+        with:
+          name: prebuilt APK
+          path: app/build/outputs/apk/release/app-release.apk
   publish:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'master'
     needs:
       - build
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 11
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Setup keystore
-      run: echo "$keystore" | base64 -d - > ./keystore.jks
-      env:
-        keystore: '${{ secrets.keystore }}'
-    - name: build
-      run: ./gradlew bundle -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
-      env:
-        KEYSTORE: '../keystore.jks'
-        KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
-        SIGNING_KEY: '${{ secrets.signingKey }}'
-        SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
-    - name: changelogs
-      run: |
-        mkdir changelogs
-        echo -e "${{join(github.event.commits.*.message, '\n') }}" > changelogs/whatsnew-en-US
-    - name: upload apk
-      uses: actions/upload-artifact@v2
-      with:
-        name: prebuilt APK
-        path: app/build/outputs/apk/release/app-release.apk
-    - name: upload bundle to Google Play
-      uses: r0adkll/upload-google-play@v1.0.16
-      with:
-        serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-        packageName: io.github.danthe1st.jdoc4droid
-        releaseFiles: app/build/outputs/bundle/release/app-release.aab
-        track: alpha
-        mappingFile: app/build/outputs/mapping/release/mapping.txt
-        whatsNewDirectory: changelogs
-        releaseName: ${{ github.sha }}
-        status: completed
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Setup keystore
+        run: echo "$keystore" | base64 -d - > ./keystore.jks
+        env:
+          keystore: '${{ secrets.keystore }}'
+      - name: build
+        run: ./gradlew bundle -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
+        env:
+          KEYSTORE: '../keystore.jks'
+          KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
+          SIGNING_KEY: '${{ secrets.signingKey }}'
+          SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
+      - name: changelogs
+        run: |
+          mkdir changelogs
+          echo -e "${{join(github.event.commits.*.message, '\n') }}" > changelogs/whatsnew-en-US
+      - name: upload bundle to Google Play
+        uses: r0adkll/upload-google-play@v1.0.16
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: io.github.danthe1st.jdoc4droid
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: alpha
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
+          whatsNewDirectory: changelogs
+          releaseName: ${{ github.sha }}
+          status: completed
