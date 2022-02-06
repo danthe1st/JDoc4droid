@@ -160,7 +160,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         }
         int index = adapter.getItems().indexOf(info);
         int newIndex = index + indexChange;
-        return newIndex >= 0 && newIndex < adapter.getItems().size();
+        return index >= 0 && index < adapter.getItemCount() && newIndex >= 0 && newIndex < adapter.getItemCount();
     }
 
     private void updateSelectedJavadoc(View view) {
@@ -193,6 +193,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         adapter.getItems().remove(indexToRemove);
                         adapter.notifyItemRemoved(indexToRemove);
                         javaDocInfos.remove(selected);
+                        updateMoveButtons(null);
                     });
                 } catch (IOException e) {
                     showError(R.string.deleteJavadocError, e);
