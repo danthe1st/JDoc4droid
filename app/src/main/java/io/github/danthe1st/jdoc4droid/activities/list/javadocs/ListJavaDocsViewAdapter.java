@@ -22,7 +22,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
     @NonNull
     @Override
     public ListJavaDocsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_javadocs, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_list_javadocs, parent, false);
         return new ListJavaDocsViewHolder(this, view);
     }
 
@@ -41,7 +41,7 @@ public class ListJavaDocsViewAdapter extends AbstractListViewAdapter<JavaDocInfo
         super.setOnSelect(onSelect);
     }
 
-    public JavaDocInformation getSelectedElement(){
-        return selectedViewHolder==null?null:selectedViewHolder.item;
+    public JavaDocInformation getSelectedElement() {
+        return selectedViewHolder == null ? null : selectedViewHolder.item;
     }
 }

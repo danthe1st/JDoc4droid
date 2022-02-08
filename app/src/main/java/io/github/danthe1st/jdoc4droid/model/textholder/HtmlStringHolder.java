@@ -10,16 +10,12 @@ import java.util.Objects;
 
 import io.github.danthe1st.jdoc4droid.util.LongStringSerializer;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor
-@RequiredArgsConstructor
+
 public class HtmlStringHolder implements TextHolder, Externalizable {
     private static final long serialVersionUID = 2033469939306675188L;
 
-    @NonNull
     private String html;
 
     @Getter
@@ -44,6 +40,10 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
         this.mainName = mainName;
         this.anchor = anchor;
     }
+
+    public HtmlStringHolder() {
+    }
+
 
     @Override
     public CharSequence getText() {
