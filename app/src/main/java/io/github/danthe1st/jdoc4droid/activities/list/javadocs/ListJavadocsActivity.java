@@ -51,31 +51,6 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 
     private ProgressBar progressBar;
 
-    @WorkerThread
-    public static void deleteRecursive(File directory) throws IOException {
-        try {
-            deleteRecursive(directory.toPath());
-        } catch (UncheckedIOException e) {
-            IOException cause = e.getCause();
-            throw cause == null ? new IOException(e) : cause;
-        }
-    }
-
-    @WorkerThread
-    public static void deleteRecursive(Path directory) {
-        try {
-            if (Files.isDirectory(directory)) {
-                try (Stream<Path> list = Files.list(directory)) {
-                    list.forEach(ListJavadocsActivity::deleteRecursive);
-                }
-            }
-            Files.delete(directory);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_list_javadocs_list);
@@ -225,6 +200,31 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                 }
             });
         }
+    }
+
+    @WorkerThread
+    public static void deleteRecursive(File directory) throws IOException {
+        try {
+            deleteRecursive(directory.toPath());
+        } catch (UncheckedIOException e) {
+            IOException cause = e.getCause();
+            throw cause == null ? new IOException(e) : cause;
+        }
+    }
+
+    @WorkerThread
+    public static void deleteRecursive(Path directory) {
+        try {
+            if (Files.isDirectory(directory)) {
+                try (Stream<Path> list = Files.list(directory)) {
+                    list.forEach(ListJavadocsActivity::deleteRecursive);
+                }
+            }
+            Files.delete(directory);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
     }
 
     @UiThread
