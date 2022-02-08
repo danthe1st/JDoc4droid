@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class StringHolder implements TextHolder{
+public class StringHolder implements TextHolder {
+
     @NonNull
     private final String text;
+
     @Getter
     private String mainName;
 
@@ -34,6 +36,7 @@ public class StringHolder implements TextHolder{
     }
 
     @Override
+    @NonNull
     public String toString() {
         return text;
     }

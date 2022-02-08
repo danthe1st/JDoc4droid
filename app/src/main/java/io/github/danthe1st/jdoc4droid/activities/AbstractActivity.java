@@ -93,14 +93,14 @@ public class AbstractActivity extends AppCompatActivity {
     }
 
     @UiThread
-    protected void loadOptionsMenu(Menu menu){
+    protected void loadOptionsMenu(Menu menu) {
         searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
         shareButton = menu.findItem(R.id.app_bar_share);
 
-        EditText searchEditText = searchView.findViewById( searchView.getContext()
+        EditText searchEditText = searchView.findViewById(searchView.getContext()
                 .getResources()
                 .getIdentifier("android:id/search_src_text", null, null));
-        searchEditText.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI|InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        searchEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -127,12 +127,12 @@ public class AbstractActivity extends AppCompatActivity {
     }
 
     @UiThread
-    private void onShareButton(){
-        String shareLink=getShareLink();
-        if(shareLink!=null){
-            Intent sendIntent=new Intent(Intent.ACTION_SEND);
+    private void onShareButton() {
+        String shareLink = getShareLink();
+        if (shareLink != null) {
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_TEXT,shareLink);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, shareLink);
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
         }
@@ -140,7 +140,7 @@ public class AbstractActivity extends AppCompatActivity {
 
 
     @UiThread
-    public void reloadTopMenuButtons(){
+    public void reloadTopMenuButtons() {
         if (supportsSearch()) {
             searchView.setVisibility(View.VISIBLE);
         } else {
@@ -168,17 +168,17 @@ public class AbstractActivity extends AppCompatActivity {
         return false;
     }
 
-    public String getShareLink(){
+    public String getShareLink() {
         return shareUrl;
     }
 
     @AnyThread
-    protected Void showError(@StringRes int errorMessage, Throwable e){
-        if(e instanceof UncheckedIOException &&e.getCause()!=null){
-            e=e.getCause();
+    protected Void showError(@StringRes int errorMessage, Throwable e) {
+        if (e instanceof UncheckedIOException && e.getCause() != null) {
+            e = e.getCause();
         }
         Log.e(this.getClass().getName(), getResources().getString(errorMessage), e);
-        runInUIThread(()-> Toast.makeText(this, errorMessage,Toast.LENGTH_LONG).show());
+        runInUIThread(() -> Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show());
         return null;
     }
 

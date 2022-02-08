@@ -23,13 +23,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @WorkerThread
 class IndexParser {
+
     @NonNull
     private final Element summaryTable;
+
     private final Element summaryTableHeader;
 
     static List<SimpleClassDescription> parseClasses(File javaDocDir) throws IOException {
         File index = new File(javaDocDir, "allclasses-index.html");
-        File noFrameFile=new File(javaDocDir, "allclasses-noframe.html");
+        File noFrameFile = new File(javaDocDir, "allclasses-noframe.html");
         if (index.exists()) {
             return parseClassesFromAllclassesIndexFile(index);
         } else if (noFrameFile.exists()) {
@@ -38,7 +40,8 @@ class IndexParser {
             throw new IOException("neither allclasses-index.html nor allclasses-noframe.html found");
         }
     }
-    private static List<SimpleClassDescription> parseClassesFromAllclassesIndexFile(File allclassesIndex) throws IOException{
+
+    private static List<SimpleClassDescription> parseClassesFromAllclassesIndexFile(File allclassesIndex) throws IOException {
         IndexParser parser = getParser(JavaDocParser.parseFile(allclassesIndex));
         if ("table".equals(parser.summaryTable.tagName())) {
             return parser.parseClassesFromHTMLTable();
@@ -46,9 +49,11 @@ class IndexParser {
             return parser.parseClassesFromVirtualClassListTable();
         }
     }
+
     private static IndexParser getParser(Document doc) throws IOException {
-        return new IndexParser(getSummaryTable(doc),findTableHeader(doc));
+        return new IndexParser(getSummaryTable(doc), findTableHeader(doc));
     }
+
     private static Element getSummaryTable(Document doc) throws IOException {
         Elements table = doc.getElementsByClass("summary-table");
         if (table.isEmpty()) {
@@ -59,53 +64,59 @@ class IndexParser {
         }
         return table.first();
     }
-    private static Element findTableHeader(Document doc){
+
+    private static Element findTableHeader(Document doc) {
         return doc.getElementsByClass("table-tabs").first();
     }
+
     private static List<SimpleClassDescription> parseClassesFromAllclassesNoframeFile(File allclassesNoframe) throws IOException {
         return JavaDocParser.parseFile(allclassesNoframe)
                 .select(".indexContainer ul li")
                 .stream()
-                .map(li -> loadSimpleClassDescription(li,"", new HashMap<>()))
+                .map(li -> loadSimpleClassDescription(li, "", new HashMap<>()))
                 .collect(Collectors.toList());
     }
-    private List<SimpleClassDescription> parseClassesFromHTMLTable(){
+
+    private List<SimpleClassDescription> parseClassesFromHTMLTable() {
         //TODO do this partially and add it to the list
         return summaryTable.children().parallelStream()
-                .filter(elem->"tbody".equals(elem.tagName()))
-                .filter(elem->!elem.select("td").isEmpty())
+                .filter(elem -> "tbody".equals(elem.tagName()))
+                .filter(elem -> !elem.select("td").isEmpty())
                 .findFirst()
-                .orElseThrow(()->new IllegalStateException("table does not have tbody"))
+                .orElseThrow(() -> new IllegalStateException("table does not have tbody"))
                 .children()
                 .parallelStream()
-                .filter(elem->elem.children().stream().anyMatch(c->"td".equals(c.tagName())))
+                .filter(elem -> elem.children().stream().anyMatch(c -> "td".equals(c.tagName())))
                 .map(elem -> loadSimpleClassDescription(elem.child(0), elem.child(1).text(), new HashMap<>()))
                 .collect(Collectors.toList());
     }
-    private List<SimpleClassDescription> parseClassesFromVirtualClassListTable(){
-        Map<String, String> tabMappings = summaryTableHeader==null?new HashMap<>():summaryTableHeader.children().stream()
+
+    private List<SimpleClassDescription> parseClassesFromVirtualClassListTable() {
+        Map<String, String> tabMappings = summaryTableHeader == null ? new HashMap<>() : summaryTableHeader.children().stream()
                 .filter(element -> !element.id().isEmpty())
                 .collect(Collectors.toMap(Element::id, IndexParser::extractTabNameFromTabElement));
         SimpleClassDescription temp = null;
         List<SimpleClassDescription> descList = new ArrayList<>();
         for (Element child : summaryTable.children()) {
-            if (child.hasClass("col-first")&&child.childrenSize()>0) {
-                temp = loadSimpleClassDescription(child, "",tabMappings);
+            if (child.hasClass("col-first") && child.childrenSize() > 0) {
+                temp = loadSimpleClassDescription(child, "", tabMappings);
                 descList.add(temp);
-            } else if (child.hasClass("col-last")&&temp != null) {
+            } else if (child.hasClass("col-last") && temp != null) {
                 temp.setDescription(child.text());
             }
         }
         return descList;
     }
-    private static String extractTabNameFromTabElement(Element tabElement){
-        final String summaryText=" Summary";
-        String text=tabElement.text();
-        if(text.endsWith(summaryText)){
-            text=text.substring(0,text.length()-summaryText.length());
+
+    private static String extractTabNameFromTabElement(Element tabElement) {
+        final String summaryText = " Summary";
+        String text = tabElement.text();
+        if (text.endsWith(summaryText)) {
+            text = text.substring(0, text.length() - summaryText.length());
         }
         return text;
     }
+
     private static SimpleClassDescription loadSimpleClassDescription(Element link, String description, Map<String, String> tabMappings) {
         Optional<String> classType = findTabName(link)
                 .filter(tabMappings::containsKey)
@@ -113,9 +124,9 @@ class IndexParser {
         link = link
                 .children()
                 .stream()
-                .filter(c->"a".equals(c.tagName()))
+                .filter(c -> "a".equals(c.tagName()))
                 .findFirst()
-                .orElseThrow(()->new IllegalStateException("Cannot load class description as no class description was found"));
+                .orElseThrow(() -> new IllegalStateException("Cannot load class description as no class description was found"));
         return new SimpleClassDescription(
                 link.text(),
                 description,
@@ -123,19 +134,21 @@ class IndexParser {
                 link.attr("title").split(" ")[2],
                 link.attr("href"));
     }
-    private static Optional<String> findTabName(Element elem){
+
+    private static Optional<String> findTabName(Element elem) {
         return elem
                 .classNames()
                 .stream()
-                .filter(className->
+                .filter(className ->
                         className.matches("all-classes-table-tab\\d+")
                 ).findAny();
     }
-    private static String capitalize(String toCapitalize){
-        char[] chars=toCapitalize.toCharArray();
+
+    private static String capitalize(String toCapitalize) {
+        char[] chars = toCapitalize.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            if(i==0||Character.isWhitespace(chars[i-1])){
-                chars[i]=Character.toUpperCase(chars[i]);
+            if (i == 0 || Character.isWhitespace(chars[i - 1])) {
+                chars[i] = Character.toUpperCase(chars[i]);
             }
         }
         return String.valueOf(chars);

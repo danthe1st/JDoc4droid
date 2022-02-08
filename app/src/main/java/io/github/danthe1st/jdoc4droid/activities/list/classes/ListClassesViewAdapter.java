@@ -6,12 +6,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.activities.list.AbstractListViewAdapter;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class ListClassesViewAdapter extends AbstractListViewAdapter<SimpleClassDescription, ListClassesViewHolder> {
 
@@ -27,8 +27,8 @@ public class ListClassesViewAdapter extends AbstractListViewAdapter<SimpleClassD
 
     @Override
     public void onBindViewHolder(@NonNull final ListClassesViewHolder holder, int position) {
-        super.onBindViewHolder(holder,position);
-        holder.classNameView.setText(Html.fromHtml(holder.item.getPackageName()+".<b>"+holder.item.getName()+"</b>",Html.FROM_HTML_MODE_LEGACY));
+        super.onBindViewHolder(holder, position);
+        holder.classNameView.setText(Html.fromHtml(holder.item.getPackageName() + ".<b>" + holder.item.getName() + "</b>", Html.FROM_HTML_MODE_LEGACY));
         holder.classDescriptionView.setText(holder.item.getDescription());
     }
 }

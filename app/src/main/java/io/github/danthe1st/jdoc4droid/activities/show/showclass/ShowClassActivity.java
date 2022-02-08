@@ -4,15 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,38 +64,39 @@ public class ShowClassActivity extends AbstractActivity {
     }
 
     @UiThread
-    private static void open(Context ctx, File baseDir,File classFile, String baseShareUrl, String selectedId) {
-        Intent intent=new Intent(ctx, ShowClassActivity.class);
+    private static void open(Context ctx, File baseDir, File classFile, String baseShareUrl, String selectedId) {
+        Intent intent = new Intent(ctx, ShowClassActivity.class);
 
         intent.putExtra(ARG_CLASS_FILE_PATH, classFile.getAbsolutePath());
         intent.putExtra(ARG_SELECTED_ID, selectedId);
-        intent.putExtra(ARG_BASE_SHARE_URL,baseShareUrl);
-        intent.putExtra(ARG_BASE_JAVADOC_DIR,baseDir.getAbsolutePath());
-        intent.putExtra(ARG_SHARE_URL,loadShareUrl(baseShareUrl,baseDir,classFile));
+        intent.putExtra(ARG_BASE_SHARE_URL, baseShareUrl);
+        intent.putExtra(ARG_BASE_JAVADOC_DIR, baseDir.getAbsolutePath());
+        intent.putExtra(ARG_SHARE_URL, loadShareUrl(baseShareUrl, baseDir, classFile));
 
         ctx.startActivity(intent);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        saveSelection(outState,STATE_SELECTION_OUTER,information.getSelectedOuterSection());
-        saveSelection(outState,STATE_SELECTION_MIDDLE,information.getSelectedMiddleSection());
-        saveSelection(outState,STATE_SELECTION_INNER,information.getSelectedInnerSection());
+        saveSelection(outState, STATE_SELECTION_OUTER, information.getSelectedOuterSection());
+        saveSelection(outState, STATE_SELECTION_MIDDLE, information.getSelectedMiddleSection());
+        saveSelection(outState, STATE_SELECTION_INNER, information.getSelectedInnerSection());
         super.onSaveInstanceState(outState);
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_class);
         classFile = new File(getIntent().getStringExtra(ARG_CLASS_FILE_PATH));
-        baseShareUrl=getIntent().getStringExtra(ARG_BASE_SHARE_URL);
-        baseJavadocDir=getIntent().getStringExtra(ARG_BASE_JAVADOC_DIR);
+        baseShareUrl = getIntent().getStringExtra(ARG_BASE_SHARE_URL);
+        baseJavadocDir = getIntent().getStringExtra(ARG_BASE_JAVADOC_DIR);
         selectedId = getIntent().getStringExtra(ARG_SELECTED_ID);
 
-        if(savedInstanceState!=null){
-            information.setSelectedOuterSection(loadSelection(savedInstanceState,STATE_SELECTION_OUTER));
-            information.setSelectedMiddleSection(loadSelection(savedInstanceState,STATE_SELECTION_MIDDLE));
-            information.setSelectedInnerSection(loadSelection(savedInstanceState,STATE_SELECTION_INNER));
+        if (savedInstanceState != null) {
+            information.setSelectedOuterSection(loadSelection(savedInstanceState, STATE_SELECTION_OUTER));
+            information.setSelectedMiddleSection(loadSelection(savedInstanceState, STATE_SELECTION_MIDDLE));
+            information.setSelectedInnerSection(loadSelection(savedInstanceState, STATE_SELECTION_INNER));
         }
 
         outerAdapter = new ShowSectionAdapter(getLayoutInflater());
@@ -155,14 +155,14 @@ public class ShowClassActivity extends AbstractActivity {
 
         getThreadPool().execute(() -> {
             try {
-                ClassInformation newInfo=JavaDocParser.loadClassInformation(classFile, selectedId);//pass information directly
-                if(information.getSelectedOuterSection()!=null){
+                ClassInformation newInfo = JavaDocParser.loadClassInformation(classFile, selectedId);//pass information directly
+                if (information.getSelectedOuterSection() != null) {
                     newInfo.setSelectedOuterSection(information.getSelectedOuterSection());
                 }
-                if(information.getSelectedMiddleSection()!=null){
+                if (information.getSelectedMiddleSection() != null) {
                     newInfo.setSelectedMiddleSection(information.getSelectedMiddleSection());
                 }
-                if(information.getSelectedInnerSection()!=null){
+                if (information.getSelectedInnerSection() != null) {
                     newInfo.setSelectedInnerSection(information.getSelectedInnerSection());
                 }
                 runInUIThread(() -> {
@@ -199,36 +199,37 @@ public class ShowClassActivity extends AbstractActivity {
             }
         });
     }
-    private void saveSelection(Bundle outState, String selectionStateName, TextHolder selectedSection){
-        if(selectedSection==null){
+
+    private void saveSelection(Bundle outState, String selectionStateName, TextHolder selectedSection) {
+        if (selectedSection == null) {
             return;
         }
-        outState.putString(selectionStateName,selectedSection.getRawText());
-        outState.putString(selectionStateName+"Type",selectedSection.getClass().getSimpleName());
-        outState.putString(selectionStateName+"MainName",selectedSection.getMainName());
-        if(selectedSection instanceof HtmlStringHolder){
-            outState.putInt(selectionStateName+"Flags",((HtmlStringHolder)selectedSection).getFlags());
+        outState.putString(selectionStateName, selectedSection.getRawText());
+        outState.putString(selectionStateName + "Type", selectedSection.getClass().getSimpleName());
+        outState.putString(selectionStateName + "MainName", selectedSection.getMainName());
+        if (selectedSection instanceof HtmlStringHolder) {
+            outState.putInt(selectionStateName + "Flags", ((HtmlStringHolder) selectedSection).getFlags());
         }
     }
 
-    private TextHolder loadSelection(Bundle inState, String selectionStateName){
-        String rawText=inState.getString(selectionStateName);
-        if(rawText==null){
+    private TextHolder loadSelection(Bundle inState, String selectionStateName) {
+        String rawText = inState.getString(selectionStateName);
+        if (rawText == null) {
             return null;
         }
-        String typeName=inState.getString(selectionStateName+"Type");
-        String mainName=inState.getString(selectionStateName+"MainName");
+        String typeName = inState.getString(selectionStateName + "Type");
+        String mainName = inState.getString(selectionStateName + "MainName");
         if (StringHolder.class.getSimpleName().equals(typeName)) {
             return new StringHolder(rawText, mainName);
         } else if (HtmlStringHolder.class.getSimpleName().equals(typeName)) {
-            return new HtmlStringHolder(rawText, inState.getInt(selectionStateName+"Flags"), mainName);
+            return new HtmlStringHolder(rawText, inState.getInt(selectionStateName + "Flags"), mainName);
         }
-        throw new IllegalStateException("trying to load invalid StringHolder: "+typeName);
+        throw new IllegalStateException("trying to load invalid StringHolder: " + typeName);
     }
 
-    private static String loadShareUrl(String baseUrl,File baseDir,File actualFile){
-        String shareUrl=baseUrl;
-        if(shareUrl!=null){
+    private static String loadShareUrl(String baseUrl, File baseDir, File actualFile) {
+        String shareUrl = baseUrl;
+        if (shareUrl != null) {
             shareUrl += baseDir.toPath().relativize(actualFile.toPath());
         }
         return shareUrl;
@@ -256,32 +257,32 @@ public class ShowClassActivity extends AbstractActivity {
 
     @UiThread
     private void onMiddleSelected(Spinner innerSelectionSpinner, int position) {
-        if(position==-1){
-            position=0;
+        if (position == -1) {
+            position = 0;
         }
         TextHolder middleSelected = middleAdapter.getSections().get(position);
         information.setSelectedMiddleSection(middleSelected);
         Map<TextHolder, TextHolder> selected = information.getSections().get(information.getSelectedOuterSection()).get(middleSelected);
-        if (selected == null) {
-            //do nothing
-        } else if (selected.size() == 1 && selected.containsKey(TextHolder.EMPTY)) {
-            innerSelectionSpinner.setVisibility(View.GONE);
-            innerSelectionSpinner.setWillNotDraw(true);
-            textView.setText(selected.values().stream().findAny().map(TextHolder::getText).orElse(null));
-        } else {
-            innerSelectionSpinner.setVisibility(View.VISIBLE);
-            innerSelectionSpinner.setWillNotDraw(false);
-            loadInnerSections(selected,null);
+        if (selected != null) {
+            if (selected.size() == 1 && selected.containsKey(TextHolder.EMPTY)) {
+                innerSelectionSpinner.setVisibility(View.GONE);
+                innerSelectionSpinner.setWillNotDraw(true);
+                textView.setText(selected.values().stream().findAny().map(TextHolder::getText).orElse(null));
+            } else {
+                innerSelectionSpinner.setVisibility(View.VISIBLE);
+                innerSelectionSpinner.setWillNotDraw(false);
+                loadInnerSections(selected, null);
+            }
         }
     }
 
     @UiThread
-    private void loadInnerSections(Map<TextHolder, TextHolder> selected, String search){
-        List<TextHolder> sections=new ArrayList<>(selected.keySet());
-        if(search!=null){
-            sections.removeIf(section->!containsText(section,search));
-            if(sections.isEmpty()){
-                sections=new ArrayList<>(selected.keySet());
+    private void loadInnerSections(Map<TextHolder, TextHolder> selected, String search) {
+        List<TextHolder> sections = new ArrayList<>(selected.keySet());
+        if (search != null) {
+            sections.removeIf(section -> !containsText(section, search));
+            if (sections.isEmpty()) {
+                sections = new ArrayList<>(selected.keySet());
             }
         }
         innerAdapter.setSections(sections);
@@ -289,19 +290,19 @@ public class ShowClassActivity extends AbstractActivity {
         onInnerSelected(innerAdapter.getSections().indexOf(information.getSelectedInnerSection()));
     }
 
-    private boolean containsText(TextHolder textHolder,String textToContain){
-        textToContain=textToContain.toLowerCase();
-        if(textHolder.getMainName()==null){
+    private boolean containsText(TextHolder textHolder, String textToContain) {
+        textToContain = textToContain.toLowerCase();
+        if (textHolder.getMainName() == null) {
             return textHolder.getText().toString().toLowerCase().contains(textToContain);
-        }else{
+        } else {
             return textHolder.getMainName().toLowerCase().contains(textToContain);
         }
     }
 
     @UiThread
     private void onInnerSelected(int position) {
-        if(position==-1){
-            position=0;
+        if (position == -1) {
+            position = 0;
         }
         TextHolder innerSelected = innerAdapter.getSections().get(position);
         information.setSelectedInnerSection(innerSelected);
@@ -332,16 +333,16 @@ public class ShowClassActivity extends AbstractActivity {
                 //TODO implement this
             } else {
                 //TODO set option/Section/scroll/whatever (split[1]), also if self link (split[0] empty)
-                open(this,new File(baseJavadocDir),file,baseShareUrl,split.length > 1 ? split[1] : null);
+                open(this, new File(baseJavadocDir), file, baseShareUrl, split.length > 1 ? split[1] : null);
             }
             return false;
 
         } else {
             Log.i(getClass().getName(), "non-file link clicked");
-            uri=Uri.parse(link);
+            uri = Uri.parse(link);
         }
         //let it be handled by sth else
-        Intent intent = new Intent(Intent.ACTION_VIEW,uri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -357,8 +358,8 @@ public class ShowClassActivity extends AbstractActivity {
 
     @Override
     public void onSearch(String search) {
-        if(information.getSelectedInnerSection()!=null){
-            loadInnerSections(information.getSections().get(information.getSelectedOuterSection()).get(information.getSelectedMiddleSection()),search);
+        if (information.getSelectedInnerSection() != null) {
+            loadInnerSections(information.getSections().get(information.getSelectedOuterSection()).get(information.getSelectedMiddleSection()), search);
         }
     }
 
@@ -370,31 +371,32 @@ public class ShowClassActivity extends AbstractActivity {
 
     @Override
     public String getShareLink() {
-        TextHolder selected=getSelected();
-        String id="";
-        if(selected instanceof HtmlStringHolder){
-            id = "#"+((HtmlStringHolder) selected).getAnchor();
+        TextHolder selected = getSelected();
+        String id = "";
+        if (selected instanceof HtmlStringHolder) {
+            id = "#" + ((HtmlStringHolder) selected).getAnchor();
         }
-        return super.getShareLink()+id;
+        return super.getShareLink() + id;
     }
-    private TextHolder getSelected(){
+
+    private TextHolder getSelected() {
         Map<TextHolder, Map<TextHolder, Map<TextHolder, TextHolder>>> sections = information.getSections();
-        if(sections==null){
+        if (sections == null) {
             return null;
         }
         Map<TextHolder, Map<TextHolder, TextHolder>> outer = sections.get(information.getSelectedOuterSection());
         Map<TextHolder, TextHolder> middle;
-        if(outer==null){
+        if (outer == null) {
             return null;
         }
-        if(outer.size()>1){
+        if (outer.size() > 1) {
             middle = outer.get(information.getSelectedMiddleSection());
-        }else{
-            middle=outer.values().stream().findAny().orElseThrow(IllegalStateException::new);
+        } else {
+            middle = outer.values().stream().findAny().orElseThrow(IllegalStateException::new);
         }
-        if(middle.size()>1){
+        if (middle.size() > 1) {
             return middle.get(information.getSelectedInnerSection());
-        }else {
+        } else {
             return middle.values().stream().findAny().orElseThrow(IllegalStateException::new);
         }
     }
