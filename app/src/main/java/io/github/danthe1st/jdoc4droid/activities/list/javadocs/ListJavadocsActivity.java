@@ -56,7 +56,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         setContentView(R.layout.activity_list_javadocs_list);
         super.onCreate(savedInstanceState);
         findViewById(R.id.downloadBtn).setOnClickListener(this::downloadBtnClicked);
-        progressBar=findViewById(R.id.downloadProgressBar);
+        progressBar = findViewById(R.id.downloadProgressBar);
         adapter.setOnSelect(javaDocInformation -> {
             findViewById(R.id.deleteBtn).setVisibility(javaDocInformation == null ? View.INVISIBLE : View.VISIBLE);
             findViewById(R.id.updateBtn).setVisibility(javaDocInformation == null || javaDocInformation.getBaseDownloadUrl().isEmpty() ? View.INVISIBLE : View.VISIBLE);
@@ -139,11 +139,11 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
             return;
         }
         int index = adapter.getItems().indexOf(info);
-        int actualIndex=javaDocInfos.indexOf(info);
+        int actualIndex = javaDocInfos.indexOf(info);
         int newIndex = index + indexChange;
         adapter.getItems().add(newIndex, adapter.getItems().remove(index));
-        int actualNewIndex = javaDocInfos.indexOf(adapter.getItems().get(newIndex-indexChange));
-        javaDocInfos.add(actualNewIndex,javaDocInfos.remove(actualIndex));
+        int actualNewIndex = javaDocInfos.indexOf(adapter.getItems().get(newIndex - indexChange));
+        javaDocInfos.add(actualNewIndex, javaDocInfos.remove(actualIndex));
         adapter.notifyItemMoved(index, newIndex);
         for (int i = Math.min(actualIndex, actualNewIndex); i <= Math.max(actualIndex, actualNewIndex); i++) {
             JavaDocInformation effectedJavadoc = javaDocInfos.get(i);
@@ -177,7 +177,7 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
                         progressBar.setVisibility(View.GONE);
                     }))
                     .exceptionally(e -> showError(R.string.javadocUpdateError, e))
-            .handle(this::removeProgressBar);
+                    .handle(this::removeProgressBar);
         }
     }
 
@@ -252,15 +252,16 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
         } else if (itemId == R.id.oracleDownloadSelector17) {
             url = "https://www.oracle.com/java/technologies/javase-jdk17-doc-downloads.html";
         } else if (itemId == R.id.oracleDownloadSelectorCustom) {
-            url="https://www.oracle.com/java/technologies/javase-downloads.html";
+            url = "https://www.oracle.com/java/technologies/javase-downloads.html";
         } else {
             return false;
         }
-        if(url!=null){
+        if (url != null) {
             OracleDownloaderActivity.open(this, url, javaDocInfos.size());
         }
         return true;
     }
+
     @UiThread
     private void loadZipJavadoc() {
         zipLauncher.launch(null);

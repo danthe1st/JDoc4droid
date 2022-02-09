@@ -25,7 +25,7 @@ public class ShowSectionAdapter extends BaseAdapter {
 
     @Getter
     @Setter
-    private List<TextHolder> sections=new ArrayList<>();
+    private List<TextHolder> sections = new ArrayList<>();
 
     @Override
     public int getCount() {
@@ -44,8 +44,8 @@ public class ShowSectionAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int selectedItemPosition=((Spinner) parent).getSelectedItemPosition();
-        return createView(selectedItemPosition==-1?position:selectedItemPosition, parent);
+        int selectedItemPosition = ((Spinner) parent).getSelectedItemPosition();
+        return createView(selectedItemPosition == -1 ? position : selectedItemPosition, parent);
     }
 
     @Override
@@ -54,20 +54,20 @@ public class ShowSectionAdapter extends BaseAdapter {
     }
 
     @UiThread
-    private View createView(int position, ViewGroup parent){
+    private View createView(int position, ViewGroup parent) {
         View view = inflater.inflate(R.layout.context_menu_item, parent, false);
-        bindView(view,position);
+        bindView(view, position);
         return view;
     }
 
     @UiThread
-    private void bindView(View view, int position){
+    private void bindView(View view, int position) {
         view.<TextView>findViewById(R.id.contextMenuField).setText(sections.get(position).getText());
     }
-    
+
     public int getPositionFromName(TextHolder name) {
         for (int i = 0; i < sections.size(); i++) {
-            if(name.equals(sections.get(i))){
+            if (name.equals(sections.get(i))) {
                 return i;
             }
         }

@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -75,7 +74,7 @@ public final class JavaDocDownloader {
     private InputStreamLoader inputStreamSupplier;
     private final JavaDocInformation javaDocInfo;
     private final String subDirToUnzip;
-    private long inputStreamLen=-1;
+    private long inputStreamLen = -1;
     private final IntConsumer progressUpdater;
 
 
@@ -87,27 +86,28 @@ public final class JavaDocDownloader {
         ORACLE_SUBDIR_SUFFIXES_MAPPING = Collections.unmodifiableMap(suffixSubdirMapping);
     }
 
-    private JavaDocDownloader(String url, JavaDocInformation javaDocInfo, IntConsumer progressUpdater){
-        this(getInputStreamSupplierFromURL(url),javaDocInfo,"", progressUpdater);
+    private JavaDocDownloader(String url, JavaDocInformation javaDocInfo, IntConsumer progressUpdater) {
+        this(getInputStreamSupplierFromURL(url), javaDocInfo, "", progressUpdater);
     }
 
     @FunctionalInterface
-    private interface InputStreamLoader{
+    private interface InputStreamLoader {
         InputStream load(JavaDocDownloader downloader) throws IOException;
     }
 
-    private static InputStreamLoader getInputStreamSupplierFromURL(String url){
+    private static InputStreamLoader getInputStreamSupplierFromURL(String url) {
         return downloader -> {
             URLConnection con = new URL(url).openConnection();
-            downloader.inputStreamLen=con.getContentLengthLong();
+            downloader.inputStreamLen = con.getContentLengthLong();
             return con.getInputStream();
         };
     }
 
     private JavaDocDownloader(InputStream is, long len, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
-        this(dl->is,javaDocInfo,subDirToUnzip,progressUpdater);
-        inputStreamLen=len;
+        this(dl -> is, javaDocInfo, subDirToUnzip, progressUpdater);
+        inputStreamLen = len;
     }
+
     private JavaDocDownloader(InputStreamLoader inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
         this.inputStreamSupplier = inputStreamSupplier;
         this.javaDocInfo = javaDocInfo;
@@ -177,7 +177,7 @@ public final class JavaDocDownloader {
 
     @AnyThread
     public static CompletableFuture<JavaDocInformation> downloadFromMavenRepo(Context ctx, String repoUrl, String groupId, String artefactId, String version, int numberOfJavadocs, IntConsumer progressUpdater) {
-        if (version==null||version.isEmpty()) {
+        if (version == null || version.isEmpty()) {
             return downloadFromMavenRepo(ctx, repoUrl, groupId, artefactId, "RELEASE", numberOfJavadocs, progressUpdater);
         }
         String artifactBaseUrl = repoUrl + "/" + groupId.replace('.', '/') + "/" + artefactId + "/";
@@ -193,12 +193,12 @@ public final class JavaDocDownloader {
                 getJavaDocDir(ctx, fileNameFromString(repoUrl) + "_" + fileNameFromString(artefactId) + "_" + fileNameFromString(version)),
                 JavaDocType.MAVEN, artifactBaseUrl, numberOfJavadocs);
         JavaDocDownloader javaDocDownloader = new JavaDocDownloader(effectiveUrl, javaDocInfo, progressUpdater);
-        return CompletableFuture.supplyAsync(()->{
+        return CompletableFuture.supplyAsync(() -> {
             if ("LATEST".equals(version) || "RELEASE".equals(version)) {
                 javaDocDownloader.loadLatestMavenVersionUnchecked();
             }
             return javaDocDownloader.downloadAndUnzip();
-        },downloader);
+        }, downloader);
     }
 
     @AnyThread
@@ -289,7 +289,7 @@ public final class JavaDocDownloader {
             javaDocInfo.setDirectory(newDirectoryAsFile);
             javaDocInfo.setName(newName);
             String url = javaDocInfo.getBaseDownloadUrl() + version + "/" + aId + "-" + version + "-javadoc.jar";
-            inputStreamSupplier=getInputStreamSupplierFromURL(url);
+            inputStreamSupplier = getInputStreamSupplierFromURL(url);
         } catch (XmlPullParserException e) {
             throw new IOException(e);
         }
@@ -300,8 +300,8 @@ public final class JavaDocDownloader {
         String targetFileName = getLastOfSplitted(uri.getLastPathSegment());
         JavaDocInformation javaDocInfo = new JavaDocInformation("", "", getJavaDocDir(ctx, targetFileName), JavaDocType.ZIP, numberOfJavadocs);
         return new JavaDocDownloader(downloader -> {
-            AssetFileDescriptor fileDescriptor = ctx.getContentResolver().openAssetFileDescriptor(uri , "r");
-            downloader.inputStreamLen=fileDescriptor.getLength();
+            AssetFileDescriptor fileDescriptor = ctx.getContentResolver().openAssetFileDescriptor(uri, "r");
+            downloader.inputStreamLen = fileDescriptor.getLength();
             return ctx.getContentResolver().openInputStream(uri);
         }, javaDocInfo, "", progressUpdater)
                 .downloadAndUnzipAsync();
@@ -366,7 +366,7 @@ public final class JavaDocDownloader {
                         Files.copy(zis, dFile.toPath());
                     }
                 }
-                progressUpdater.accept((int)(100*byteCount/inputStreamLen));
+                progressUpdater.accept((int) (100 * byteCount / inputStreamLen));
                 //Log.i(JavaDocDownloader.class.getName(), byteCount + "/" + len + " downloaded");//TODO show somehow
             }
         } catch (IOException e) {

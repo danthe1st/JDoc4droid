@@ -3,9 +3,6 @@ package io.github.danthe1st.jdoc4droid.activities.list.classes;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
-import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +29,7 @@ import io.github.danthe1st.jdoc4droid.util.parsing.JavaDocParser;
 /**
  * A fragment representing a list of Items.
  */
-public class ListClassesActivity extends AbstractListActivity<SimpleClassDescription,ListClassesViewAdapter> {
+public class ListClassesActivity extends AbstractListActivity<SimpleClassDescription, ListClassesViewAdapter> {
 
     private static final String ARG_JAVADOC_DIR = "javaDocDir";
 
@@ -41,16 +37,16 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     private MenuItem filterButton;
 
     private List<SimpleClassDescription> descriptions = Collections.emptyList();
-    private Set<String> classTypes=Collections.emptySet();
-    private String selectedType=null;
-    private String currentSearch="";
+    private Set<String> classTypes = Collections.emptySet();
+    private String selectedType = null;
+    private String currentSearch = "";
 
     @UiThread
-    public static void open(Context ctx, JavaDocInformation javaDocInfo){
-        Intent intent=new Intent(ctx, ListClassesActivity.class);
-        intent.putExtra(ARG_JAVADOC_DIR,javaDocInfo.getDirectory().getAbsolutePath());
-        String shareUrl=javaDocInfo.getOnlineDocUrl();
-        if(shareUrl!=null&&!shareUrl.isEmpty()){
+    public static void open(Context ctx, JavaDocInformation javaDocInfo) {
+        Intent intent = new Intent(ctx, ListClassesActivity.class);
+        intent.putExtra(ARG_JAVADOC_DIR, javaDocInfo.getDirectory().getAbsolutePath());
+        String shareUrl = javaDocInfo.getOnlineDocUrl();
+        if (shareUrl != null && !shareUrl.isEmpty()) {
             intent.putExtra(ARG_SHARE_URL, shareUrl);
         }
         ctx.startActivity(intent);
@@ -61,20 +57,20 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         setContentView(R.layout.activity_list_classes_list);
         super.onCreate(savedInstanceState);
         javaDocDir = new File(getIntent().getStringExtra(ARG_JAVADOC_DIR));
-        getThreadPool().execute(()-> {
+        getThreadPool().execute(() -> {
             try {
                 descriptions = JavaDocParser.loadClasses(javaDocDir);
                 classTypes = descriptions.stream().map(SimpleClassDescription::getClassType).collect(Collectors.toSet());
-                runInUIThread(()->{
+                runInUIThread(() -> {
                     adapter.setItems(descriptions);
                     findViewById(R.id.progressBar2).setVisibility(View.GONE);
                     reloadFilters();
                 });
             } catch (Exception e) {
-                runInUIThread(()->{
-                    Toast.makeText(this,"Cannot load classes",Toast.LENGTH_LONG).show();
+                runInUIThread(() -> {
+                    Toast.makeText(this, "Cannot load classes", Toast.LENGTH_LONG).show();
                     onBackPressed();
-                    Log.e(getClass().getName(),"Cannot load class list",e);
+                    Log.e(getClass().getName(), "Cannot load class list", e);
                 });
             }
         });
@@ -82,67 +78,67 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean ret=super.onCreateOptionsMenu(menu);
-        filterButton=menu.findItem(R.id.app_bar_filter);
+        boolean ret = super.onCreateOptionsMenu(menu);
+        filterButton = menu.findItem(R.id.app_bar_filter);
         filterButton.setVisible(true);
         return ret;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getGroupId()==R.id.app_bar_filter){
+        if (item.getGroupId() == R.id.app_bar_filter) {
             final String title = String.valueOf(item.getTitle());
-            if (getAvailableFilters().contains(title)){
+            if (getAvailableFilters().contains(title)) {
                 onFilterChange(title);
             }
             return true;
-        }else{
+        } else {
             return super.onOptionsItemSelected(item);
         }
     }
 
     @Override
     protected ListClassesViewAdapter createAdapter() {
-        return new ListClassesViewAdapter(new ArrayList<>(),this::showClass);
+        return new ListClassesViewAdapter(new ArrayList<>(), this::showClass);
     }
 
     @UiThread
     private void showClass(SimpleClassDescription simpleClassDescription) {
-        ShowClassActivity.open(this,javaDocDir,new File(javaDocDir,simpleClassDescription.getPath()),getShareLink());
+        ShowClassActivity.open(this, javaDocDir, new File(javaDocDir, simpleClassDescription.getPath()), getShareLink());
     }
 
     @Override
     public void onSearch(String search) {
-        currentSearch=search;
+        currentSearch = search;
         filterElements();
     }
 
-    public void onFilterChange(String newFilter){
-        if(newFilter.equals(selectedType)){
-            selectedType=null;
-        }else{
-            selectedType=newFilter;
+    public void onFilterChange(String newFilter) {
+        if (newFilter.equals(selectedType)) {
+            selectedType = null;
+        } else {
+            selectedType = newFilter;
         }
         filterElements();
     }
 
-    public Set<String> getAvailableFilters(){
+    public Set<String> getAvailableFilters() {
         return Collections.unmodifiableSet(classTypes);
     }
 
-    private void filterElements(){
+    private void filterElements() {
         adapter.setItems(
                 descriptions.stream()
-                        .filter(desc->selectedType==null||selectedType.equals(desc.getClassType()))
-                        .filter(desc->(desc.getPackageName()+"."+desc.getName()).toLowerCase().contains(currentSearch.toLowerCase()))
+                        .filter(desc -> selectedType == null || selectedType.equals(desc.getClassType()))
+                        .filter(desc -> (desc.getPackageName() + "." + desc.getName()).toLowerCase().contains(currentSearch.toLowerCase()))
                         .collect(Collectors.toList())
         );
     }
 
     @UiThread
-    private void reloadFilters(){
+    private void reloadFilters() {
         for (String availableFilter : getAvailableFilters()) {
-            filterButton.getSubMenu().add(filterButton.getItemId(),Menu.NONE,Menu.NONE,availableFilter);
+            filterButton.getSubMenu().add(filterButton.getItemId(), Menu.NONE, Menu.NONE, availableFilter);
         }
     }
 
@@ -155,5 +151,4 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
     public boolean supportsSearch() {
         return true;
     }
-
 }

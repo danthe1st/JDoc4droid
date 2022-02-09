@@ -10,43 +10,45 @@ import java.util.Objects;
 
 import io.github.danthe1st.jdoc4droid.util.LongStringSerializer;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor
-@RequiredArgsConstructor
+
 public class HtmlStringHolder implements TextHolder, Externalizable {
     private static final long serialVersionUID = 2033469939306675188L;
 
-    @NonNull
     private String html;
-    @NonNull
+
     @Getter
     private int flags;
+
     @Getter
     private String mainName;
+
     @Getter
-    private String anchor ="";
+    private String anchor = "";
     private CharSequence spanned;
 
-    public HtmlStringHolder(String html, int flags,String mainName) {
-        this.html=html;
-        this.flags=flags;
-        this.mainName=mainName;
+    public HtmlStringHolder(@NonNull String html, int flags, String mainName) {
+        this.html = html;
+        this.flags = flags;
+        this.mainName = mainName;
     }
 
-    public HtmlStringHolder(String html, int flags,String mainName, String anchor) {
-        this.html=html;
-        this.flags=flags;
-        this.mainName=mainName;
+    public HtmlStringHolder(@NonNull String html, int flags, String mainName, String anchor) {
+        this.html = html;
+        this.flags = flags;
+        this.mainName = mainName;
         this.anchor = anchor;
     }
 
+    public HtmlStringHolder() {
+    }
+
+
     @Override
     public CharSequence getText() {
-        if(spanned==null){
-            spanned= Html.fromHtml(html,flags);
+        if (spanned == null) {
+            spanned = Html.fromHtml(html, flags);
         }
         return spanned;
     }
@@ -58,10 +60,10 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        LongStringSerializer.serialize(out,html);
-        if(mainName==null){
+        LongStringSerializer.serialize(out, html);
+        if (mainName == null) {
             out.writeUTF("");
-        }else{
+        } else {
             out.writeUTF(mainName);
         }
         out.writeInt(flags);
@@ -69,14 +71,15 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException {
-        html=LongStringSerializer.deSerialize(in);
-        mainName=in.readUTF();
-        if("".equals(mainName)){
-            mainName=null;
+        html = LongStringSerializer.deSerialize(in);
+        mainName = in.readUTF();
+        if ("".equals(mainName)) {
+            mainName = null;
         }
-        flags=in.readInt();
+        flags = in.readInt();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getText().toString();

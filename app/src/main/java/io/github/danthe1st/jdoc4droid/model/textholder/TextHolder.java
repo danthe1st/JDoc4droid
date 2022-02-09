@@ -2,13 +2,16 @@ package io.github.danthe1st.jdoc4droid.model.textholder;
 
 import java.io.Serializable;
 
-public interface TextHolder extends Serializable,Comparable<TextHolder>{
-    TextHolder EMPTY=new StringHolder("");
-    default CharSequence getText(){
+public interface TextHolder extends Serializable, Comparable<TextHolder> {
+    TextHolder EMPTY = new StringHolder("");
+
+    default CharSequence getText() {
         return getRawText();
     }
+
     String getRawText();
-    default String getMainName(){
+
+    default String getMainName() {
         return getText().toString();
     }
 
