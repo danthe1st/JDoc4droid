@@ -277,9 +277,11 @@ public final class JavaDocDownloader {
             allVersions.add("LATEST");
             allVersions.add("RELEASE");
             for (String v : allVersions) {
-                newOnlineUrl = newOnlineUrl.replace(v, version);
-                newName = newName.replace(v, version);
-                newDirectory = newDirectory.replace(fileNameFromString(v), fileNameFromString(version));
+                if (newName.endsWith(" " + v)) {
+                    newOnlineUrl = newOnlineUrl.replace(v, version);
+                    newName = newName.replace(v, version);
+                    newDirectory = newDirectory.replace(fileNameFromString(v), fileNameFromString(version));
+                }
             }
             javaDocInfo.setOnlineDocUrl(newOnlineUrl);
             File newDirectoryAsFile = new File(newDirectory);
