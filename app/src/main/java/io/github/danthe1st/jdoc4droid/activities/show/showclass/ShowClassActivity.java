@@ -359,7 +359,13 @@ public class ShowClassActivity extends AbstractActivity {
     @Override
     public void onSearch(String search) {
         if (information.getSelectedInnerSection() != null) {
-            loadInnerSections(information.getSections().get(information.getSelectedOuterSection()).get(information.getSelectedMiddleSection()), search);
+            Map<TextHolder, Map<TextHolder, TextHolder>> outerSection=information.getSections().get(information.getSelectedOuterSection());
+            if(outerSection!=null){
+                Map<TextHolder, TextHolder> middleSection=outerSection.get(information.getSelectedMiddleSection());
+                if(middleSection!=null){
+                    loadInnerSections(middleSection, search);
+                }
+            }
         }
     }
 
