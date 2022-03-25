@@ -9,8 +9,6 @@ import java.io.ObjectOutput;
 import java.util.Objects;
 
 import io.github.danthe1st.jdoc4droid.util.LongStringSerializer;
-import lombok.Getter;
-import lombok.NonNull;
 
 
 public class HtmlStringHolder implements TextHolder, Externalizable {
@@ -18,23 +16,20 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
 
     private String html;
 
-    @Getter
     private int flags;
 
-    @Getter
     private String mainName;
 
-    @Getter
     private String anchor = "";
     private CharSequence spanned;
 
-    public HtmlStringHolder(@NonNull String html, int flags, String mainName) {
+    public HtmlStringHolder(String html, int flags, String mainName) {
         this.html = html;
         this.flags = flags;
         this.mainName = mainName;
     }
 
-    public HtmlStringHolder(@NonNull String html, int flags, String mainName, String anchor) {
+    public HtmlStringHolder(String html, int flags, String mainName, String anchor) {
         this.html = html;
         this.flags = flags;
         this.mainName = mainName;
@@ -79,7 +74,6 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
         flags = in.readInt();
     }
 
-    @NonNull
     @Override
     public String toString() {
         return getText().toString();
@@ -96,5 +90,17 @@ public class HtmlStringHolder implements TextHolder, Externalizable {
     @Override
     public int hashCode() {
         return Objects.hash(getRawText());
+    }
+
+    public int getFlags() {
+        return this.flags;
+    }
+
+    public String getMainName() {
+        return this.mainName;
+    }
+
+    public String getAnchor() {
+        return this.anchor;
     }
 }

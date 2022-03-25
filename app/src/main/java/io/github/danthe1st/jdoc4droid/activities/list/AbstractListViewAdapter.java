@@ -10,30 +10,23 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.danthe1st.jdoc4droid.R;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@RequiredArgsConstructor
 public abstract class AbstractListViewAdapter<T, H extends AbstractListViewHolder<T, H>> extends RecyclerView.Adapter<H> {
 
-    @NonNull
-    @Getter
     protected List<T> items;
 
     protected H selectedViewHolder;
 
-    @NonNull
-    @Setter
     protected Consumer<T> onShow;
 
-    @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PACKAGE)
     private Consumer<T> onSelect;
 
     protected long lastClickTime = 0;
+
+    public AbstractListViewAdapter(List<T> items, Consumer<T> onShow) {
+        this.items = items;
+        this.onShow = onShow;
+    }
 
     @Override
     @UiThread
@@ -71,5 +64,21 @@ public abstract class AbstractListViewAdapter<T, H extends AbstractListViewHolde
             card = view;
         }
         card.setBackgroundColor(view.getResources().getColor(color, null));
+    }
+
+    public List<T> getItems() {
+        return this.items;
+    }
+
+    Consumer<T> getOnSelect() {
+        return this.onSelect;
+    }
+
+    public void setOnShow(Consumer<T> onShow) {
+        this.onShow = onShow;
+    }
+
+    protected void setOnSelect(Consumer<T> onSelect) {
+        this.onSelect = onSelect;
     }
 }

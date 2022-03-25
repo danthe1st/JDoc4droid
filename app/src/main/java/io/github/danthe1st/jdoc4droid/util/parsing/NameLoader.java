@@ -16,17 +16,19 @@ import java.util.UUID;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.StringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-class NameLoader {
+final class NameLoader {
     static final String SELECTOR_NAME_HEADER = "h1,h2,h3,h4,h5";
 
-    TextHolder findName(Element elem, Set<TextHolder> currentNames) {
+    private NameLoader() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    static TextHolder findName(Element elem, Set<TextHolder> currentNames) {
         return findName(elem, currentNames, new String[]{SELECTOR_NAME_HEADER});
     }
 
-    TextHolder findName(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
+    static TextHolder findName(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
         String name;
         Element root = elem.parents().last();
         TextHolder ret = tryFindNameFromFirstHeader(elem, currentNames, selectorNameHeaders);
@@ -48,7 +50,7 @@ class NameLoader {
         return nameHolder;
     }
 
-    private TextHolder tryFindNameFromFirstHeader(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
+    private static TextHolder tryFindNameFromFirstHeader(Element elem, Set<TextHolder> currentNames, String[] selectorNameHeaders) {
         Element firstHeader = null;
         for (int i = 0; firstHeader == null && i < selectorNameHeaders.length; i++) {
             String selectorNameHeader = selectorNameHeaders[i];
@@ -60,7 +62,7 @@ class NameLoader {
         return null;
     }
 
-    private TextHolder tryFindNameFromHeader(Element header, Element elem, Set<TextHolder> currentNames) {
+    private static TextHolder tryFindNameFromHeader(Element header, Element elem, Set<TextHolder> currentNames) {
         String name = header.text();
         TextHolder nameHolder = new StringHolder(Normalizer.normalize(name, Normalizer.Form.NFKC));
         if (!name.isEmpty() && !currentNames.contains(nameHolder)) {
@@ -80,7 +82,7 @@ class NameLoader {
         return null;
     }
 
-    private TextHolder findFirstNameFromId(String id, Element root) {
+    private static TextHolder findFirstNameFromId(String id, Element root) {
         String encoded;
         try {
             encoded = URLEncoder.encode(id, StandardCharsets.UTF_8.name());
@@ -91,7 +93,7 @@ class NameLoader {
         return new StringHolder(Normalizer.normalize(referencers.stream().map(Element::text).findFirst().orElse(id), Normalizer.Form.NFKC));
     }
 
-    private TextHolder generateName() {
+    private static TextHolder generateName() {
         String name = UUID.randomUUID().toString();
         Log.e(JavaDocParser.class.getName(), "Need to generate UUID");
         return new StringHolder(name);

@@ -30,16 +30,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.github.danthe1st.jdoc4droid.R;
-import lombok.Getter;
 
 public class AbstractActivity extends AppCompatActivity {
 
     private final Map<Integer, Runnable> keyListeners = new HashMap<>();
 
-    @Getter
     private final ExecutorService threadPool = Executors.newSingleThreadExecutor();
 
-    @Getter
     private SearchView searchView;
 
     private MenuItem shareButton;
@@ -83,6 +80,14 @@ public class AbstractActivity extends AppCompatActivity {
             }
         }
         return actionBarToolbar;
+    }
+
+    public ExecutorService getThreadPool() {
+        return threadPool;
+    }
+
+    public SearchView getSearchView() {
+        return searchView;
     }
 
     @Override

@@ -41,15 +41,16 @@ import io.github.danthe1st.jdoc4droid.activities.list.classes.ListClassesActivit
 import io.github.danthe1st.jdoc4droid.model.JavaDocInformation;
 import io.github.danthe1st.jdoc4droid.model.JavaDocType;
 import io.github.danthe1st.jdoc4droid.util.JavaDocDownloader;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformation, ListJavaDocsViewAdapter> {
 
     private List<JavaDocInformation> javaDocInfos;
     private ActivityResultLauncher<Object> zipLauncher;
 
     private ProgressBar progressBar;
+
+    public ListJavadocsActivity() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

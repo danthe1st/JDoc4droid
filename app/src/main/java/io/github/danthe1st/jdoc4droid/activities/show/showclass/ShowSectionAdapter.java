@@ -14,18 +14,16 @@ import java.util.List;
 
 import io.github.danthe1st.jdoc4droid.R;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@RequiredArgsConstructor
 public class ShowSectionAdapter extends BaseAdapter {
 
     private final LayoutInflater inflater;
 
-    @Getter
-    @Setter
     private List<TextHolder> sections = new ArrayList<>();
+
+    public ShowSectionAdapter(LayoutInflater inflater) {
+        this.inflater = inflater;
+    }
 
     @Override
     public int getCount() {
@@ -72,5 +70,13 @@ public class ShowSectionAdapter extends BaseAdapter {
             }
         }
         return -1;
+    }
+
+    public List<TextHolder> getSections() {
+        return this.sections;
+    }
+
+    public void setSections(List<TextHolder> sections) {
+        this.sections = sections;
     }
 }

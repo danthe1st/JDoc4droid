@@ -7,14 +7,15 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.nio.charset.StandardCharsets;
 
-import lombok.experimental.UtilityClass;
+public final class LongStringSerializer {
+    static final int MAX_SUPPLY_SIZE = 1024;
 
-@UtilityClass
-public class LongStringSerializer {
-    final int MAX_SUPPLY_SIZE = 1024;
+    private LongStringSerializer() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     @WorkerThread
-    public void serialize(ObjectOutput out, String toWrite) throws IOException {
+    public static void serialize(ObjectOutput out, String toWrite) throws IOException {
         byte[] rawDataBytes = toWrite.getBytes(StandardCharsets.UTF_8);
         out.writeInt(rawDataBytes.length);
         if (rawDataBytes.length != 0) {
@@ -27,7 +28,7 @@ public class LongStringSerializer {
     }
 
     @WorkerThread
-    public String deSerialize(ObjectInput in) throws IOException {
+    public static String deSerialize(ObjectInput in) throws IOException {
         int rawDataLength = in.readInt();
         if (rawDataLength == 0) {
             return "";

@@ -20,21 +20,23 @@ import java.util.stream.Collectors;
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.textholder.HtmlStringHolder;
 import io.github.danthe1st.jdoc4droid.model.textholder.TextHolder;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-class ClassParser {
+final class ClassParser {
     private static final String SELECTOR_TOP = ".class-description,.description,.summary,.details";
     private static final String SELECTOR_MIDDLE = "section:not(" + SELECTOR_TOP + " section *)," + SELECTOR_TOP + ">ul>li>ul>li";
     private static final String SELECTOR_BOTTOM_RAW = "section\0,ul>li:not(:first-child)\0,ul:not(:first-child)>li\0,table>tr\0";
     private static final String SELECTOR_BOTTOM = SELECTOR_BOTTOM_RAW.replace("\0", ":not(" + SELECTOR_MIDDLE + " " + SELECTOR_BOTTOM_RAW.replace("\0", " *") + ")");
+
+    private ClassParser() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
 
     private static class Holder<T> {
         T elem;
     }
 
-    ClassInformation parseClassInformation(File classFile, String selectedId) throws IOException {
+    static ClassInformation parseClassInformation(File classFile, String selectedId) throws IOException {
         Element elem = JavaDocParser.parseFile(classFile);
         Holder<TextHolder> selectedOuterSection = new Holder<>();
         Holder<TextHolder> selectedMiddleSection = new Holder<>();
@@ -54,7 +56,7 @@ class ClassParser {
         return new ClassInformation(header, outerSections, selectedOuterSection.elem, selectedMiddleSection.elem, selectedInnerSection.elem);
     }
 
-    private <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
+    private static <T> Map<TextHolder, T> findAllSections(Element elem, Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, String selector, BiFunction<Element, Set<TextHolder>, T> adder) {
         return elem.select(selector)
                 .stream()
                 .filter(e -> e != elem)
@@ -63,7 +65,7 @@ class ClassParser {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
-    private <T> Map.Entry<TextHolder, T> findSectionFromElement(Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, BiFunction<Element, Set<TextHolder>, T> adder, Element outerChild) {
+    private static <T> Map.Entry<TextHolder, T> findSectionFromElement(Set<TextHolder> usedNames, Function<TextHolder, T> converter, Elements selectedElemParents, Holder<TextHolder> selectedSection, BiFunction<Element, Set<TextHolder>, T> adder, Element outerChild) {
         Set<TextHolder> innerNames = new HashSet<>();
         TextHolder sectionName;
 
@@ -101,7 +103,7 @@ class ClassParser {
         return section;
     }
 
-    private HtmlStringHolder convertToHtmlStringHolder(Element element) {
+    private static HtmlStringHolder convertToHtmlStringHolder(Element element) {
         for (Element elem : element.select("dt")) {
             elem.tagName("b");
         }
@@ -112,7 +114,7 @@ class ClassParser {
         return new HtmlStringHolder(element.html(), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH, null, getAnchorName(element));
     }
 
-    private String getAnchorName(Element element) {
+    private static String getAnchorName(Element element) {
         String anchor = "";
         if (element.previousElementSibling() == null) {
             Element parent = element.parent();
@@ -129,7 +131,7 @@ class ClassParser {
         return anchor;
     }
 
-    private String getDirectAnchorName(Element element) {
+    private static String getDirectAnchorName(Element element) {
         String id = element.id();
         if (id.isEmpty()) {
             Element prevSibling = element.previousElementSibling();
@@ -149,7 +151,7 @@ class ClassParser {
         return id;
     }
 
-    private boolean isMapWithProperSubElements(Object toTest) {
+    private static boolean isMapWithProperSubElements(Object toTest) {
         if (!(toTest instanceof Map)) {
             return false;
         }

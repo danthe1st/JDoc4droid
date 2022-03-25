@@ -16,18 +16,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @WorkerThread
 class IndexParser {
 
-    @NonNull
     private final Element summaryTable;
 
     private final Element summaryTableHeader;
+
+    private IndexParser(Element summaryTable, Element summaryTableHeader) {
+        this.summaryTable = summaryTable;
+        this.summaryTableHeader = summaryTableHeader;
+    }
 
     static List<SimpleClassDescription> parseClasses(File javaDocDir) throws IOException {
         File index = new File(javaDocDir, "allclasses-index.html");

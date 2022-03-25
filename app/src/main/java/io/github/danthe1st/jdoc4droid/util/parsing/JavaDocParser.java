@@ -20,19 +20,21 @@ import java.util.List;
 
 import io.github.danthe1st.jdoc4droid.model.ClassInformation;
 import io.github.danthe1st.jdoc4droid.model.SimpleClassDescription;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
 @WorkerThread
-public class JavaDocParser {
+public final class JavaDocParser {
 
-    Document parseFile(File file) throws IOException {
+    private JavaDocParser() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    static Document parseFile(File file) throws IOException {
         Document doc = Jsoup.parse(file, StandardCharsets.UTF_8.name());
         doc.outputSettings().prettyPrint(false);
         return doc;
     }
 
-    public List<SimpleClassDescription> loadClasses(File javaDocDir) throws IOException {
+    public static List<SimpleClassDescription> loadClasses(File javaDocDir) throws IOException {
         File cacheFile = new File(javaDocDir, "classlist.cache");
         List<SimpleClassDescription> classes;
         if (cacheFile.exists()) {
@@ -47,7 +49,7 @@ public class JavaDocParser {
         return classes;
     }
 
-    public ClassInformation loadClassInformation(File classFile, String selectedId) throws IOException {
+    public static ClassInformation loadClassInformation(File classFile, String selectedId) throws IOException {
         File cacheFile = new File(classFile.getParentFile(), classFile.getName() + ".cache");
         if (cacheFile.exists()) {
             try {
@@ -61,25 +63,25 @@ public class JavaDocParser {
         return info;
     }
 
-    void saveClassesToCache(List<SimpleClassDescription> classes, File cacheFile) throws IOException {
+    static void saveClassesToCache(List<SimpleClassDescription> classes, File cacheFile) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cacheFile)))) {
             oos.writeObject(classes);
         }
     }
 
-    List<SimpleClassDescription> loadClassesFromCache(File cacheFile) throws IOException, ClassNotFoundException {
+    static List<SimpleClassDescription> loadClassesFromCache(File cacheFile) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
             return (List<SimpleClassDescription>) ois.readObject();
         }
     }
 
-    ClassInformation loadInformationFromCache(File cacheFile) throws IOException, ClassNotFoundException {
+    static ClassInformation loadInformationFromCache(File cacheFile) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
             return (ClassInformation) ois.readObject();
         }
     }
 
-    void saveInformationToCache(ClassInformation info, File cacheFile) throws IOException {
+    static void saveInformationToCache(ClassInformation info, File cacheFile) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(cacheFile)))) {
             oos.writeObject(info);
         }

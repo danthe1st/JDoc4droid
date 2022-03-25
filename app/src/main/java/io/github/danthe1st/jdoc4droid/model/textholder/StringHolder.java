@@ -2,20 +2,20 @@ package io.github.danthe1st.jdoc4droid.model.textholder;
 
 import java.util.Objects;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-@AllArgsConstructor
 public class StringHolder implements TextHolder {
 
-    @NonNull
     private final String text;
 
-    @Getter
     private String mainName;
+
+    public StringHolder(String text) {
+        this.text = text;
+    }
+
+    public StringHolder(String text, String mainName) {
+        this.text = text;
+        this.mainName = mainName;
+    }
 
     @Override
     public String getRawText() {
@@ -36,13 +36,11 @@ public class StringHolder implements TextHolder {
     }
 
     @Override
-    @NonNull
     public String toString() {
         return text;
     }
 
-    @Override
-    public int compareTo(TextHolder o) {
-        return 0;
+    public String getMainName() {
+        return this.mainName;
     }
 }
