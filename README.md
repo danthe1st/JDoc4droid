@@ -8,7 +8,6 @@ JDoc4droid is available on Google Play [here](https://play.google.com/store/apps
 
 ## Setup with AndroidStudio
 * Install AndroidStudio
-* Install the Lombok Plugin in AndroidStudio
 * Clone the project
 * Open the project in AndroidStudio
 * Connect an android device (emulator or real device) via adb
