@@ -15,10 +15,12 @@ jobs:
         uses: actions/setup-java@v3.1.1
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'temurin'
       - name: Set up JDK 11
         uses: actions/setup-java@v3.1.1
         with:
           java-version: 11
+          distribution: 'temurin'
       - name: build
         run: ./gradlew check
         env:
@@ -33,6 +35,7 @@ jobs:
         uses: actions/setup-java@v3.1.1
         with:
           java-version: 11
+          distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
         env:
@@ -60,6 +63,7 @@ jobs:
         uses: actions/setup-java@v3.1.1
         with:
           java-version: 11
+          distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
         env:
