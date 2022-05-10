@@ -81,6 +81,7 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
         boolean ret = super.onCreateOptionsMenu(menu);
         filterButton = menu.findItem(R.id.app_bar_filter);
         filterButton.setVisible(true);
+        reloadFilters();
         return ret;
     }
 
@@ -137,8 +138,11 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 
     @UiThread
     private void reloadFilters() {
-        for (String availableFilter : getAvailableFilters()) {
-            filterButton.getSubMenu().add(filterButton.getItemId(), Menu.NONE, Menu.NONE, availableFilter);
+        if(filterButton!=null){
+            filterButton.getSubMenu().clear();
+            for (String availableFilter : getAvailableFilters()) {
+                filterButton.getSubMenu().add(filterButton.getItemId(), Menu.NONE, Menu.NONE, availableFilter);
+            }
         }
     }
 
