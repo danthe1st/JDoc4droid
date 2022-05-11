@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
     private static final String URL_ARG_NAME = "url";
     private int numberOfJavadocs;
     private GeckoView geckoView;
+    private TextView foreignContentInfoView;
     private GeckoSession session;
     private boolean canGoBack = false;
 
@@ -62,6 +64,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
         numberOfJavadocs = getIntent().getIntExtra(NUM_JAVADOCS_ARG_NAME, 0);
         String startURL = getIntent().getStringExtra(URL_ARG_NAME);
         geckoView = findViewById(R.id.downloaderView);
+        foreignContentInfoView = findViewById(R.id.foreignContentInfo);
         ProgressBar loadingView = findViewById(R.id.downloadProgressBar);
         ProgressBar progressVisibleBar = findViewById(R.id.downloadProgressVisibleBar);
 
@@ -107,6 +110,7 @@ public class OracleDownloaderActivity extends AbstractActivity {
                         loadingView.setVisibility(View.VISIBLE);
                         progressVisibleBar.setVisibility(View.VISIBLE);
                         geckoView.setVisibility(View.INVISIBLE);
+                        foreignContentInfoView.setVisibility(View.INVISIBLE);
                         future
                                 .thenAccept(dir ->
                                         runInUIThread(() -> ListClassesActivity.open(OracleDownloaderActivity.this, dir))

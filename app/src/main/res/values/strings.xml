@@ -42,4 +42,5 @@
     <string name="versionLabelDesc">version label</string>
     <string name="moveJavadocUpBtnDesc">move Javadoc up</string>
     <string name="moveJavadocDownBtnDesc">Move Javadoc down</string>
+	<string name="oracleContentInfo">This content is provided by Oracle Corporation (https://www.oracle.com/)</string>
 </resources>
