@@ -70,7 +70,7 @@ jobs:
         env:
           keystore: '${{ secrets.keystore }}'
       - name: build
-        run: ./gradlew bundle -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
+        run: ./gradlew build bundle -DversionCode=${{ github.run_number }} -DversionName=${{ github.sha }}
         env:
           KEYSTORE: '../keystore.jks'
           KEYSTORE_PWD: '${{ secrets.keystorePwd }}'
@@ -91,3 +91,9 @@ jobs:
           whatsNewDirectory: changelogs
           releaseName: ${{ github.sha }}
           status: completed
+      - name: Publish to Huawai AppGallery
+        run: |
+          python --version
+          pip --version
+          pip install requests
+          python .github/workflows/scripts/appgallery_publish.py "${{secrets.APPGALLERY_APP_ID}}" "${{secrets.APPGALLERY_CLIENT_ID}}" "${{secrets.APPGALLERY_CLIENT_SECRET}}" app/build/outputs/apk/release/app-release.apk
