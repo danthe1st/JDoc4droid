@@ -12,7 +12,11 @@ def get_token(client_id, client_secret):
     response = requests.post(url, json=body)
     if response.status_code == 200:
         json = response.json()
-        return json['access_token']
+        try:
+            return json['access_token']
+        except KeyError e:
+            print(response.keys())
+            raise e
     else:
         raise RuntimeError(f"obtaining token failed with code {response.status_code} and reason {response.reason}")
 
