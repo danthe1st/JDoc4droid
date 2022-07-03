@@ -55,14 +55,20 @@ def upload_file(upload_url, auth_code, path_file, access_token, client_id, app_i
         response = requests.post(upload_url, files={'file_name': f}, data=body, headers=headers)
         if response.status_code == 200:
             json = response.json()
-            fileInfoList = json['result']['UploadFileRsp']['fileInfoList'][0]
-            update_app_file_info(
-                file_url=fileInfoList['fileDestUlr'],
-                file_size=fileInfoList['size'],
-                client_id=client_id,
-                access_token=access_token,
-                app_id=app_id
-            )
+            try:
+                fileInfoList = json['result']['UploadFileRsp']['fileInfoList'][0]
+                update_app_file_info(
+                    file_url=fileInfoList['fileDestUlr'],
+                    file_size=fileInfoList['size'],
+                    client_id=client_id,
+                    access_token=access_token,
+                    app_id=app_id
+                )
+            except KeyError as e:
+                print(json.keys())
+                if "result" in json:
+                    print(json["result"])
+                raise e
         else:
             raise RuntimeError(f"uploading file failed with code {response.status_code} and reason {response.reason}")
 
