@@ -52,7 +52,7 @@ def upload_file(upload_url, auth_code, path_file, access_token, client_id, app_i
         'fileCount': '1'
     }
     with open(path_file, 'rb') as f:
-        response = requests.post(upload_url, files={'file_name': f}, data=body, headers=headers)
+        response = requests.post(upload_url, files={'file': f}, data=body, headers=headers)
         if response.status_code == 200:
             json = response.json()
             try:
