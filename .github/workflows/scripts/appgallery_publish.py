@@ -15,7 +15,9 @@ def get_token(client_id, client_secret):
         try:
             return json['access_token']
         except KeyError as e:
-            print(response.keys())
+            print(json.keys())
+            if "ret" in json:
+                print(json["ret"])
             raise e
     else:
         raise RuntimeError(f"obtaining token failed with code {response.status_code} and reason {response.reason}")
