@@ -14,7 +14,7 @@ def get_token(client_id, client_secret):
         json = response.json()
         try:
             return json['access_token']
-        except KeyError e:
+        except KeyError as e:
             print(response.keys())
             raise e
     else:
