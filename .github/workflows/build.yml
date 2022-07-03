@@ -27,6 +27,7 @@ jobs:
           jdoc4droid.test.parsing.java.home: ${{ steps.externalSetupJava.outputs.path }}
   upload:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'master'
     needs:
       - build
     steps:
