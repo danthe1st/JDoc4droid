@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto">
+	<PreferenceCategory app:title="@string/pref_title_javadocs">
+
+		<MultiSelectListPreference
+				android:title="@string/openJavadocsTypes"
+				android:defaultValue="@array/defaultOpenJavadocsTypes"
+				android:entries="@array/openJavadocsTypes"
+				android:entryValues="@array/openJavadocsTypes"
+				android:key="openJavadocsTypesPreference" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_title_about">
+
+		<Preference
+				android:title="@string/aboutGitHub"
+				android:key="aboutGitHubPreference"/>
+		<Preference
+				android:title="@string/aboutLicenses"
+				android:key="aboutLicensesPreference"/>
+	</PreferenceCategory>
+
+
+</PreferenceScreen>

@@ -1,33 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/app_bar_filter"
-        android:visible="false"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:iconTint="@color/contrastColor"
-        android:title="@string/filter"
-        app:showAsAction="ifRoom">
+	<item
+			android:id="@+id/app_bar_copy_to_clipboard"
+			app:materialIcon="content_copy"
+			android:title="@string/copy_to_clipboard"
+			app:showAsAction="ifRoom" />
+	<item
+			android:id="@+id/app_bar_open_external"
+			app:materialIcon="launch"
+			android:title="@string/open_external"
+			app:showAsAction="ifRoom" />
+	<item
+			android:id="@+id/app_bar_share"
+			app:materialIcon="share"
+			android:title="@string/share"
+			app:showAsAction="ifRoom" />
+	<item
+			android:title="@string/settings"
+			android:id="@+id/app_bar_settings"
+			app:materialIcon="settings"
+			app:showAsAction="ifRoom" />
+	<item
+			android:id="@+id/app_bar_filter"
+			android:visible="false"
+			app:materialIcon="filter"
+			android:title="@string/filter"
+			app:showAsAction="always">
 
-        <menu>
-        </menu>
-    </item>
-
-    <item
-        android:id="@+id/app_bar_share"
-        android:icon="@android:drawable/ic_menu_share"
-        android:iconTint="@color/contrastColor"
-        android:title="@string/share"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/app_bar_search"
-        android:contentDescription="@string/search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:iconTint="@color/contrastColor"
-
-        android:title="@string/search"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always" />
+		<menu />
+	</item>
+	<item
+			android:id="@+id/app_bar_search"
+			android:contentDescription="@string/search"
+			app:materialIcon="search_web"
+			android:title="@string/search"
+			app:actionViewClass="android.widget.SearchView"
+			app:showAsAction="always" />
 </menu>

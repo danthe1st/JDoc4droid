@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/toolbar_actionbar" />
+	<include
+			android:id="@+id/include"
+			layout="@layout/toolbar_actionbar" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/secondary"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include">
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:background="@color/secondary"
+			android:orientation="horizontal"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/include">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:name="io.github.danthe1st.jdoc4droid.activities.ListClassesFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginVertical="5dp"
-            app:layoutManager="LinearLayoutManager"
-            tools:context=".activities.list.classes.ListClassesActivity"
-            tools:listitem="@layout/activity_list_classes" />
-    </LinearLayout>
+		<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/list"
+				android:name="io.github.danthe1st.jdoc4droid.ui.ListClassesFragment"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginVertical="5dp"
+				app:layoutManager="LinearLayoutManager"
+				tools:context=".ui.list.classes.ListClassesActivity"
+				tools:listitem="@layout/activity_list_classes" />
+	</LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar2"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="298dp"
-        android:layout_height="298dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+	<ProgressBar
+			android:id="@+id/progressBar2"
+			style="?android:attr/progressBarStyle"
+			android:layout_width="298dp"
+			android:layout_height="298dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

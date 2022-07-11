@@ -1,109 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/secondary"
-    tools:context=".activities.list.javadocs.ListJavadocsActivity">
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/secondary"
+		tools:context=".ui.list.javadocs.ListJavadocsActivity">
 
-    <include
-        android:id="@+id/include"
-        layout="@layout/toolbar_actionbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+	<include
+			android:id="@+id/include"
+			layout="@layout/toolbar_actionbar"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
-    <ProgressBar
-        android:id="@id/downloadProgressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@string/javadocListDesc"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/list"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include" />
+	<ProgressBar
+			android:id="@id/downloadProgressBar"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="10dp"
+			android:layout_marginEnd="10dp"
+			android:contentDescription="@string/javadocListDesc"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="@+id/list"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/include" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/moveUpBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:clickable="true"
-        android:contentDescription="@string/moveJavadocUpBtnDesc"
-        android:src="@android:drawable/arrow_up_float"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toStartOf="@+id/moveDownBtn"
-        app:layout_constraintTop_toTopOf="@+id/updateBtn" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/moveUpBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="10dp"
+			android:clickable="true"
+			android:contentDescription="@string/moveJavadocUpBtnDesc"
+			android:src="@android:drawable/arrow_up_float"
+			android:visibility="invisible"
+			app:layout_constraintEnd_toStartOf="@+id/moveDownBtn"
+			app:layout_constraintTop_toTopOf="@+id/updateBtn" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/moveDownBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:clickable="true"
-        android:contentDescription="@string/moveJavadocDownBtnDesc"
-        android:src="@android:drawable/arrow_down_float"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toStartOf="@+id/updateBtn"
-        app:layout_constraintTop_toTopOf="@+id/updateBtn" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/moveDownBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="10dp"
+			android:clickable="true"
+			android:contentDescription="@string/moveJavadocDownBtnDesc"
+			android:src="@android:drawable/arrow_down_float"
+			android:visibility="invisible"
+			app:layout_constraintEnd_toStartOf="@+id/updateBtn"
+			app:layout_constraintTop_toTopOf="@+id/updateBtn" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/updateBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:clickable="true"
-        android:contentDescription="@string/updateJavadoc"
-        android:src="@android:drawable/ic_menu_upload"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/downloadBtn"
-        app:layout_constraintEnd_toStartOf="@+id/deleteBtn"
-        app:layout_constraintTop_toTopOf="@+id/downloadBtn"
-        app:layout_constraintVertical_bias="0.0" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/updateBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="10dp"
+			android:clickable="true"
+			android:contentDescription="@string/updateJavadoc"
+			android:src="@android:drawable/ic_menu_upload"
+			android:visibility="invisible"
+			app:layout_constraintBottom_toBottomOf="@+id/downloadBtn"
+			app:layout_constraintEnd_toStartOf="@+id/deleteBtn"
+			app:layout_constraintTop_toTopOf="@+id/downloadBtn"
+			app:layout_constraintVertical_bias="0.0" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/deleteBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:clickable="true"
-        android:contentDescription="@string/deleteJavadoc"
-        android:src="@android:drawable/ic_menu_delete"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/downloadBtn"
-        app:layout_constraintEnd_toStartOf="@+id/downloadBtn"
-        app:layout_constraintTop_toTopOf="@+id/downloadBtn" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/deleteBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="10dp"
+			android:clickable="true"
+			android:contentDescription="@string/deleteJavadoc"
+			android:src="@android:drawable/ic_menu_delete"
+			android:visibility="invisible"
+			app:layout_constraintBottom_toBottomOf="@+id/downloadBtn"
+			app:layout_constraintEnd_toStartOf="@+id/downloadBtn"
+			app:layout_constraintTop_toTopOf="@+id/downloadBtn" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/downloadBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:clickable="true"
-        android:contentDescription="@string/downloadBtnContentDesc"
-        android:src="@android:drawable/stat_sys_download"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/downloadBtn"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="10dp"
+			android:layout_marginBottom="10dp"
+			android:clickable="true"
+			android:contentDescription="@string/downloadBtnContentDesc"
+			android:src="@android:drawable/stat_sys_download"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:name="io.github.danthe1st.jdoc4droid.activities.list.javadocs.ListJavadocsFragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="5dp"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/downloadProgressBar"
-        app:layout_constraintVertical_bias="1.0"
-        tools:context=".activities.list.javadocs.ListJavadocsActivity"
-        tools:listitem="@layout/activity_list_javadocs" />
+	<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/list"
+			android:name="io.github.danthe1st.jdoc4droid.ui.list.javadocs.ListJavadocsFragment"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_marginBottom="5dp"
+			app:layoutManager="LinearLayoutManager"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.0"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/downloadProgressBar"
+			app:layout_constraintVertical_bias="1.0"
+			tools:context=".ui.list.javadocs.ListJavadocsActivity"
+			tools:listitem="@layout/activity_list_javadocs" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
