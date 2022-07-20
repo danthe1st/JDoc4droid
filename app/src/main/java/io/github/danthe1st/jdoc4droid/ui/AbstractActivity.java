@@ -162,7 +162,7 @@ public class AbstractActivity extends AppCompatActivity {
 		String shareLink = getShareLink();
 		if(shareLink != null) {
 			ClipboardManager clipboardManager = getSystemService(ClipboardManager.class);
-			clipboardManager.setPrimaryClip(ClipData.newRawUri("Javadoc provided by JDOc4Droid", Uri.parse(shareLink)));
+			clipboardManager.setPrimaryClip(ClipData.newPlainText("Javadoc provided by JDOc4Droid", shareLink));
 		}
 	}
 

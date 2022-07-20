@@ -82,7 +82,7 @@ def update_app_file_info(file_url, file_size, client_id, access_token, app_id):
     body = {
         'fileType': 5,
         'files': [{
-            'fileName': 'Jdoc4Droid.apk',
+            'fileName': 'JDoc4Droid.apk',
             'fileDestUrl': file_url,
             'size': file_size
         }]
