@@ -21,6 +21,10 @@ public class SimpleClassDescription implements Serializable {
 		this.path = path;
 	}
 
+	public String getFullName() {
+		return getPackageName() + "." + getName();
+	}
+
 	public String getName() {
 		return this.name;
 	}

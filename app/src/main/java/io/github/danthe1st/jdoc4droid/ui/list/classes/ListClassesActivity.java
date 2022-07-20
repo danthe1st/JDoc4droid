@@ -15,6 +15,7 @@ import androidx.annotation.UiThread;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,7 +132,11 @@ public class ListClassesActivity extends AbstractListActivity<SimpleClassDescrip
 		adapter.setItems(
 				descriptions.stream()
 						.filter(desc -> selectedType == null || selectedType.equals(desc.getClassType()))
-						.filter(desc -> (desc.getPackageName() + "." + desc.getName()).toLowerCase().contains(currentSearch.toLowerCase()))
+						.filter(desc -> desc.getFullName().toLowerCase().contains(currentSearch.toLowerCase()))
+						.sorted(Comparator.<SimpleClassDescription, Boolean>comparing(desc -> desc.getName().equalsIgnoreCase(currentSearch))
+								.thenComparing(desc -> desc.getName().toLowerCase().startsWith(currentSearch.toLowerCase()))
+								.thenComparing(desc -> desc.getFullName().endsWith(currentSearch))
+								.reversed())
 						.collect(Collectors.toList())
 		);
 	}
