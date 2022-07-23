@@ -54,4 +54,9 @@
 	<string name="aboutGitHub">GitHub</string>
 	<string name="pref_title_about">About</string>
 	<string name="aboutLicenses">Licenses</string>
+	<string name="pref_title_java_resources">Resources</string>
+	<string name="devJavaLearnResource">Lean Java at dev.java</string>
+	<string name="javaDocAndSpecResource">Javadocs and specs</string>
+	<string name="pref_title_more_info">More</string>
+	<string name="javaDiscordInviteTitle">Java Community | Help. Code. Learn.</string>
 </resources>
