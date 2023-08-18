@@ -2,7 +2,6 @@
 [<img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='100px'/>](https://play.google.com/store/apps/details?id=io.github.danthe1st.jdoc4droid&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
 [<img alt='Get it on AppGallery' src='https://user-images.githubusercontent.com/34687786/177045465-8be6ed4b-ae27-4ab6-b405-e4e89f56bedc.png' width='100px'/>](https://appgallery.cloud.huawei.com/ag/n/app/C106428613?channelId=GitHub&referrer=GitHub%2FJDoc4Droid&id=15665a90dc7b485284a9c2a550a532ab&s=4B8BD701AED95006AAEE8CBAE0B51F9D791788F627D0B51351072FAE477D5DC6&detailType=0&v=&callType=AGDLINK&installType=0000)
 
-
 A Javadoc Viewer for Android
 
 ## Installation
