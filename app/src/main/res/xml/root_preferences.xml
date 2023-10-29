@@ -35,9 +35,9 @@
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_title_more_info">
 		<io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
-				android:title="@string/javaDiscordInviteTitle"
+				android:title="@string/discordJUGInviteTitle"
 				android:key="javaDiscordInvitePreferenceLink"
-				app:link="https://join.javadiscord.net"
+				app:link="https://join.discordjug.net"
 				app:materialIcon="discord" />
 	</PreferenceCategory>
 

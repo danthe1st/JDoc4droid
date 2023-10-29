@@ -13,6 +13,9 @@
                 android:id="@+id/oracleDownloadSelector17"
                 android:title="@string/javaDownloadName17" />
             <item
+                    android:id="@+id/oracleDownloadSelector21"
+                    android:title="@string/javaDownloadName21" />
+            <item
                 android:id="@+id/oracleDownloadSelectorCustom"
                 android:title="@string/javaDownloadNameCustom" />
         </menu>

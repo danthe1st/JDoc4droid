@@ -28,6 +28,7 @@
 	<string name="javaDownloadName11">Java 11</string>
 	<string name="javaDownloadName8">Java 8</string>
 	<string name="javaDownloadName17">Java 17</string>
+	<string name="javaDownloadName21">Java 21</string>
 	<string name="javaDownloadNameCustom">Select manually</string>
 	<string name="filter">Filter</string>
 	<string name="filter_options">Filter Options</string>
@@ -58,5 +59,5 @@
 	<string name="devJavaLearnResource">Lean Java at dev.java</string>
 	<string name="javaDocAndSpecResource">Javadocs and specs</string>
 	<string name="pref_title_more_info">More</string>
-	<string name="javaDiscordInviteTitle">Java Community | Help. Code. Learn.</string>
+	<string name="discordJUGInviteTitle">Discord Java Community | Help. Code. Learn.</string>
 </resources>

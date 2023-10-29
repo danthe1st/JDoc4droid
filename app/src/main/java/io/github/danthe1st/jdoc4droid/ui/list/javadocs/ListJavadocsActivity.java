@@ -252,6 +252,8 @@ public class ListJavadocsActivity extends AbstractListActivity<JavaDocInformatio
 			url = "https://www.oracle.com/java/technologies/javase-jdk11-doc-downloads.html";
 		} else if(itemId == R.id.oracleDownloadSelector17) {
 			url = "https://www.oracle.com/java/technologies/javase-jdk17-doc-downloads.html";
+		} else if(itemId == R.id.oracleDownloadSelector21) {
+			url = "https://www.oracle.com/java/technologies/javase-jdk21-doc-downloads.html";
 		} else if(itemId == R.id.oracleDownloadSelectorCustom) {
 			url = "https://www.oracle.com/java/technologies/javase-downloads.html";
 		} else {
