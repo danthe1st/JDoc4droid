@@ -13,8 +13,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
-import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
-
 import io.github.danthe1st.jdoc4droid.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -25,11 +23,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			startActivity(new Intent(getActivity(), OssLicensesMenuActivity.class));
 			return true;
 		});
-		Drawable prefIcon = MaterialDrawableBuilder
-				.with(getContext())
-				.setColorResource(R.color.contrastColor)
-				.setIcon(MaterialDrawableBuilder.IconValue.SETTINGS).build();
-		findPreference("openJavadocsTypesPreference").setIcon(prefIcon);
+		findPreference("openJavadocsTypesPreference").setIcon(R.drawable.baseline_settings_24);
 	}
 
 	@NonNull

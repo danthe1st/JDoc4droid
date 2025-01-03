@@ -8,11 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 
-import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
 
-import io.github.danthe1st.jdoc4droid.R;
-
-public class MaterialPreference extends Preference {
+public abstract class MaterialPreference extends Preference {
 	public MaterialPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
 		init(attrs);
@@ -36,16 +33,5 @@ public class MaterialPreference extends Preference {
 		}
 	}
 
-	protected void initAttribute(String name, AttributeSet attrs, int i) {
-		if("materialIcon".equals(name)) {
-			int attrValue = attrs.getAttributeIntValue(i, -1);
-			if(attrValue != -1) {
-				Drawable icon = MaterialDrawableBuilder
-						.with(getContext())
-						.setColorResource(R.color.contrastColor)
-						.setIcon(MaterialDrawableBuilder.IconValue.values()[attrValue]).build();
-				setIcon(icon);
-			}
-		}
-	}
+	protected abstract void initAttribute(String name, AttributeSet attrs, int i);
 }

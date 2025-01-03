@@ -8,13 +8,13 @@ repositories {
     }
 }
 android {
-    compileSdkVersion 33
+    compileSdkVersion 35
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "io.github.danthe1st.jdoc4droid"
         minSdkVersion 26
-        targetSdkVersion 33
+        targetSdkVersion 35
         versionCode Integer.parseInt(providers.systemProperty('versionCode').forUseAtConfigurationTime().getOrElse("1"))
         versionName providers.systemProperty('versionName').forUseAtConfigurationTime().getOrElse("1.0")
 
@@ -54,6 +54,11 @@ android {
         viewBinding true
     }
     namespace 'io.github.danthe1st.jdoc4droid'
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 
@@ -66,7 +71,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
     implementation "org.mozilla.geckoview:geckoview:95.0.20211218203254"
     implementation 'androidx.preference:preference:1.2.0'
-    implementation 'net.steamcrafted:materialiconlib:1.1.5'
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

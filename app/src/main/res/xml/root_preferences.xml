@@ -1,44 +1,45 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:app="http://schemas.android.com/apk/res-auto">
-	<PreferenceCategory app:title="@string/pref_title_javadocs">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="@string/pref_title_javadocs">
 
-		<MultiSelectListPreference
-				android:title="@string/openJavadocsTypes"
-				android:defaultValue="@array/defaultOpenJavadocsTypes"
-				android:entries="@array/openJavadocsTypes"
-				android:entryValues="@array/openJavadocsTypes"
-				android:key="openJavadocsTypesPreference" />
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_title_about">
+        <MultiSelectListPreference
+            android:defaultValue="@array/defaultOpenJavadocsTypes"
+            android:entries="@array/openJavadocsTypes"
+            android:entryValues="@array/openJavadocsTypes"
+            android:key="openJavadocsTypesPreference"
+            android:title="@string/openJavadocsTypes" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_about">
 
-		<io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
-				android:title="@string/aboutGitHub"
-				android:key="aboutGitHubPreferenceLink"
-				app:link="https://github.com/danthe1st/JDoc4droid"
-				app:materialIcon="github_circle" />
-		<io.github.danthe1st.jdoc4droid.ui.settings.MaterialPreference
-				android:title="@string/aboutLicenses"
-				android:key="aboutLicensesPreference"
-				app:materialIcon="scale_balance" />
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_title_java_resources">
-		<io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
-				android:title="@string/devJavaLearnResource"
-				android:key="devJavaPreferenceLink"
-				app:link="https://dev.java/learn"
-				app:materialIcon="school" />
-		<io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
-				android:title="@string/javaDocAndSpecResource"
-				android:key="javaDocAndSpecPreferenceLink"
-				app:link="https://docs.oracle.com/javase"
-				app:materialIcon="information" />
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/pref_title_more_info">
-		<io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
-				android:title="@string/discordJUGInviteTitle"
-				android:key="javaDiscordInvitePreferenceLink"
-				app:link="https://join.discordjug.net"
-				app:materialIcon="discord" />
-	</PreferenceCategory>
+        <io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
+            android:key="aboutGitHubPreferenceLink"
+            android:title="@string/aboutGitHub"
+            app:link="https://github.com/danthe1st/JDoc4droid"
+            android:icon="@drawable/baseline_code_24" />
+        <Preference
+            android:icon="@drawable/baseline_balance_24"
+            android:key="aboutLicensesPreference"
+            android:title="@string/aboutLicenses" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_java_resources">
+        <io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
+            android:icon="@drawable/baseline_school_24"
+            android:key="devJavaPreferenceLink"
+            android:title="@string/devJavaLearnResource"
+            app:link="https://dev.java/learn" />
+        <io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
+            android:icon="@drawable/baseline_info_24"
+            android:key="javaDocAndSpecPreferenceLink"
+            android:title="@string/javaDocAndSpecResource"
+            app:link="https://docs.oracle.com/javase" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_more_info">
+        <io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
+            android:key="javaDiscordInvitePreferenceLink"
+            android:title="@string/discordJUGInviteTitle"
+            app:link="https://join.discordjug.net"
+            android:icon="@drawable/baseline_people_24" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

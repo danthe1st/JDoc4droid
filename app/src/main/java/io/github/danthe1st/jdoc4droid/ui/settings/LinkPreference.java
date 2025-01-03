@@ -28,8 +28,6 @@ public class LinkPreference extends MaterialPreference {
 	protected void initAttribute(String name, AttributeSet attrs, int i) {
 		if("link".equals(name)) {
 			link = attrs.getAttributeValue(i);
-		} else {
-			super.initAttribute(name, attrs, i);
 		}
 	}
 

@@ -28,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
-import net.steamcrafted.materialiconlib.MaterialMenuInflater;
 
 import java.io.UncheckedIOException;
 import java.util.Collections;
@@ -105,11 +104,7 @@ public class AbstractActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MaterialMenuInflater
-				.with(this)
-				.setDefaultColor(R.color.contrastColor)
-				.setDefaultColorResource(R.color.contrastColor)
-				.inflate(R.menu.top_menu, menu);
+		getMenuInflater().inflate(R.menu.top_menu, menu);
 		loadOptionsMenu(menu);
 		return super.onCreateOptionsMenu(menu);
 	}
