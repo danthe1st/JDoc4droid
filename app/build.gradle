@@ -60,7 +60,8 @@ android {
         }
     }
     lint {
-        // https://github.com/bumptech/glide/issues/4940
+        //https://stackoverflow.com/a/76011953/10871900
+        // https://github.com/google/ExoPlayer/issues/10884
         lintConfig = file("$rootDir/lint_config.xml")
     }
 }

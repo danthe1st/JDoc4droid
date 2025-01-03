@@ -12,12 +12,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up JDK ${{ matrix.java }}
         id: externalSetupJava
-        uses: actions/setup-java@v3.1.1
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
       - name: Set up JDK 17
-        uses: actions/setup-java@v3.1.1
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'temurin'
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 17
-        uses: actions/setup-java@v3.1.1
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'temurin'
@@ -49,7 +49,7 @@ jobs:
           SIGNING_KEY: '${{ secrets.signingKey }}'
           SIGNING_KEY_PWD: '${{ secrets.signingKeyPwd }}'
       - name: upload apk
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: prebuilt APK
           path: app/build/outputs/apk/release/app-release.apk
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 17
-        uses: actions/setup-java@v3.1.1
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'temurin'
