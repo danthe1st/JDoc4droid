@@ -16,10 +16,10 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3.1.1
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'temurin'
       - name: build
         run: ./gradlew check
@@ -32,10 +32,10 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3.1.1
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
@@ -60,10 +60,10 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3.1.1
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
