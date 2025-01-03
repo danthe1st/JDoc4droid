@@ -87,7 +87,8 @@ jobs:
           packageName: io.github.danthe1st.jdoc4droid
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: alpha
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
+          # minification disabled
+          # mappingFile: app/build/outputs/mapping/release/mapping.txt
           whatsNewDirectory: changelogs
           releaseName: ${{ github.sha }}
           status: completed
