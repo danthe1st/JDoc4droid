@@ -19,7 +19,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent" />
 
-	<org.mozilla.geckoview.GeckoView
+	<WebView
 			android:id="@+id/downloaderView"
 			android:layout_width="fill_parent"
 			android:layout_height="0dp"
@@ -29,7 +29,7 @@
 			app:layout_constraintTop_toBottomOf="@+id/include"
 			app:layout_constraintBottom_toTopOf="@+id/foreignContentInfo">
 
-	</org.mozilla.geckoview.GeckoView>
+	</WebView>
 
 	<ProgressBar
 			android:id="@+id/downloadProgressVisibleBar"

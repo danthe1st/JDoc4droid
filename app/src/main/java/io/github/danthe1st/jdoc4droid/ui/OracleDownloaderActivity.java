@@ -1,23 +1,21 @@
 package io.github.danthe1st.jdoc4droid.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-
-import org.mozilla.geckoview.AllowOrDeny;
-import org.mozilla.geckoview.GeckoResult;
-import org.mozilla.geckoview.GeckoRuntime;
-import org.mozilla.geckoview.GeckoSession;
-import org.mozilla.geckoview.GeckoView;
-import org.mozilla.geckoview.WebResponse;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -33,10 +31,8 @@ public class OracleDownloaderActivity extends AbstractActivity {
 	private static final String NUM_JAVADOCS_ARG_NAME = "numberOfJavadocs";
 	private static final String URL_ARG_NAME = "url";
 	private int numberOfJavadocs;
-	private GeckoView geckoView;
+	private WebView webView;
 	private TextView foreignContentInfoView;
-	private GeckoSession session;
-	private boolean canGoBack = false;
 
 	@UiThread
 	public static void open(Context ctx, String url, int numberOfJavadocs) {
@@ -46,89 +42,65 @@ public class OracleDownloaderActivity extends AbstractActivity {
 		ctx.startActivity(intent);
 	}
 
-	@UiThread
-	private void loadSession() {
-		GeckoRuntime runtime = GeckoRuntime.getDefault(this);
-		session = geckoView.getSession();
-		if(session == null) {
-			session = new GeckoSession();
-			geckoView.setSession(session);
-			session.open(runtime);
-		}
-	}
-
-	@Override
+	@SuppressLint("SetJavaScriptEnabled")
+    @Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_downloader);
 		numberOfJavadocs = getIntent().getIntExtra(NUM_JAVADOCS_ARG_NAME, 0);
-		String startURL = getIntent().getStringExtra(URL_ARG_NAME);
-		geckoView = findViewById(R.id.downloaderView);
+		String startURL = Objects.requireNonNull(getIntent().getStringExtra(URL_ARG_NAME));
+		webView = findViewById(R.id.downloaderView);
 		foreignContentInfoView = findViewById(R.id.foreignContentInfo);
 		ProgressBar loadingView = findViewById(R.id.downloadProgressBar);
 		ProgressBar progressVisibleBar = findViewById(R.id.downloadProgressVisibleBar);
 
-		loadSession();
+		CookieManager.getInstance().setAcceptCookie(true);
+		webView.getSettings().setJavaScriptEnabled(true);
+		webView.getSettings().setDomStorageEnabled(true);
+		webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
-		session.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
-			@Nullable
+		webView.setWebViewClient(new WebViewClient(){
 			@Override
-			public GeckoResult<AllowOrDeny> onLoadRequest(@NonNull GeckoSession session, @NonNull LoadRequest request) {
-				if(!request.uri.contains("oracle.com")) {
-					GeckoResult<AllowOrDeny> res = new GeckoResult<>();
-					res.complete(AllowOrDeny.DENY);
-					return res;
-				}
-				return null;
-			}
+			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+				String host = request.getUrl().getHost();
+				Log.i(getClass().getCanonicalName(), "shouldOverrideUrlLoading: "+host);
+                return host == null || !host.endsWith("oracle.com");
+            }
 
-			@Nullable
-			@Override
-			public GeckoResult<GeckoSession> onNewSession(@NonNull GeckoSession session, @NonNull String uri) {
-				session.loadUri(uri);
-				return null;
-			}
-
-			@Override
-			public void onCanGoBack(@NonNull GeckoSession session, boolean canGoBack) {
-				OracleDownloaderActivity.this.canGoBack = canGoBack;
-			}
 		});
+		webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
+			String path = url;
+			if(url.contains("?")){
+				path = url.substring(0,url.indexOf("?"));
+			}
+			if(path.endsWith(".zip")) {
 
-		session.loadUri(startURL);
-		session.setContentDelegate(new GeckoSession.ContentDelegate() {
-
-			@Override
-			public void onExternalResponse(@NonNull GeckoSession session, @NonNull WebResponse response) {
-				String fileUri = response.uri;
-				if(fileUri.contains("?")) {
-					fileUri = fileUri.substring(0, fileUri.indexOf('?'));
-				}
-				if(fileUri.endsWith(".zip")) {
-					CompletableFuture<JavaDocInformation> future = JavaDocDownloader.downloadOracleJavadoc(OracleDownloaderActivity.this, response.uri, response.body, Long.parseLong(Objects.requireNonNull(response.headers.getOrDefault("Content-Length", "-1"))), numberOfJavadocs, loadingView::setProgress);
-					if(future != null) {
+				CompletableFuture<JavaDocInformation> future = JavaDocDownloader.downloadOracleJavadoc(OracleDownloaderActivity.this, url, contentLength, numberOfJavadocs, loadingView::setProgress);
+				if(future != null) {
+					runInUIThread(() -> {
 						loadingView.setVisibility(View.VISIBLE);
 						progressVisibleBar.setVisibility(View.VISIBLE);
-						geckoView.setVisibility(View.INVISIBLE);
-						foreignContentInfoView.setVisibility(View.INVISIBLE);
-						future
-								.thenAccept(dir ->
-										runInUIThread(() -> ListClassesActivity.open(OracleDownloaderActivity.this, dir))
-								)
-								.exceptionally(e -> {
-									showError(R.string.javadocDownloadError, e);
-									return null;
-								})
-								.handle((a, b) -> {
-									loadingView.setVisibility(View.GONE);
-									progressVisibleBar.setVisibility(View.GONE);
-									return null;
-								});
-					}
+						webView.setVisibility(View.INVISIBLE);
+					});
+					foreignContentInfoView.setVisibility(View.INVISIBLE);
+					future
+							.thenAccept(dir ->
+									runInUIThread(() -> ListClassesActivity.open(OracleDownloaderActivity.this, dir))
+							)
+							.exceptionally(e -> {
+								showError(R.string.javadocDownloadError, e);
+								return null;
+							})
+							.handle((a, b) -> {
+								loadingView.setVisibility(View.GONE);
+								progressVisibleBar.setVisibility(View.GONE);
+								return null;
+							});
 				}
 			}
-
 		});
+
+		webView.loadUrl(startURL);
 		Toast.makeText(this, R.string.downloadOracleDocPrompt, Toast.LENGTH_LONG).show();
 	}
 
@@ -139,8 +111,8 @@ public class OracleDownloaderActivity extends AbstractActivity {
 
 	@Override
 	public void onBackPressed() {
-		if(canGoBack) {
-			session.goBack();
+		if(webView.canGoBack()) {
+			webView.goBack();
 		} else {
 			super.onBackPressed();
 		}

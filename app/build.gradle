@@ -41,7 +41,7 @@ android {
             if (System.getenv("KEYSTORE") != null) {
                 signingConfig signingConfigs.release
             }
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -80,4 +80,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    implementation 'androidx.webkit:webkit:1.12.1'
 }

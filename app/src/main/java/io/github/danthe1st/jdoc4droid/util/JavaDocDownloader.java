@@ -103,9 +103,9 @@ public final class JavaDocDownloader {
 		};
 	}
 
-	private JavaDocDownloader(InputStream is, long len, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
-		this(dl -> is, javaDocInfo, subDirToUnzip, progressUpdater);
-		inputStreamLen = len;
+	private JavaDocDownloader(String url, long contentLength, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
+		this(dl -> new URL(url).openStream(), javaDocInfo, subDirToUnzip, progressUpdater);
+		this.inputStreamLen=contentLength;
 	}
 
 	private JavaDocDownloader(InputStreamLoader inputStreamSupplier, JavaDocInformation javaDocInfo, String subDirToUnzip, IntConsumer progressUpdater) {
@@ -116,7 +116,7 @@ public final class JavaDocDownloader {
 	}
 
 	@AnyThread
-	public static CompletableFuture<JavaDocInformation> downloadOracleJavadoc(Context ctx, String url, InputStream is, long isLen, int currentNumberOfJavadocs, IntConsumer progressUpdater) {
+	public static CompletableFuture<JavaDocInformation> downloadOracleJavadoc(Context ctx, String url, long contentLength, int currentNumberOfJavadocs, IntConsumer progressUpdater) {
 		int queryStartIndex = url.indexOf('?');
 		if(queryStartIndex == -1) {
 			queryStartIndex = url.length();
@@ -129,14 +129,14 @@ public final class JavaDocDownloader {
 			if(fileName.endsWith(suffix)) {
 				String name = fileName.substring(0, fileName.length() - suffix.length());
 				File javaDocDir = getJavaDocDir(ctx, name);
-				return downloadOracleJavadoc(is, isLen, currentNumberOfJavadocs, subDirToUnzip, name, javaDocDir, progressUpdater);
+				return downloadOracleJavadoc(url, contentLength, currentNumberOfJavadocs, subDirToUnzip, name, javaDocDir, progressUpdater);
 			}
 		}
 		return null;
 	}
 
 	@AnyThread
-	private static CompletableFuture<JavaDocInformation> downloadOracleJavadoc(InputStream is, long isLen, int currentNumberOfJavadocs, String subDirToUnzip, String name, File javaDocDir, IntConsumer progressUpdater) {
+	private static CompletableFuture<JavaDocInformation> downloadOracleJavadoc(String url, long contentLength, int currentNumberOfJavadocs, String subDirToUnzip, String name, File javaDocDir, IntConsumer progressUpdater) {
 		if(javaDocDir.exists()) {
 			return CompletableFuture.supplyAsync(() -> {
 				try {
@@ -153,7 +153,7 @@ public final class JavaDocDownloader {
 				remoteUrl = "";
 			}
 			JavaDocInformation javaDocInfo = new JavaDocInformation(name, remoteUrl, javaDocDir, JavaDocType.JDK, currentNumberOfJavadocs);
-			return new JavaDocDownloader(is, isLen, javaDocInfo, subDirToUnzip, progressUpdater).downloadAndUnzipAsync();
+			return new JavaDocDownloader(url, contentLength, javaDocInfo, subDirToUnzip, progressUpdater).downloadAndUnzipAsync();
 		}
 	}
 
