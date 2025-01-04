@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!-- https://stackoverflow.com/a/76011953/10871900 -->
-<lint>
-    <issue id="NotificationPermission">
-        <ignore regexp="org.mozilla.thirdparty.com.google.android.exoplayer2.util.NotificationUtil" />
-    </issue>
-</lint>
