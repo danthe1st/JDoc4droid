@@ -21,7 +21,11 @@ public class ClassParserTest extends AbstractParserTest {
 	public void testClassParser() throws IOException {
 		ClassInformation classInformation = loadExampleClass();
 		String rawHeader = classInformation.getHeader().getRawText();
-		assertEquals((majorVersionNumber < 9 ? "" : "Package ") + Objects.requireNonNull(ExampleClass.class.getPackage()).getName() + " Class " + ExampleClass.class.getSimpleName(), getTextFromHTML(rawHeader));
+		String prefix = "";
+		if (majorVersionNumber < 24) {
+			prefix = (majorVersionNumber < 9 ? "" : "Package ") + Objects.requireNonNull(ExampleClass.class.getPackage()).getName() + " ";
+		}
+		assertEquals(prefix + "Class " + ExampleClass.class.getSimpleName(), getTextFromHTML(rawHeader));
 	}
 
 	@Test
