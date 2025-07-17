@@ -3,6 +3,7 @@ package io.github.danthe1st.jdoc4droid.ui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +14,10 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
@@ -102,19 +106,29 @@ public class OracleDownloaderActivity extends AbstractActivity {
 
 		webView.loadUrl(startURL);
 		Toast.makeText(this, R.string.downloadOracleDocPrompt, Toast.LENGTH_LONG).show();
-	}
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::backGesture);
+        } else {
+			getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+				@Override
+				public void handleOnBackPressed() {
+					backGesture();
+				}
+			});
+		}
+    }
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}
 
-	@Override
-	public void onBackPressed() {
+	private void backGesture() {
 		if(webView.canGoBack()) {
 			webView.goBack();
 		} else {
-			super.onBackPressed();
+			finish();
 		}
 	}
 }
