@@ -16,11 +16,16 @@
                     android:id="@+id/oracleDownloadSelector21"
                     android:title="@string/javaDownloadName21" />
             <item
+                android:id="@+id/oracleDownloadSelector25"
+                android:title="@string/javaDownloadName25" />
+            <item
                 android:id="@+id/oracleDownloadSelectorCustom"
                 android:title="@string/javaDownloadNameCustom" />
         </menu>
     </item>
     <item android:title="@string/downloadFromCentral" android:id="@+id/downloadFromCentral" />
     <item android:title="@string/downloadFromMavenRepo" android:id="@+id/downloadFromMaven" />
-    <item android:title="@string/downloadFromZip" android:id="@+id/downloadFromZip" ></item>
+    <item
+        android:title="@string/downloadFromZip"
+        android:id="@+id/downloadFromZip" />
 </menu>
