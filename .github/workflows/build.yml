@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '9', '11', '17', '21', '22', '23', '24', '25-ea' ]
+        java: [ '8', '9', '11', '17', '21', '22', '23', '24', '25' ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK ${{ matrix.java }}
@@ -16,10 +16,10 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
-      - name: Set up JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 25
           distribution: 'temurin'
       - name: build
         run: ./gradlew check
@@ -32,10 +32,10 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 25
           distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
@@ -60,10 +60,10 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: 25
           distribution: 'temurin'
       - name: Setup keystore
         run: echo "$keystore" | base64 -d - > ./keystore.jks
