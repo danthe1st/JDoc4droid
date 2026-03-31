@@ -41,8 +41,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility JavaVersion.VERSION_25
+        targetCompatibility JavaVersion.VERSION_25
     }
 
     buildFeatures {
@@ -50,11 +50,6 @@ android {
         buildConfig true
     }
     namespace 'io.github.danthe1st.jdoc4droid'
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = true
-        }
-    }
 }
 
 
