@@ -31,13 +31,13 @@
             android:icon="@drawable/baseline_info_24"
             android:key="javaDocAndSpecPreferenceLink"
             android:title="@string/javaDocAndSpecResource"
-            app:link="https://docs.oracle.com/javase" />
+            app:link="https://docs.oracle.com/en/java/javase/" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_more_info">
         <io.github.danthe1st.jdoc4droid.ui.settings.LinkPreference
             android:key="javaDiscordInvitePreferenceLink"
             android:title="@string/discordJUGInviteTitle"
-            app:link="https://join.discordjug.net"
+            app:link="https://discord.gg/wytR4UsFcp"
             android:icon="@drawable/baseline_people_24" />
 
     </PreferenceCategory>
